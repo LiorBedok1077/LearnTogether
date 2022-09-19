@@ -1,0 +1,174 @@
+// Prisma schema for cockroachDB [v_01]
+// The following models are currently temprorary and will not necessarily stay the same during development.npx
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "cockroachdb"
+    url      = env("DATABASE_URL")
+}
+
+model Users {
+    // user data:
+    id                   String                  @id @default(uuid())
+    username             String                  @unique
+    email                String                  @unique
+    full_name            String
+    password             String
+    created_at           DateTime                @default(now())
+    role                 Roles?
+    profile_pic_src      String?
+    // personal data:
+    phone_number         String?
+    gender               GenderEnum
+    bio                  String?
+    interests            String[]
+    prefered_langs       PreferedLanguagesEnum[]
+    favorite_tags        Favorite_tags[]
+    // stars for user
+    num_stars            Int                     @default(0)
+    star_giver           Users?                  @relation("StarredUser", fields: [id], references: [id])
+    stars_given          Users[]                 @relation("StarredUser")
+    // articles
+    articles             Articles[]              @relation("Articles")
+    articles_likes_given Articles[]              @relation("LikedArticles") // -- keep track of liked articles!
+    liked_article_id     String
+    liked_article        Articles?               @relation("UserLiked", fields: [liked_article_id], references: [id])
+    // comments
+    comments             Comments[]              @relation("CreatedComments")
+    comment_like_id      String                  @unique
+    comments_liked       Comments?               @relation("LikedComments", fields: [comment_like_id], references: [id])
+    // learning groups
+    created_groups       Learning_groups[]       @relation("CreatedGroups")
+    participating_groups Learning_groups[]       @relation("ParticipatingGroups")
+    group_member_id      String
+    group_member         Learning_groups?        @relation("Members", fields: [group_member_id], references: [id])
+    // roles data (according to role access–modifier):
+    // — (teacher_data, admin_data, etc) — 
+    // cms
+    num_viewed_profile   Int                     @default(0)
+    num_edited_profile   Int                     @default(sequence())
+    // notifications
+    notifications        Notification[]
+}
+
+model Learning_groups {
+    id              String   @id @default(uuid())
+    creator_id      String
+    creator         Users    @relation("CreatedGroups", fields: [creator_id], references: [id])
+    participator_id String
+    participator    Users    @relation("ParticipatingGroups", fields: [participator_id], references: [id])
+    thumbnail_src   String
+    title           String
+    description     String
+    members         Users[]  @relation("Members")
+    tags            Tags[]
+    goals           String[]
+    progress        Int
+}
+
+model Articles {
+    id            String     @id @default(uuid())
+    creator_id    String
+    creator       Users      @relation("Articles", fields: [creator_id], references: [id])
+    user_like_id  String
+    user_like     Users      @relation("LikedArticles", fields: [user_like_id], references: [id])
+    // data
+    created_at    DateTime   @default(now())
+    updated_at    DateTime?  @updatedAt
+    thumbnail_src String
+    title         String
+    content       String
+    tags          Tags[]
+    likes         Users[]    @relation("UserLiked")
+    comments      Comments[]
+    num_views     Int
+}
+
+model Comments {
+    id         String    @id @default(uuid())
+    article_id String
+    article    Articles  @relation(fields: [article_id], references: [id])
+    author_id  String
+    author     Users     @relation("CreatedComments", fields: [author_id], references: [id])
+    // data
+    created_at DateTime  @default(now())
+    updated_at DateTime? @updatedAt
+    data       String
+    likes      Users[]   @relation("LikedComments")
+}
+
+model Roles {
+    id                String      @id @default(uuid())
+    user_id           String      @unique
+    user              Users       @relation(fields: [user_id], references: [id])
+    // data
+    role_name         String
+    min_rate          Int?
+    accessable_pages  PagesEnum[]
+    accessable_routes PagesEnum[]
+}
+
+model Tags {
+    group_id          String           @map("learning_groups_id")
+    group             Learning_groups? @relation(fields: [group_id], references: [id])
+    article_id        String
+    article           Articles?        @relation(fields: [article_id], references: [id])
+    // data
+    tag_name          String           @id @unique
+    num_articles_used Int              @default(0)
+    num_groups_used   Int              @default(0)
+    num_tutors_used   Int              @default(0)
+    Favorite_tags     Favorite_tags[]
+}
+
+model Favorite_tags {
+    id         String @id @default(uuid())
+    user_id    String @unique
+    user       Users  @relation(fields: [user_id], references: [id])
+    // data
+    tag_name   String
+    tag        Tags   @relation(fields: [tag_name], references: [tag_name])
+    num_viewed Int    @default(0)
+}
+
+model Notification {
+    id            String   @id @default(uuid())
+    user_id       String
+    user          Users    @relation(fields: [user_id], references: [id])
+    // data
+    title         String
+    description   String
+    link          String?
+    user_pic_src  String?
+    thumbnail_src String?
+    created_at    DateTime @default(now())
+}
+
+// enums
+
+enum GenderEnum {
+    MALE
+    FEMALE
+    OTHER
+    RATHER_NOT_TO_SAY
+    HELICOPTER
+}
+
+enum PreferedLanguagesEnum {
+    ARABIC
+    ENGLISH
+    FRENCH
+    HEBREW
+    KOREAN
+    RUSSIAN
+    SPANISH
+}
+
+enum PagesEnum {
+    ONE
+    TWO
+    FOUR
+}
