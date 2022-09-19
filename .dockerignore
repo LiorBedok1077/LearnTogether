@@ -1,0 +1,12 @@
+# -- Global .dockerignore file
+
+# application data & databases
+data
+
+# env files & credentials
+.env*
+*/.env*
+
+# dependencies
+node_modules
+*/node_modules

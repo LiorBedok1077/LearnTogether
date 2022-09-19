@@ -1,0 +1,28 @@
+# development compose file
+version: '3'
+services:
+  server:
+    container_name: LearnTogether-dev.server
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+  # client:
+  #   container_name: LearnTogether-dev.client
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - "3000:3000"
+  test-db:
+    # testing database
+    container_name: LearnTogether-dev.db
+    image: cockroachdb/cockroach
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    command: start-single-node --insecure
+    volumes:
+      # testing directory!
+      - "${PWD}/data/cockroach-data/crdb/test:/cockroach/cockroach-data"

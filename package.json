@@ -1,0 +1,22 @@
+{
+  "name": "learntogether",
+  "version": "1.0.0",
+  "description": "The project's demo characterization document can be found [here](https://docs.google.com/document/d/1D0mCEIvOaxY59KTM-g_nJRIdwTGi3soBM8SFJZVj-m0/edit#).",
+  "main": "index.js",
+  "scripts": {
+    "docker:dev:build": "docker-compose -f docker-compose.dev.yml build",
+    "docker:dev:up": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:dev:down": "docker-compose -f docker-compose.dev.yml down"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NewtonMichaeli/LearnTogetherProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NewtonMichaeli/LearnTogetherProject/issues"
+  },
+  "homepage": "https://github.com/NewtonMichaeli/LearnTogetherProject"
+}

@@ -1,0 +1,16 @@
+FROM node:16
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci
+
+ENV PORT=5000
+
+EXPOSE 5000
+
+COPY . .
+
+# start dev
+CMD [ "npm", "run", "start:dev" ]
