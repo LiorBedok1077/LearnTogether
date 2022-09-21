@@ -4,8 +4,9 @@
   "description": "The project's demo characterization document can be found [here](https://docs.google.com/document/d/1D0mCEIvOaxY59KTM-g_nJRIdwTGi3soBM8SFJZVj-m0/edit#).",
   "main": "index.js",
   "scripts": {
+    "dev": "npm run dev --prefix server",
     "docker:dev:build": "docker-compose -f docker-compose.dev.yml build",
-    "docker:dev:up": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:dev:up": "docker-compose -f docker-compose.dev.yml up",
     "docker:dev:down": "docker-compose -f docker-compose.dev.yml down"
   },
   "repository": {
