@@ -6,6 +6,8 @@ The project's full demo characterization document can be found [here](https://do
 
 - [LearnTogetherProject (name subject to change)](#learntogetherproject-name-subject-to-change)
   - [Overview](#overview)
+  - [Requirements (21.9)](#requirements-219)
+  - [Development instructions](#development-instructions)
   - [Description](#description)
     - [UX emphasis](#ux-emphasis)
     - [User ranks](#user-ranks)
@@ -19,6 +21,23 @@ The project's full demo characterization document can be found [here](https://do
     - [Database model](#database-model)
     - [Database flowchart](#database-flowchart)
 
+
+## Requirements (21.9)
+
+- Node.js - v16+
+- Docker, with the neccesary images:
+  - CockroachDB - latest
+
+## Development instructions
+
+From the project's root directory, run:
+```cmd
+npm run dev
+```
+As of `21.9.22`, this will run 3 processes:
+- Server (Nest.js) on port 5000
+- Client (Next.js) on port 3000
+- CockroachDB on ports 8080 (db-client), 26257 (insecure-sql-connections)
 
 ## Description
 
