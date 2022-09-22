@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
 
 /**
@@ -7,10 +8,29 @@ import { Injectable } from "@nestjs/common";
 @Injectable()
 export class AuthService {
     constructor(
-        // PrismaService,
+        private prisma: PrismaService
         // jwt,
         // config
     ) { }
+
+    async readAll() {
+        return await this.prisma.users.findMany({})
+    }
+
+    async writeNew() {
+        return await this.prisma.users.create({
+            data: {
+                full_name: 'Netanel Michaeli',
+                gender: "MALE",
+                email: "natanelmich103@gmail.com",
+                password: "123456789",
+                username: "Artemixx",
+                bio: "I like gaming, art, food and being alone most of the time",
+                interests: ["Art", "Gaming", "Food", "Being alone"],
+                prefered_langs: ["ENGLISH", "RUSSIAN", "KOREAN", "HEBREW"]
+            }
+        })
+    }
 
     /**
      * Service method tries to sign-in a user.

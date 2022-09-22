@@ -1,13 +1,23 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 
-@Controller('auth')
+@Controller({
+    path: 'auth',
+    version: '1'
+})
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService
+    ) { }
 
     @Get()
-    hiauth() {
-        return 'hi auth'
+    getAll() {
+        return this.authService.readAll()
+    }
+
+    @Get('/new')
+    writeNew() {
+        return this.authService.writeNew()
     }
 
     /**
