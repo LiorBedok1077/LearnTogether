@@ -1,5 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Body, Injectable } from "@nestjs/common";
+import { GenderEnum, GenderEnumType, PreferedLanguagesEnum, PreferedLanguagesEnumType } from "../../../interfaces";
 import { PrismaService } from "../prisma/prisma.service";
+import { SignupDto } from "./dto";
 
 
 /**
@@ -20,14 +22,14 @@ export class AuthService {
     async writeNew() {
         return await this.prisma.users.create({
             data: {
-                full_name: 'Netanel Michaeli',
+                full_name: 'Lior Bedok',
                 gender: "MALE",
-                email: "natanelmich103@gmail.com",
+                email: "liorbedok1077@gmail.com",
                 password: "123456789",
-                username: "Artemixx",
-                bio: "I like gaming, art, food and being alone most of the time",
-                interests: ["Art", "Gaming", "Food", "Being alone"],
-                prefered_langs: ["ENGLISH", "RUSSIAN", "KOREAN", "HEBREW"]
+                username: "ShadowCyanil1077",
+                bio: "I like 1, 2, 3 and 4",
+                interests: ["1", "2", "3", "4"],
+                prefered_langs: ["ENGLISH", "HEBREW"]
             }
         })
     }
@@ -47,8 +49,8 @@ export class AuthService {
      * @param dto A sign-up request payload with the required sign-up information.
      * @returns (on sign-up-success): a signed JWT token, the created user data.
      */
-    async signup(dto /* auth signup payload */) {
+    async signup(dto: SignupDto /* auth signup payload */) {
         // signup functionallity
-        return 'signup sucessful'
+        const result = await this.prisma.users.create({ data: dto })
     }
 }
