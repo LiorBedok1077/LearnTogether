@@ -3,7 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as pactum from 'pactum';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
-import { SignupDto } from '../src/modules/auth/dto';
+import { SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '../interfaces/db-models';
 
 const TEST_PORT = 5001
@@ -50,7 +50,7 @@ describe('AppController (e2e)', () => {
   })
 
   describe('Auth', () => {
-    const dto: SignupDto = {
+    const SignupDto: SignupDto = {
       full_name: 'Lior Bedok',
       gender: GenderEnum.MALE,
       email: "liorbedok1077@gmail.com",
@@ -63,14 +63,19 @@ describe('AppController (e2e)', () => {
         PreferedLanguagesEnum.HEBREW
       ]
     }
+    const SigninDto: SigninDto = {
+      password: "123456789",
+      username: "ShadowCyanil1077",
+      remember_me: false
+    }
     describe('sign-up', () => {
       // error: email is empty
-      it('should throw error - filelds are missing', () => pactum
+      it('should throw error - fields are missing', () => pactum
         .spec()
         .post("http://localhost:5000/v1/auth/signup")
         // .post("/auth/signup")
         .withBody({
-          password: dto.password
+          password: SignupDto.password
         })
         .expectStatus(400))
       // error: no dto
@@ -83,32 +88,33 @@ describe('AppController (e2e)', () => {
       it('should sign-up', () => pactum
         .spec()
         .post("http://localhost:5000/v1/auth/signup")
-        .withBody(dto)
+        .withBody(SignupDto)
         .expectStatus(201)
         .inspect())
     })
-    // describe('sign-in', () => {
-    //   // error: email is empty
-    //   it('should throw error - email is empty', () => pactum
-    //     .spec()
-    //     .post("/auth/signin")
-    //     .withBody({
-    //       password: dto.password
-    //     })
-    //     .expectStatus(400))
-    //   // error: no dto
-    //   it('should throw error - no dto', () => pactum
-    //     .spec()
-    //     .post("/auth/signin")
-    //     .withBody({})
-    //     .expectStatus(400))
-    //   // should login
-    //   it('should login', () => pactum
-    //     .spec()
-    //     .post("/auth/login")
-    //     .withBody(dto)
-    //     .expectStatus(201)
-    //     .stores('userAt', 'access_token'))
-    // })
+    describe('sign-in', () => {
+      // error: email is empty
+      it('should throw error - username is empty', () => pactum
+        .spec()
+        .post("http://localhost:5000/v1/auth/signin")
+        .withBody({ password: SigninDto.password })
+        .expectStatus(400)
+        .inspect())
+      // error: username is empty
+      it('should throw error - password is empty', () => pactum
+        .spec()
+        .post("http://localhost:5000/v1/auth/signin")
+        .withBody({ username: SigninDto.username })
+        .expectStatus(400)
+        .inspect())
+      // should login
+      it('should login', () => pactum
+        .spec()
+        .post("http://localhost:5000/v1/auth/signin")
+        .withBody({ ...SigninDto })
+        .expectStatus(201)
+        .inspect())
+      // .stores('userAt', 'access_token'))
+    })
   })
 });
