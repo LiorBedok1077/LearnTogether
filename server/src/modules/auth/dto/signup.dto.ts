@@ -1,5 +1,5 @@
 import { Length, IsOptional, IsEmail, IsNotEmpty, IsEnum, IsString, IsArray, ArrayNotEmpty, ArrayMinSize, ArrayMaxSize } from 'class-validator'
-import { PreferedLanguagesEnum, GenderEnum, GenderEnumType, PreferedLanguagesEnumType } from '../../../../interfaces'
+import { GenderEnum, PreferedLanguagesEnum } from '../../../../interfaces/db-models'
 
 export class SignupDto {
 
@@ -15,7 +15,7 @@ export class SignupDto {
 
     @IsNotEmpty()
     @IsEnum(GenderEnum)
-    gender: GenderEnumType
+    gender: GenderEnum
 
     @IsNotEmpty()
     @IsEmail()
@@ -43,5 +43,5 @@ export class SignupDto {
     @IsNotEmpty()
     @IsArray()
     @IsEnum(PreferedLanguagesEnum, { each: true })
-    prefered_langs: PreferedLanguagesEnumType[]
+    prefered_langs: PreferedLanguagesEnum[]
 }

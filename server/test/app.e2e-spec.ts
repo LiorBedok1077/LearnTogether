@@ -4,7 +4,7 @@ import * as pactum from 'pactum';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
 import { SignupDto } from '../src/modules/auth/dto';
-import { GenderEnum, PreferedLanguagesEnum, PreferedLanguagesEnumType } from '../interfaces';
+import { PreferedLanguagesEnum, GenderEnum } from '../interfaces/db-models';
 
 const TEST_PORT = 5001
 
@@ -52,15 +52,15 @@ describe('AppController (e2e)', () => {
   describe('Auth', () => {
     const dto: SignupDto = {
       full_name: 'Lior Bedok',
-      gender: GenderEnum.MALE as keyof typeof GenderEnum,
+      gender: GenderEnum.MALE,
       email: "liorbedok1077@gmail.com",
       password: "123456789",
       username: "ShadowCyanil1077",
       bio: "I like 1, 2, 3 and 4",
-      interests: ["123", "123", "123", "123", "123", "123", "123", "123", "123",],
+      interests: ["Psychology", "Astronomy", "Philosophy"],
       prefered_langs: [
-        PreferedLanguagesEnum.ENGLISH as PreferedLanguagesEnumType,
-        PreferedLanguagesEnum.HEBREW as PreferedLanguagesEnumType
+        PreferedLanguagesEnum.ENGLISH,
+        PreferedLanguagesEnum.HEBREW
       ]
     }
     describe('sign-up', () => {
@@ -72,8 +72,7 @@ describe('AppController (e2e)', () => {
         .withBody({
           password: dto.password
         })
-        .expectStatus(400)
-        .inspect())
+        .expectStatus(400))
       // error: no dto
       it('should throw error - no dto', () => pactum
         .spec()
@@ -85,7 +84,8 @@ describe('AppController (e2e)', () => {
         .spec()
         .post("http://localhost:5000/v1/auth/signup")
         .withBody(dto)
-        .expectStatus(201))
+        .expectStatus(201)
+        .inspect())
     })
     // describe('sign-in', () => {
     //   // error: email is empty

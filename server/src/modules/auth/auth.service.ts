@@ -1,5 +1,4 @@
-import { Body, Injectable } from "@nestjs/common";
-import { GenderEnum, GenderEnumType, PreferedLanguagesEnum, PreferedLanguagesEnumType } from "../../../interfaces";
+import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { SignupDto } from "./dto";
 
@@ -17,21 +16,6 @@ export class AuthService {
 
     async readAll() {
         return await this.prisma.users.findMany({})
-    }
-
-    async writeNew() {
-        return await this.prisma.users.create({
-            data: {
-                full_name: 'Lior Bedok',
-                gender: "MALE",
-                email: "liorbedok1077@gmail.com",
-                password: "123456789",
-                username: "ShadowCyanil1077",
-                bio: "I like 1, 2, 3 and 4",
-                interests: ["1", "2", "3", "4"],
-                prefered_langs: ["ENGLISH", "HEBREW"]
-            }
-        })
     }
 
     /**
@@ -52,5 +36,6 @@ export class AuthService {
     async signup(dto: SignupDto /* auth signup payload */) {
         // signup functionallity
         const result = await this.prisma.users.create({ data: dto })
+        return result
     }
 }

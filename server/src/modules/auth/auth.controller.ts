@@ -12,13 +12,8 @@ export class AuthController {
     ) { }
 
     @Get()
-    getAll(@Body() dto: SignupDto) {
+    getAll() {
         return this.authService.readAll()
-    }
-
-    @Get('/new')
-    writeNew() {
-        return this.authService.writeNew()
     }
 
     /**
