@@ -56,11 +56,10 @@ describe('AppController (e2e)', () => {
       remember_me: false
     }
     describe('sign-up', () => {
-      // error: email is empty
-      it('should throw error - fields are missing', () => pactum
+      // error: password is empty
+      it('should throw error - password is missing', () => pactum
         .spec()
         .post("/auth/signup")
-        // .post("/auth/signup")
         .withBody({
           password: SignupDto.password
         })

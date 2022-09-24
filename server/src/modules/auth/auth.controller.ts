@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from "@nestjs/common";
-import { GetUser } from "./decorator";
+import { GetUser } from "./decorators";
 import { AuthService } from "./auth.service";
 import { JwtGuard } from "./guards";
 // types
