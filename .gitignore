@@ -6,6 +6,7 @@ data
 # env files & credentials
 .env*
 */.env*
+!.env.example
 
 # dependencies
 node_modules
