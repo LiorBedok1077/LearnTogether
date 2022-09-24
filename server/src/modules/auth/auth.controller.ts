@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { SigninDto, SignupDto } from "./dto";
+import { AuthGuard } from '@nestjs/passport'
+import { Request } from "express";
 
 @Controller({
     path: 'auth',
@@ -11,15 +13,20 @@ export class AuthController {
         private authService: AuthService
     ) { }
 
+    /**
+     * @description Endpoint for sending back user-data.
+     */
     @Get()
-    getAll() {
-        return this.authService.readAll()
+    @UseGuards(AuthGuard('jwt'))
+    getUserData(@Req() req: Request) {
+        return req.user
     }
 
     /**
      * @description Endpoint for signing in users.
      */
     @Post('signin')
+    @HttpCode(HttpStatus.OK)
     signin(@Body() dto: SigninDto) {
         return this.authService.signin(dto)
     }
@@ -28,6 +35,7 @@ export class AuthController {
      * @description Endpoint for creating users.
      */
     @Post('signup')
+    @HttpCode(HttpStatus.CREATED)
     signup(@Body() dto: SignupDto) {
         return this.authService.signup(dto)
     }

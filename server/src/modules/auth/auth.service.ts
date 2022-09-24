@@ -22,10 +22,6 @@ export class AuthService {
         private config: ConfigService
     ) { }
 
-    async readAll() {
-        return await this.prisma.users.findMany({})
-    }
-
     /**
      * Method tries to sign-in a user.
      * @param dto A sign-in request payload with the required sign-in information.
@@ -46,7 +42,8 @@ export class AuthService {
             throw new ForbiddenException('Password is incorrect')
         }
         // return data & token
-        const token = await this.signToken(user)
+        const { email, user_id, username } = user
+        const token = await this.signToken({ email, user_id, username })
         return { token }
     }
 
@@ -68,7 +65,8 @@ export class AuthService {
                 }
             })
             // generate token
-            const token = await this.signToken(user)
+            const { email, user_id, username } = user
+            const token = await this.signToken({ email, user_id, username })
             // return data & token
             return {
                 token, data: { ...user, password: undefined }

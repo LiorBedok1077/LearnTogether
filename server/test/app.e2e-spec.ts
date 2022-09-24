@@ -1,31 +1,15 @@
 import { Test } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
 import * as pactum from 'pactum';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
+// types
 import { SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '../interfaces/db-models';
 
 const TEST_PORT = 5001
 
 describe('AppController (e2e)', () => {
-  // let app: INestApplication;
-
-  // beforeEach(async () => {
-  //   const moduleFixture: TestingModule = await Test.createTestingModule({
-  //     imports: [AppModule],
-  //   }).compile();
-
-  //   app = moduleFixture.createNestApplication();
-  //   await app.init();
-  // });
-
-  // it('/ (GET)', () => {
-  //   return request(app.getHttpServer())
-  //     .get('/')
-  //     .expect(200)
-  //     .expect('Hello World!');
-  // });
   let app: INestApplication
   let prisma: PrismaService
   beforeAll(async () => {
@@ -37,6 +21,9 @@ describe('AppController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe({
       whitelist: true
     }))
+    app.enableVersioning({
+      type: VersioningType.URI
+    })
     await app.init()
     await app.listen(TEST_PORT)
 
@@ -48,14 +35,14 @@ describe('AppController (e2e)', () => {
   afterAll(() => {
     app.close()
   })
-
   describe('Auth', () => {
+    // Auth testing
     const SignupDto: SignupDto = {
       full_name: 'Lior Bedok',
       gender: GenderEnum.MALE,
-      email: "liorbedok1077@gmail.com",
+      email: "unrelated_user@gmail.com",
       password: "123456789",
-      username: "ShadowCyanil1077",
+      username: "unrelated_user",
       bio: "I like 1, 2, 3 and 4",
       interests: ["Psychology", "Astronomy", "Philosophy"],
       prefered_langs: [
@@ -65,56 +52,87 @@ describe('AppController (e2e)', () => {
     }
     const SigninDto: SigninDto = {
       password: "123456789",
-      username: "ShadowCyanil1077",
+      username: "unrelated_user",
       remember_me: false
     }
     describe('sign-up', () => {
       // error: email is empty
       it('should throw error - fields are missing', () => pactum
         .spec()
-        .post("http://localhost:5000/v1/auth/signup")
+        .post("/auth/signup")
         // .post("/auth/signup")
         .withBody({
           password: SignupDto.password
         })
-        .expectStatus(400))
+        .expectStatus(HttpStatus.BAD_REQUEST)
+        .inspect())
       // error: no dto
       it('should throw error - no dto', () => pactum
         .spec()
-        .post("http://localhost:5000/v1/auth/signup")
+        .post("/auth/signup")
         .withBody({})
-        .expectStatus(400))
+        .expectStatus(HttpStatus.BAD_REQUEST))
       // // should sign up
       it('should sign-up', () => pactum
         .spec()
-        .post("http://localhost:5000/v1/auth/signup")
+        .post("/auth/signup")
         .withBody(SignupDto)
-        .expectStatus(201)
-        .inspect())
+        .expectStatus(HttpStatus.CREATED)
+      )///.inspect())
+      it('should not sign-up - credentials are taken', () => pactum
+        .spec()
+        .post("/auth/signup")
+        .withBody(SignupDto)
+        .expectStatus(HttpStatus.BAD_REQUEST)
+      )//.inspect())
     })
     describe('sign-in', () => {
       // error: email is empty
       it('should throw error - username is empty', () => pactum
         .spec()
-        .post("http://localhost:5000/v1/auth/signin")
+        .post("/auth/signin")
         .withBody({ password: SigninDto.password })
         .expectStatus(400)
-        .inspect())
+      )//.inspect())
       // error: username is empty
       it('should throw error - password is empty', () => pactum
         .spec()
-        .post("http://localhost:5000/v1/auth/signin")
+        .post("/auth/signin")
         .withBody({ username: SigninDto.username })
-        .expectStatus(400)
-        .inspect())
+        .expectStatus(HttpStatus.BAD_REQUEST)
+      )//.inspect())
       // should login
       it('should login', () => pactum
         .spec()
-        .post("http://localhost:5000/v1/auth/signin")
+        .post("/auth/signin")
         .withBody({ ...SigninDto })
-        .expectStatus(201)
+        .expectStatus(HttpStatus.OK)
+        .stores('userAt', 'token')
         .inspect())
-      // .stores('userAt', 'access_token'))
+    })
+    describe('get-user-data', () => {
+      // error: no authorization header (unauthorized)
+      it('should throw error - no auth header', () => pactum
+        .spec()
+        .get("/auth")
+        .expectStatus(HttpStatus.UNAUTHORIZED))
+      // error: invalid authorization header (unauthorized)
+      it('should throw error - invalid auth header', () => pactum
+        .spec()
+        .get("/auth")
+        .withHeaders({
+          'Authorization': "Bearer Nopee"
+        })
+        .expectStatus(HttpStatus.UNAUTHORIZED))
+      // success: should get user data
+      it('should get user data', () => pactum
+        .spec()
+        .get("/auth")
+        .withHeaders({
+          'Authorization': "Bearer $S{userAt}"
+        })
+        .expectStatus(HttpStatus.OK)
+        .inspect())
     })
   })
 });

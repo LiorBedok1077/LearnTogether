@@ -7,5 +7,6 @@ export const ROOT_ENV_FILE = {
 
 // enviroment-variables keys
 export const ENV_VARS = {
-    JWT_SECRET: 'JWT_SECRET'
+    JWT_SECRET: 'JWT_SECRET',
+    SERVER_PORT: 'SERVER_PORT'
 }

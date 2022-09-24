@@ -14,8 +14,11 @@ export class PrismaService extends PrismaClient {
         })
     }
 
+    /**
+     * Method cleans the test database for optimal testing.
+     */
     async cleanDB() {
-        return await this.$transaction([
+        return void await this.$transaction([
             this.users.deleteMany(),
             this.articles.deleteMany(),
             this.comments.deleteMany(),
