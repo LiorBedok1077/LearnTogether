@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { GetUser } from "./decorators";
 import { AuthService } from "./auth.service";
 import { JwtGuard } from "./guards";
@@ -18,7 +18,7 @@ export class AuthController {
     /**
      * @description Endpoint for sending back user-data.
      */
-    @Get()
+    @Get('user')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
     getUserData(@GetUser() user: Users) {
@@ -26,12 +26,21 @@ export class AuthController {
     }
 
     /**
+     * @description Endpoint for visiting user-data.
+     */
+    @Get('user/:user_id')
+    @HttpCode(HttpStatus.OK)
+    async getForeignUserData(@Param('user_id') user_id: string) {
+        return await this.authService.getForeignUserData(user_id)
+    }
+
+    /**
      * @description Endpoint for signing in users.
      */
     @Post('signin')
     @HttpCode(HttpStatus.OK)
-    signin(@Body() dto: SigninDto) {
-        return this.authService.signin(dto)
+    async signin(@Body() dto: SigninDto) {
+        return await this.authService.signin(dto)
     }
 
     /**
@@ -39,7 +48,7 @@ export class AuthController {
      */
     @Post('signup')
     @HttpCode(HttpStatus.CREATED)
-    signup(@Body() dto: SignupDto) {
-        return this.authService.signup(dto)
+    async signup(@Body() dto: SignupDto) {
+        return await this.authService.signup(dto)
     }
 }

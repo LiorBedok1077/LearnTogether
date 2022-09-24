@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 // types
 import { JwtTokenPayload } from "../../../interfaces/globals";
@@ -8,7 +8,7 @@ import { verify, hash } from 'argon2'
 import { PrismaService } from "../prisma/prisma.service";
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { ENV_VARS } from "../../../configs/constants";
+import { ENV_VARS, TEST__JWT_EXPIRATION_TIME } from "../../../configs/constants";
 
 
 /**
@@ -28,12 +28,8 @@ export class AuthService {
      * @returns (on sign-in-success): a signed JWT token.
      */
     async signin(dto: SigninDto) {
-        // signin functionallity
-        console.log({ dto })
         const user = await this.prisma.users.findUnique({
-            where: {
-                username: dto.username
-            }
+            where: { username: dto.username }
         })
         if (!user) throw new ForbiddenException('User does not exist')
         // compare passwords
@@ -41,7 +37,7 @@ export class AuthService {
         if (!pwmatches) {
             throw new ForbiddenException('Password is incorrect')
         }
-        // return data & token
+        // return token & data
         const { email, user_id, username } = user
         const token = await this.signToken({ email, user_id, username })
         return { token }
@@ -53,32 +49,46 @@ export class AuthService {
      * @returns (on sign-up-success): a signed JWT token, the created user data.
      */
     async signup(dto: SignupDto) {
-        // signup functionallity
         // generate pw
         const hashed = await hash(dto.password)
         try {
             // create user
             const user = await this.prisma.users.create({
-                data: {
-                    ...dto,
-                    password: hashed
-                }
+                data: { ...dto, password: hashed }
             })
             // generate token
             const { email, user_id, username } = user
             const token = await this.signToken({ email, user_id, username })
-            // return data & token
+            // return token & data
             return {
                 token, data: { ...user, password: undefined }
             }
         }
         catch (err) {
-            if (err instanceof PrismaClientKnownRequestError) {
-                if (err.code === 'P2002') {
-                    throw new BadRequestException('Credentials already taken')
-                }
+            if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') {
+                throw new BadRequestException('Credentials already taken')
             }
             throw err
+        }
+    }
+
+    /**
+     * Method gets a user id and returns the corresponding user's data.
+     * @param user_id the user id (from the url params)
+     * @returns The user's data (by the given id)
+     */
+    async getForeignUserData(user_id: string) {
+        try {
+            const result = await this.prisma.users.findUnique({
+                where: { user_id }
+            })
+            if (!result) {
+                throw new NotFoundException('User does not exist')
+            }
+            return result
+        }
+        catch (err) {
+            throw new NotFoundException('User does not exist')
         }
     }
 
@@ -88,10 +98,10 @@ export class AuthService {
      * @param username a user's username (string)
      * @returns a signed jwt-token with the given parameters as the payload
      */
-    async signToken(payload: JwtTokenPayload): Promise<string> {
+    private async signToken(payload: JwtTokenPayload): Promise<string> {
         // -- demo jwt payload
         return this.jwt.signAsync(payload, {
-            expiresIn: '15m',
+            expiresIn: TEST__JWT_EXPIRATION_TIME,
             secret: this.config.get(ENV_VARS.JWT_SECRET)
         })
     }
