@@ -1,8 +1,10 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from "@nestjs/common";
+import { GetUser } from "./decorator";
 import { AuthService } from "./auth.service";
+import { JwtGuard } from "./guards";
+// types
+import { Users } from "prisma/prisma-client";
 import { SigninDto, SignupDto } from "./dto";
-import { AuthGuard } from '@nestjs/passport'
-import { Request } from "express";
 
 @Controller({
     path: 'auth',
@@ -17,9 +19,10 @@ export class AuthController {
      * @description Endpoint for sending back user-data.
      */
     @Get()
-    @UseGuards(AuthGuard('jwt'))
-    getUserData(@Req() req: Request) {
-        return req.user
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    getUserData(@GetUser() user: Users) {
+        return user
     }
 
     /**
