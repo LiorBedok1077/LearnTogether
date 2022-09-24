@@ -47,7 +47,7 @@ model Users {
     // — (teacher_data, admin_data, etc) — 
     // cms
     num_viewed_profile   Int                     @default(0)
-    num_edited_profile   Int                     @default(sequence())
+    num_edited_profile   Int                     @default(0)
 }
 
 model Learning_groups {

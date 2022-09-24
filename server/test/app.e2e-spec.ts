@@ -6,6 +6,7 @@ import { PrismaService } from '../src/modules/prisma/prisma.service';
 // types
 import { SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '../interfaces/db-models';
+import { UpdateUserDto } from '../src/modules/user/dto';
 
 const TEST_PORT = 5001
 
@@ -37,25 +38,20 @@ describe('AppController (e2e)', () => {
   })
   describe('Auth', () => {
     // Auth testing
-    const SignupDto: SignupDto = {
-      full_name: 'Lior Bedok',
-      gender: GenderEnum.MALE,
-      email: "unrelated_user@gmail.com",
-      password: "123456789",
-      username: "unrelated_user",
-      bio: "I like 1, 2, 3 and 4",
-      interests: ["Psychology", "Astronomy", "Philosophy"],
-      prefered_langs: [
-        PreferedLanguagesEnum.ENGLISH,
-        PreferedLanguagesEnum.HEBREW
-      ]
-    }
-    const SigninDto: SigninDto = {
-      password: "123456789",
-      username: "unrelated_user",
-      remember_me: false
-    }
     describe('sign-up', () => {
+      const SignupDto: SignupDto = {
+        full_name: 'Lior Bedok',
+        gender: GenderEnum.MALE,
+        email: "unrelated_user@gmail.com",
+        password: "123456789",
+        username: "unrelated_user",
+        bio: "I like 1, 2, 3 and 4",
+        interests: ["Psychology", "Astronomy", "Philosophy"],
+        prefered_langs: [
+          PreferedLanguagesEnum.ENGLISH,
+          PreferedLanguagesEnum.HEBREW
+        ]
+      }
       // error: password is empty
       it('should throw error - password is missing', () => pactum
         .spec()
@@ -64,7 +60,7 @@ describe('AppController (e2e)', () => {
           password: SignupDto.password
         })
         .expectStatus(HttpStatus.BAD_REQUEST)
-        .inspect())
+      )
       // error: no dto
       it('should throw error - no dto', () => pactum
         .spec()
@@ -86,6 +82,11 @@ describe('AppController (e2e)', () => {
       )//.inspect())
     })
     describe('sign-in', () => {
+      const SigninDto: SigninDto = {
+        password: "123456789",
+        username: "unrelated_user",
+        remember_me: false
+      }
       // error: email is empty
       it('should throw error - username is empty', () => pactum
         .spec()
@@ -107,8 +108,11 @@ describe('AppController (e2e)', () => {
         .withBody({ ...SigninDto })
         .expectStatus(HttpStatus.OK)
         .stores('userAt', 'token')
-        .inspect())
+      )
     })
+  })
+  describe('User', () => {
+    // User testing
     describe('get-user-data', () => {
       // error: no authorization header (unauthorized)
       it('should throw error - no auth header', () => pactum
@@ -142,7 +146,39 @@ describe('AppController (e2e)', () => {
         .spec()
         .get("/user/$S{userId}")
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
+    })
+    describe('update-user', () => {
+      const UpdateUserDto: UpdateUserDto = {
+        full_name: "Dennis Lloyd",
+        bio: "I'm a cool music artist"
+      }
+      // error: unauthorized
+      it('should throw error - unauthorized', () => pactum
+        .spec()
+        .patch("/user")
+        .expectStatus(HttpStatus.UNAUTHORIZED)
+      )
+      // error: no body
+      it('should throw error - body not provided', () => pactum
+        .spec()
+        .patch("/user")
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody({})
+        .expectStatus(HttpStatus.BAD_REQUEST)
+      )
+      // success: user has been updated
+      it('should update user', () => pactum
+        .spec()
+        .patch("/user")
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(UpdateUserDto)
+        .expectStatus(HttpStatus.OK)
+      )
     })
     describe('delete-user', () => {
       // error: no authorization header (unauthorized)

@@ -1,7 +1,8 @@
-import { Controller, Delete, Get, HttpCode, HttpStatus, Param, UseGuards } from "@nestjs/common"
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, UseGuards } from "@nestjs/common"
 import { Users } from "prisma/prisma-client"
 import { GetUser } from "../auth/decorators"
 import { JwtGuard } from "../auth/guards"
+import { UpdateUserDto } from "./dto"
 // types
 // services
 import { UserService } from "./user.service"
@@ -23,6 +24,16 @@ export class UserController {
     @HttpCode(HttpStatus.OK)
     getUserData(@GetUser() user: Users) {
         return user
+    }
+
+    /**
+     * @description Endpoint for updating user-data.
+     */
+    @Patch()
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async updateUser(@GetUser('user_id') user_id: string, @Body() dto: UpdateUserDto) {
+        return await this.userService.updateUser(user_id, dto)
     }
 
     /**
