@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
+import { Body, Controller, HttpCode, HttpStatus, Patch, Post } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 // types
 import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from "./dto";
@@ -31,7 +31,7 @@ export class AuthController {
     }
 
     /**
-     * @description Endpoint for changing (forgotten) password.
+     * @description Endpoint for changing (forgotten) password (step 1) - sends verification email.
      */
     @Post('forgot-password')
     @HttpCode(HttpStatus.OK)
@@ -42,12 +42,13 @@ export class AuthController {
     }
 
     /**
-     * @description Endpoint for changing password (if the email-token verification succeeded)
+     * @description Endpoint for changing (forgotten) password (step 2) - verifies email-token and changes the password.
      */
-    @Post('change-password')
+    @Patch('forgot-password')
     @HttpCode(HttpStatus.OK)
     async changeForgottenPassword(@Body() dto: ChangeForgottenPasswordDto) {
         // verify token in dto
         // change password in db
+        return this.authService.changeForgottenPassword(dto)
     }
 }

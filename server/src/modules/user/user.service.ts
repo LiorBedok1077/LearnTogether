@@ -5,7 +5,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { PrismaService } from "../prisma/prisma.service"
-import { ConfigService } from '@nestjs/config'
+import { getUserByIdOptions, updateUserByIdOptions } from "../../utils/db"
 
 
 /**
@@ -14,8 +14,7 @@ import { ConfigService } from '@nestjs/config'
 @Injectable()
 export class UserService {
     constructor(
-        private prisma: PrismaService,
-        private config: ConfigService
+        private prisma: PrismaService
     ) { }
 
     /**
@@ -25,14 +24,12 @@ export class UserService {
      */
     async getForeignUserData(user_id: string) {
         try {
-            // const result = await this.prisma.users.findUnique({ where: { user_id } })
-            const result = await this.prisma.users.update({
-                where: { user_id },
-                data: { num_viewed_profile: { increment: 1 } }
-            })
+            const result = await this.prisma.users.findUnique({ where: { user_id } })
             if (!result) {
                 throw new NotFoundException('User does not exist')
             }
+            // udpate cms fields synchronously
+            this.prisma.users.update(getUserByIdOptions(user_id))
             return result
         }
         catch (err) {
@@ -68,12 +65,9 @@ export class UserService {
             throw new BadRequestException('No data was provided')
         }
         try {
-            const result = await this.prisma.users.update({
-                where: { user_id },
-                data: {
-                    ...dto, num_edited_profile: { increment: 1 }
-                }
-            })
+            const result = await this.prisma.users.update(
+                updateUserByIdOptions(user_id, dto)
+            )
             return result
         }
         catch (err) {
@@ -98,13 +92,9 @@ export class UserService {
             }
             // generate pw
             const hashed = await hash(dto.new_password)
-            const result = await this.prisma.users.update({
-                where: { user_id },
-                data: {
-                    password: hashed,
-                    num_edited_profile: { increment: 1 }
-                }
-            })
+            const result = await this.prisma.users.update(
+                updateUserByIdOptions(user_id, { password: hashed })
+            )
             return result
         }
         catch (err) {

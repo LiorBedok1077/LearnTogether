@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 // configs
 import { ENV_VARS } from '../../../configs/constants'
-import { JwtTokenPayload } from '../../../interfaces/globals'
+import { JwtAuthTokenPayload } from '../../../interfaces/globals'
 import { Users } from 'prisma/prisma-client'
 // jwt
 import { PassportStrategy } from '@nestjs/passport'
@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
      * @param payload the extracted data from the request token
      * @returns the payload to be accessed inside the request parameter
      */
-    async validate(payload: JwtTokenPayload): Promise<Users> {
+    async validate(payload: JwtAuthTokenPayload): Promise<Users> {
         const user = await this.prisma.users.findUnique({
             where: {
                 user_id: payload.user_id

@@ -1,14 +1,15 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { verify, hash } from 'argon2'
 // types
-import { JwtTokenPayload } from "../../interfaces/globals";
-import { SignupDto, SigninDto } from "./dto";
+import { SignupDto, SigninDto, ChangeForgottenPasswordDto } from "./dto";
 import { ENV_VARS, TEST__JWT_EXPIRATION_TIME } from "../../configs/constants";
+import { JwtForgotPasswordTokenPayload } from "../../interfaces/globals";
 // services
 import { PrismaService } from "../prisma/prisma.service";
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
+import { updateUserByIdOptions } from "../../utils/db";
 
 
 /**
@@ -73,15 +74,37 @@ export class AuthService {
     }
 
     /**
+     * Method validates the given dto-token & changes the password (on success).
+     * @param dto The new password & the token to verify before changing the password
+     */
+    async changeForgottenPassword(dto: ChangeForgottenPasswordDto) {
+        try {
+            // validate token
+            const token = await this.jwt.verifyAsync<JwtForgotPasswordTokenPayload>(dto.verification_token)
+            if (!token) {
+                throw new ForbiddenException('Token is invalid or expired')
+            }
+            const hashed = await hash(dto.new_password)
+            const result = await this.prisma.users.update(
+                updateUserByIdOptions(token.user_id, { password: hashed })
+            )
+            return result
+        }
+        catch (err) {
+            throw new ForbiddenException('Token is invalid or expired')
+        }
+    }
+
+    /**
      * Method signs a jwt-token with the given parameters.
      * @param user_id a user id (string)
      * @param username a user's username (string)
      * @returns a signed jwt-token with the given parameters as the payload
      */
-    private async signToken(payload: JwtTokenPayload): Promise<string> {
+    private async signToken(payload: any, expiresIn: string = TEST__JWT_EXPIRATION_TIME): Promise<string> {
         // -- demo jwt payload
         return this.jwt.signAsync(payload, {
-            expiresIn: TEST__JWT_EXPIRATION_TIME,
+            expiresIn,
             secret: this.config.get(ENV_VARS.JWT_SECRET)
         })
     }

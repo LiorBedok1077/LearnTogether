@@ -25,11 +25,6 @@ export class UpdateUserDto {
 
     @IsOptional()
     @IsString()
-    @Length(6, 32)
-    password?: string
-
-    @IsOptional()
-    @IsString()
     @Length(3, 52)
     bio?: string
 
