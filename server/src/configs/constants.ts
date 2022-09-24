@@ -11,6 +11,10 @@ export const ENV_VARS = {
     SERVER_PORT: 'SERVER_PORT'
 }
 
-// jwt-token expiration time
-export const JWT_EXPIRATION_TIME = '7d'
-export const TEST__JWT_EXPIRATION_TIME = '15m'
+
+// jwt-token expiration times (enum)
+export enum JWT_EXPIRES_AT {
+    AUTH = '7d',
+    AUTH__TEST = '15m',
+    FORGOT_PASSWORD = '2m',
+}

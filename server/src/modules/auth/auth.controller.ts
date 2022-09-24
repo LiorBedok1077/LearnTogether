@@ -39,6 +39,7 @@ export class AuthController {
         // generating link with expiring token as a parameter (2m)
         // send link to mail (in a styled html message)
         // end connection (side-request should come after with the generated token & the new password)
+        return await this.authService.forgotPassword(dto)
     }
 
     /**
@@ -49,6 +50,6 @@ export class AuthController {
     async changeForgottenPassword(@Body() dto: ChangeForgottenPasswordDto) {
         // verify token in dto
         // change password in db
-        return this.authService.changeForgottenPassword(dto)
+        return await this.authService.changeForgottenPassword(dto)
     }
 }

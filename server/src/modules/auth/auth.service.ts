@@ -2,8 +2,8 @@ import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/com
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { verify, hash } from 'argon2'
 // types
-import { SignupDto, SigninDto, ChangeForgottenPasswordDto } from "./dto";
-import { ENV_VARS, TEST__JWT_EXPIRATION_TIME } from "../../configs/constants";
+import { SignupDto, SigninDto, ChangeForgottenPasswordDto, ForgotPasswordDto } from "./dto";
+import { ENV_VARS, JWT_EXPIRES_AT } from "../../configs/constants";
 import { JwtForgotPasswordTokenPayload } from "../../interfaces/globals";
 // services
 import { PrismaService } from "../prisma/prisma.service";
@@ -74,7 +74,30 @@ export class AuthService {
     }
 
     /**
-     * Method validates the given dto-token & changes the password (on success).
+     * Method changes (forgotten) password (step 1) - sends verification email.
+     * @param dto The new password & the token to verify before changing the password
+     */
+    async forgotPassword(dto: ForgotPasswordDto) {
+        try {
+            // find user via dto parameters
+            const { user_id, num_edited_profile } = await this.prisma.users.findFirstOrThrow({
+                where: { OR: [{ email: dto.username_or_email }, { username: dto.username_or_email }] }
+            })
+            // generating link with expiring token as a parameter (2m)
+            const token = await this.signToken<JwtForgotPasswordTokenPayload>(
+                { user_id, num_edited_profile }, JWT_EXPIRES_AT.FORGOT_PASSWORD
+            )
+            // send link to mail (in a styled html message)
+            // end connection (side-request should come after with the generated token & the new password)
+            // # await MailerService.mail(token)
+        }
+        catch (err) {
+            throw new BadRequestException('User does not exist')
+        }
+    }
+
+    /**
+     * Method changes (forgotten) password (step 2) - verifies email-token and changes the password.
      * @param dto The new password & the token to verify before changing the password
      */
     async changeForgottenPassword(dto: ChangeForgottenPasswordDto) {
@@ -101,7 +124,7 @@ export class AuthService {
      * @param username a user's username (string)
      * @returns a signed jwt-token with the given parameters as the payload
      */
-    private async signToken(payload: any, expiresIn: string = TEST__JWT_EXPIRATION_TIME): Promise<string> {
+    private async signToken<T extends Object>(payload: T, expiresIn: JWT_EXPIRES_AT = JWT_EXPIRES_AT.AUTH__TEST): Promise<string> {
         // -- demo jwt payload
         return this.jwt.signAsync(payload, {
             expiresIn,
