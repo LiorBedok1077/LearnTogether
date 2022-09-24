@@ -1,5 +1,5 @@
 import { Length, IsOptional, IsString, IsEnum, IsEmail, IsArray, ArrayMaxSize, ArrayMinSize } from 'class-validator'
-import { GenderEnum, PreferedLanguagesEnum } from '../../../../interfaces/db-models'
+import { GenderEnum, PreferedLanguagesEnum } from '../../../interfaces/db-models'
 
 
 export class UpdateUserDto {

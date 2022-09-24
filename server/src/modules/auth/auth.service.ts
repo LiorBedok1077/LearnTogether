@@ -2,9 +2,9 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { verify, hash } from 'argon2'
 // types
-import { JwtTokenPayload } from "../../../interfaces/globals";
+import { JwtTokenPayload } from "../../interfaces/globals";
 import { SignupDto, SigninDto } from "./dto";
-import { ENV_VARS, TEST__JWT_EXPIRATION_TIME } from "../../../configs/constants";
+import { ENV_VARS, TEST__JWT_EXPIRATION_TIME } from "../../configs/constants";
 // services
 import { PrismaService } from "../prisma/prisma.service";
 import { JwtService } from '@nestjs/jwt'

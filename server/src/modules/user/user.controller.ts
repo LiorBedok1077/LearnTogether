@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, UseGuards } from "@nestjs/common"
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from "@nestjs/common"
 import { Users } from "prisma/prisma-client"
 import { GetUser } from "../auth/decorators"
 import { JwtGuard } from "../auth/guards"
-import { UpdateUserDto } from "./dto"
+import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // types
 // services
 import { UserService } from "./user.service"
@@ -34,6 +34,16 @@ export class UserController {
     @HttpCode(HttpStatus.OK)
     async updateUser(@GetUser('user_id') user_id: string, @Body() dto: UpdateUserDto) {
         return await this.userService.updateUser(user_id, dto)
+    }
+
+    /**
+     * @description Endpoint for changing password (if the email-token verification succeeded)
+     */
+    @Post('change-password')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async changePassword(@GetUser() user: Users, @Body() dto: ChangePasswordDto) {
+        return await this.userService.changePassword(user.user_id, user.password, dto)
     }
 
     /**

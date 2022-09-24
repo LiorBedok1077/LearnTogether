@@ -1,10 +1,7 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from "@nestjs/common";
-import { GetUser } from "./decorators";
+import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { JwtGuard } from "./guards";
 // types
-import { Users } from "prisma/prisma-client";
-import { SigninDto, SignupDto } from "./dto";
+import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from "./dto";
 
 @Controller({
     path: 'auth',
@@ -31,5 +28,26 @@ export class AuthController {
     @HttpCode(HttpStatus.CREATED)
     async signup(@Body() dto: SignupDto) {
         return await this.authService.signup(dto)
+    }
+
+    /**
+     * @description Endpoint for changing (forgotten) password.
+     */
+    @Post('forgot-password')
+    @HttpCode(HttpStatus.OK)
+    async forgotPassword(@Body() dto: ForgotPasswordDto) {
+        // generating link with expiring token as a parameter (2m)
+        // send link to mail (in a styled html message)
+        // end connection (side-request should come after with the generated token & the new password)
+    }
+
+    /**
+     * @description Endpoint for changing password (if the email-token verification succeeded)
+     */
+    @Post('change-password')
+    @HttpCode(HttpStatus.OK)
+    async changeForgottenPassword(@Body() dto: ChangeForgottenPasswordDto) {
+        // verify token in dto
+        // change password in db
     }
 }

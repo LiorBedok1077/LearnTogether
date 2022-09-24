@@ -1,5 +1,5 @@
 import { Length, IsOptional, IsEmail, IsNotEmpty, IsEnum, IsString, IsArray, ArrayNotEmpty, ArrayMinSize, ArrayMaxSize } from 'class-validator'
-import { GenderEnum, PreferedLanguagesEnum } from '../../../../interfaces/db-models'
+import { GenderEnum, PreferedLanguagesEnum } from '../../../interfaces/db-models'
 
 export class SignupDto {
 

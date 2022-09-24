@@ -1,6 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common"
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common"
+import { hash, verify } from 'argon2'
 // types
-import { UpdateUserDto } from "./dto"
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
+import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { PrismaService } from "../prisma/prisma.service"
 import { ConfigService } from '@nestjs/config'
@@ -57,7 +59,8 @@ export class UserService {
 
     /**
      * Method updates user-data by a given id (param) and data (body).
-     * @param user_id the user id (from url params)
+     * @param user_id the user id.
+     * @param dto an object with the (optional) values ti update.
      */
     async updateUser(user_id: string, dto: UpdateUserDto) {
         if (Object.keys(dto).length === 0) {
@@ -74,8 +77,42 @@ export class UserService {
             return result
         }
         catch (err) {
-            console.log({ err })
+            if (err instanceof PrismaClientKnownRequestError) {
+                throw new BadRequestException('User does not exist')
+            }
             throw err
+        }
+    }
+
+    /**
+     * Method changes a user's password.
+     * @param user_id the user id.
+     * @param dto the new password to udpate.
+     */
+    async changePassword(user_id: string, original_password: string, dto: ChangePasswordDto) {
+        try {
+            // compare passwords
+            const pwmatches = await verify(original_password, dto.old_password)
+            if (!pwmatches) {
+                throw new ForbiddenException('Old password is incorrect')
+            }
+            // generate pw
+            const hashed = await hash(dto.new_password)
+            const result = await this.prisma.users.update({
+                where: { user_id },
+                data: {
+                    password: hashed,
+                    num_edited_profile: { increment: 1 }
+                }
+            })
+            return result
+        }
+        catch (err) {
+            if (err instanceof PrismaClientKnownRequestError) {
+                throw new BadRequestException('User does not exist')
+            }
+            // throw new ForbiddenException('Old password is incorrect')
+            throw new ForbiddenException({ original_password, dto })
         }
     }
 }

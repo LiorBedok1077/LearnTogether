@@ -5,8 +5,8 @@ import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
 // types
 import { SigninDto, SignupDto } from '../src/modules/auth/dto';
-import { PreferedLanguagesEnum, GenderEnum } from '../interfaces/db-models';
-import { UpdateUserDto } from '../src/modules/user/dto';
+import { PreferedLanguagesEnum, GenderEnum } from '../src/interfaces/db-models';
+import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
 
 const TEST_PORT = 5001
 
@@ -73,13 +73,13 @@ describe('AppController (e2e)', () => {
         .post("/auth/signup")
         .withBody(SignupDto)
         .expectStatus(HttpStatus.CREATED)
-      )///.inspect())
+      )
       it('should not sign-up - credentials are taken', () => pactum
         .spec()
         .post("/auth/signup")
         .withBody(SignupDto)
         .expectStatus(HttpStatus.BAD_REQUEST)
-      )//.inspect())
+      )
     })
     describe('sign-in', () => {
       const SigninDto: SigninDto = {
@@ -93,14 +93,14 @@ describe('AppController (e2e)', () => {
         .post("/auth/signin")
         .withBody({ password: SigninDto.password })
         .expectStatus(400)
-      )//.inspect())
+      )
       // error: username is empty
       it('should throw error - password is empty', () => pactum
         .spec()
         .post("/auth/signin")
         .withBody({ username: SigninDto.username })
         .expectStatus(HttpStatus.BAD_REQUEST)
-      )//.inspect())
+      )
       // should login
       it('should login', () => pactum
         .spec()
@@ -180,6 +180,35 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.OK)
       )
     })
+    describe('change-password', () => {
+      const ChangePasswordDto: ChangePasswordDto = {
+        old_password: "123456789",
+        new_password: "new_password_123"
+      }
+      // error: unauthorized (invalid auth header)
+      it('should throw error - unauthorized (no auth header)', () => pactum
+        .spec()
+        .post('/user/change-password')
+        .expectStatus(HttpStatus.UNAUTHORIZED))
+      // error: old-password is incorrect
+      it('should throw error - old-password is incorrect', () => pactum
+        .spec()
+        .post('/user/change-password')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody({ ...ChangePasswordDto, old_password: 'wrong-old-password' })
+        .expectStatus(HttpStatus.FORBIDDEN))
+      // success: changed password
+      it('should change password', () => pactum
+        .spec()
+        .post('/user/change-password')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(ChangePasswordDto)
+        .expectStatus(HttpStatus.OK))
+    });
     describe('delete-user', () => {
       // error: no authorization header (unauthorized)
       it('should throw error - invalid auth header', () => pactum

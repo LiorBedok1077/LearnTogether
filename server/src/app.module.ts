@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 // configs
-import { ROOT_ENV_FILE } from '../configs/constants'
+import { ROOT_ENV_FILE } from './configs/constants'
 // modules
 import { ConfigModule } from '@nestjs/config'
 import { AuthModule, PrismaModule, UserModule } from './modules'

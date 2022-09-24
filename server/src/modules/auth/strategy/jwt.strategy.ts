@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 // configs
-import { ENV_VARS } from '../../../../configs/constants'
-import { JwtTokenPayload } from '../../../../interfaces/globals'
+import { ENV_VARS } from '../../../configs/constants'
+import { JwtTokenPayload } from '../../../interfaces/globals'
 import { Users } from 'prisma/prisma-client'
 // jwt
 import { PassportStrategy } from '@nestjs/passport'
@@ -33,6 +33,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
                 user_id: payload.user_id
             }
         })
-        return { ...user, password: undefined }
+        return user
     }
 }
