@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common'
 import { ROOT_ENV_FILE } from '../configs/constants'
 // modules
 import { ConfigModule } from '@nestjs/config'
-import { AuthModule, PrismaModule } from './modules'
+import { AuthModule, PrismaModule, UserModule } from './modules'
 
 @Module({
   imports: [
@@ -13,7 +13,8 @@ import { AuthModule, PrismaModule } from './modules'
       isGlobal: true
     }),
     PrismaModule,
-    AuthModule
+    AuthModule,
+    UserModule
   ]
 })
 export class AppModule { }

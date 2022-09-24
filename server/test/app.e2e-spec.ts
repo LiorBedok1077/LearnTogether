@@ -113,12 +113,12 @@ describe('AppController (e2e)', () => {
       // error: no authorization header (unauthorized)
       it('should throw error - no auth header', () => pactum
         .spec()
-        .get("/auth/user")
+        .get("/user")
         .expectStatus(HttpStatus.UNAUTHORIZED))
       // error: invalid authorization header (unauthorized)
       it('should throw error - invalid auth header', () => pactum
         .spec()
-        .get("/auth/user")
+        .get("/user")
         .withHeaders({
           'Authorization': "Bearer Nopee"
         })
@@ -126,7 +126,7 @@ describe('AppController (e2e)', () => {
       // success: should get user data
       it('should get user data', () => pactum
         .spec()
-        .get("/auth/user")
+        .get("/user")
         .withHeaders({
           'Authorization': "Bearer $S{userAt}"
         })
@@ -135,12 +135,12 @@ describe('AppController (e2e)', () => {
       // error: user does not exist
       it('should throw error - user does not exist', () => pactum
         .spec()
-        .get("/auth/user/non-existing-user-id")
+        .get("/user/non-existing-user-id")
         .expectStatus(HttpStatus.NOT_FOUND))
       // success: should get (another) user data
       it('should get (another) user data', () => pactum
         .spec()
-        .get("/auth/user/$S{userId}")
+        .get("/user/$S{userId}")
         .expectStatus(HttpStatus.OK)
         .inspect())
     })

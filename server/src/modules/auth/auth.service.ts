@@ -1,14 +1,14 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
+import { verify, hash } from 'argon2'
 // types
 import { JwtTokenPayload } from "../../../interfaces/globals";
 import { SignupDto, SigninDto } from "./dto";
-import { verify, hash } from 'argon2'
+import { ENV_VARS, TEST__JWT_EXPIRATION_TIME } from "../../../configs/constants";
 // services
 import { PrismaService } from "../prisma/prisma.service";
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { ENV_VARS, TEST__JWT_EXPIRATION_TIME } from "../../../configs/constants";
 
 
 /**
@@ -69,26 +69,6 @@ export class AuthService {
                 throw new BadRequestException('Credentials already taken')
             }
             throw err
-        }
-    }
-
-    /**
-     * Method gets a user id and returns the corresponding user's data.
-     * @param user_id the user id (from the url params)
-     * @returns The user's data (by the given id)
-     */
-    async getForeignUserData(user_id: string) {
-        try {
-            const result = await this.prisma.users.findUnique({
-                where: { user_id }
-            })
-            if (!result) {
-                throw new NotFoundException('User does not exist')
-            }
-            return result
-        }
-        catch (err) {
-            throw new NotFoundException('User does not exist')
         }
     }
 

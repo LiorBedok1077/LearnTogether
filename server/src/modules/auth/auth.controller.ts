@@ -16,25 +16,6 @@ export class AuthController {
     ) { }
 
     /**
-     * @description Endpoint for sending back user-data.
-     */
-    @Get('user')
-    @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.OK)
-    getUserData(@GetUser() user: Users) {
-        return user
-    }
-
-    /**
-     * @description Endpoint for visiting user-data.
-     */
-    @Get('user/:user_id')
-    @HttpCode(HttpStatus.OK)
-    async getForeignUserData(@Param('user_id') user_id: string) {
-        return await this.authService.getForeignUserData(user_id)
-    }
-
-    /**
      * @description Endpoint for signing in users.
      */
     @Post('signin')
