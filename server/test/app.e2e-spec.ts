@@ -144,5 +144,20 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.OK)
         .inspect())
     })
+    describe('delete-user', () => {
+      // error: no authorization header (unauthorized)
+      it('should throw error - invalid auth header', () => pactum
+        .spec()
+        .delete("/user/$S{userId}")
+        .expectStatus(HttpStatus.UNAUTHORIZED))
+      // success: should delete a user
+      it('should delete a user', () => pactum
+        .spec()
+        .delete("/user/$S{userId}")
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.NO_CONTENT))
+    })
   })
 });

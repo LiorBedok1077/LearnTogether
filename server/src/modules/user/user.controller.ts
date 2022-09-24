@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, UseGuards } from "@nestjs/common"
+import { Controller, Delete, Get, HttpCode, HttpStatus, Param, UseGuards } from "@nestjs/common"
 import { Users } from "prisma/prisma-client"
 import { GetUser } from "../auth/decorators"
 import { JwtGuard } from "../auth/guards"
@@ -32,6 +32,16 @@ export class UserController {
     @HttpCode(HttpStatus.OK)
     async getForeignUserData(@Param('user_id') user_id: string) {
         return await this.userService.getForeignUserData(user_id)
+    }
+
+    /**
+     * @description Endpoint for deleting users.
+     */
+    @Delete(':user_id')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async deleteUser(@Param('user_id') user_id: string) {
+        return await this.userService.deleteUser(user_id)
     }
 
 }
