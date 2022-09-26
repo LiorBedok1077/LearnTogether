@@ -21,12 +21,13 @@ export class PrismaService extends PrismaClient {
      */
     async cleanDB() {
         return void await this.$transaction([
-            this.users.deleteMany(),
-            this.articles.deleteMany(),
-            this.comments.deleteMany(),
+            // from low-relevant to high-relevant
             this.roles.deleteMany(),
             this.favorite_tags.deleteMany(),
-            this.learning_groups.deleteMany()
+            this.comments.deleteMany(),
+            this.articles.deleteMany(),
+            this.learning_groups.deleteMany(),
+            this.users.deleteMany(),
         ])
     }
 }

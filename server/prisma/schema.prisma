@@ -60,7 +60,7 @@ model Learning_groups {
     // group_tags
     tags          String[]
     // data
-    thumbnail_src String
+    thumbnail_src String?
     title         String
     description   String
     goals         String[]

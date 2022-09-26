@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 // configs
 import { ENV_VARS } from '../../../configs/constants'
 import { JwtAuthTokenPayload } from '../../../interfaces/jwt'

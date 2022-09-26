@@ -1,9 +1,9 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from "@nestjs/common"
-import { Users } from "prisma/prisma-client"
-import { GetUser } from "../auth/decorators"
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from "@nestjs/common"
 import { JwtGuard } from "../auth/guards"
-import { ChangePasswordDto, UpdateUserDto } from "./dto"
+import { GetUser } from "../auth/decorators"
 // types
+import { Users } from "prisma/prisma-client"
+import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { UserService } from "./user.service"
 

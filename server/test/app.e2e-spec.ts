@@ -7,6 +7,8 @@ import { PrismaService } from '../src/modules/prisma/prisma.service';
 import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '../src/interfaces/db-models';
 import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
+import { isRFC3339 } from 'class-validator';
+import { CreateGroupDto } from '../src/modules/group/dto';
 
 const TEST_PORT = 5001
 
@@ -73,7 +75,7 @@ describe('AppController (e2e)', () => {
         .post("/auth/signup")
         .withBody(SignupDto)
         .expectStatus(HttpStatus.CREATED)
-      )
+        .inspect())
       it('should not sign-up - credentials are taken', () => pactum
         .spec()
         .post("/auth/signup")
@@ -126,7 +128,7 @@ describe('AppController (e2e)', () => {
         .withBody(ForgotPasswordDto)
         .expectStatus(HttpStatus.OK)
         .stores('change-password-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-        .inspect())
+      )
     })
     describe('forgot-password (step 2 - change password using email-token)', () => {
       // change forgotten password dto (dynamic fields)
@@ -140,21 +142,21 @@ describe('AppController (e2e)', () => {
         .patch('/auth/forgot-password')
         .withBody(ChangeForgottenPasswordDto('some-invalid-token'))
         .expectStatus(HttpStatus.BAD_REQUEST)
-        .inspect())
+      )
       // error: invalid token (attempting to use login-token)
       it('error: invalid token (attempting to use login-token)', () => pactum
         .spec()
         .patch('/auth/forgot-password')
         .withBody(ChangeForgottenPasswordDto('$S{userAt}'))
         .expectStatus(HttpStatus.BAD_REQUEST)
-        .inspect())
+      )
       // should change forgotten password successfully
       it('should change forgotten password', () => pactum
         .spec()
         .patch('/auth/forgot-password')
         .withBody(ChangeForgottenPasswordDto('$S{change-password-email-token}'))
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
       // error: unauthorized (using old password)
       it('error: unauthorized (using old password)', () => pactum
         .spec()
@@ -165,7 +167,7 @@ describe('AppController (e2e)', () => {
           remember_me: false
         } as SigninDto)
         .expectStatus(HttpStatus.FORBIDDEN)
-        .inspect())
+      )
       // should signin with new password
       it('should signin with new password', () => pactum
         .spec()
@@ -177,8 +179,8 @@ describe('AppController (e2e)', () => {
         } as SigninDto)
         .expectStatus(HttpStatus.OK)
         .stores('userAt', 'token')
-        .inspect())
-    });
+      )
+    })
   })
   describe('User', () => {
     // User testing
@@ -277,7 +279,8 @@ describe('AppController (e2e)', () => {
         })
         .withBody(ChangePasswordDto)
         .expectStatus(HttpStatus.OK))
-    });
+    })
+    /* have other functionality to check 0_0
     describe('delete-user', () => {
       // error: no authorization header (unauthorized)
       it('error: invalid auth header', () => pactum
@@ -292,6 +295,26 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .expectStatus(HttpStatus.NO_CONTENT))
+    })
+    */
+  })
+  describe('LearningGroups', () => {
+    const CreateGroupDto: CreateGroupDto = {
+      title: 'Group 1',
+      description: 'An interesting group to be in :S',
+      members: [],
+      tags: ["Tag-1"]
+    }
+    describe('Create group', () => {
+      it('should create a group', () => pactum
+        .spec()
+        .post('/group')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(CreateGroupDto)
+        .expectStatus(HttpStatus.CREATED)
+        .inspect())
     })
   })
 });

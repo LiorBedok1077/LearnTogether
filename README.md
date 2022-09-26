@@ -173,7 +173,7 @@ The platform contains:
         * interests?		String[]
     * Delete user.
       * Method: DELETE
-    * Groups route:
+  * Groups route:
     * Create a group.
       * Method: POST
       * Body:
@@ -212,56 +212,56 @@ The platform contains:
       * Request
         * Method: DELETE
       * Params:
-      * group_id		String
-* Articles route:
-  * Create articles.
-    * Method: POST
-    * Body:
-      * thumbnail		File
-      * title			String
-      * content		    String
-      * tags			Tags[]
-  * Edit articles.
-    * Method: PATCH
-    * Body:
-      * thumbnail		File
-      * title			String
-      * content		    String
-      * tags			Tags[]
-  * Delete articles.
-    * Method: DELETE
-    * Params:
-      * article_id		String
-  * Like / unlike articles.
-    * Method: PUT
-    * Params:
-      * article_id		String
-  * Comment on other articles.
-    * Method: POST
-    * Body:
-      * data			String
-  * Edit article comments.
-    * Method: PATCH
-    * Params:
-      * comment_id	String
-    * Body: 
-      * data		String
-  * Like / unlike article comments.
-    * Method: PATCH
-    * Params:
-      * comment_id	String
-* Tutors route:
-  * – later –
-* Private lessons route:
-  * – later –
-* CMS route:
-  * View profile - adds 
-* **– all other routes will be detailed here later –**
-    * Private tutor profiles
-    * Private lessons system
-    * Reports system
-    * Statistics system
-    * Profit management system
+        * group_id		String
+  * Articles route:
+    * Create articles.
+      * Method: POST
+      * Body:
+        * thumbnail		File
+        * title			String
+        * content		    String
+        * tags			Tags[]
+    * Edit articles.
+      * Method: PATCH
+      * Body:
+        * thumbnail		File
+        * title			String
+        * content		    String
+        * tags			Tags[]
+    * Delete articles.
+      * Method: DELETE
+      * Params:
+        * article_id		String
+    * Like / unlike articles.
+      * Method: PUT
+      * Params:
+        * article_id		String
+    * Comment on other articles.
+      * Method: POST
+      * Body:
+        * data			String
+    * Edit article comments.
+      * Method: PATCH
+      * Params:
+        * comment_id	String
+      * Body: 
+        * data		String
+    * Like / unlike article comments.
+      * Method: PATCH
+      * Params:
+        * comment_id	String
+  * Tutors route:
+    * – later –
+  * Private lessons route:
+    * – later –
+  * CMS route:
+    * View profile - adds 
+  * **– all other routes will be detailed here later –**
+      * Private tutor profiles
+      * Private lessons system
+      * Reports system
+      * Statistics system
+      * Profit management system
 
 ### Responses (on different events)
 

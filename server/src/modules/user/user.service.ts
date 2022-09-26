@@ -1,11 +1,12 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common"
 import { hash, verify } from 'argon2'
+// utils
+import { getUserByIdOptions, updateUserByIdOptions } from "../../utils/db"
 // types
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { PrismaService } from "../prisma/prisma.service"
-import { getUserByIdOptions, updateUserByIdOptions } from "../../utils/db"
 
 
 /**
@@ -95,7 +96,7 @@ export class UserService {
             const result = await this.prisma.users.update(
                 updateUserByIdOptions(user_id, { password: hashed })
             )
-            return result
+            return ('Password changed successfully')
         }
         catch (err) {
             if (err instanceof PrismaClientKnownRequestError) {

@@ -5,6 +5,7 @@ import { AppModuleOptions_asyncMailer, AppModuleOptions_configs } from './config
 import { ConfigModule } from '@nestjs/config'
 import { MailerModule } from '@nestjs-modules/mailer'
 import { AuthModule, PrismaModule, UserModule } from './modules'
+import { GroupModule } from './modules/group/group.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { AuthModule, PrismaModule, UserModule } from './modules'
     // prisma module - access to the database globally.
     PrismaModule,
     AuthModule,
-    UserModule
+    UserModule,
+    GroupModule
   ]
 })
 export class AppModule { }
