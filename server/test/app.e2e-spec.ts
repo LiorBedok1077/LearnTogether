@@ -139,7 +139,14 @@ describe('AppController (e2e)', () => {
         .spec()
         .patch('/auth/forgot-password')
         .withBody(ChangeForgottenPasswordDto('some-invalid-token'))
-        .expectStatus(HttpStatus.FORBIDDEN)
+        .expectStatus(HttpStatus.BAD_REQUEST)
+        .inspect())
+      // error: invalid token (attempting to use login-token)
+      it('error: invalid token (attempting to use login-token)', () => pactum
+        .spec()
+        .patch('/auth/forgot-password')
+        .withBody(ChangeForgottenPasswordDto('$S{userAt}'))
+        .expectStatus(HttpStatus.BAD_REQUEST)
         .inspect())
       // should change forgotten password successfully
       it('should change forgotten password', () => pactum

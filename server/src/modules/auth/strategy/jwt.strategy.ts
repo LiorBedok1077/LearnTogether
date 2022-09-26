@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 // configs
 import { ENV_VARS } from '../../../configs/constants'
-import { JwtAuthTokenPayload } from '../../../interfaces/globals'
+import { JwtAuthTokenPayload } from '../../../interfaces/jwt'
 import { Users } from 'prisma/prisma-client'
 // jwt
 import { PassportStrategy } from '@nestjs/passport'
@@ -18,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: config.get(ENV_VARS.JWT_SECRET)
+            secretOrKey: config.get(ENV_VARS.JWT_SECRET_AUTH)
         })
     }
 

@@ -3,16 +3,15 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { verify, hash } from 'argon2'
 // types
 import { SignupDto, SigninDto, ChangeForgottenPasswordDto, ForgotPasswordDto } from "./dto";
-import { ENV_VARS, JWT_EXPIRES_AT } from "../../configs/constants";
-import { JwtAuthTokenPayload, JwtForgotPasswordTokenPayload } from "../../interfaces/globals";
+import { JwtAuthTokenPayload, JwtForgotPasswordTokenPayload, signToken } from "../../interfaces/jwt";
 // utils
-import { updateUserByIdOptions } from "../../utils/db/options";
+import { resetPasswordMailOptions, GetSignTokenOptions, updateUserByIdOptions } from "../../utils";
 // services
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from '@nestjs-modules/mailer'
-import { resetPasswordMailOptions } from "../../utils/mail/options";
+import { ENV_VARS } from "../../configs/constants";
 
 /**
  * (Auth) Service handles user-authorization functionallities (e.g. sign-in, sign-up, etc.)
@@ -42,8 +41,7 @@ export class AuthService {
             throw new ForbiddenException('Password is incorrect')
         }
         // return token & data
-        const { email, user_id, username } = user
-        const token = await this.signToken({ email, user_id, username })
+        const token = await this.signToken<JwtAuthTokenPayload>({ user_id: user.user_id })
         return { token }
     }
 
@@ -61,8 +59,7 @@ export class AuthService {
                 data: { ...dto, password: hashed }
             })
             // generate token
-            const { email, user_id, username } = user
-            const token = await this.signToken({ email, user_id, username })
+            const token = await this.signToken<JwtAuthTokenPayload>({ user_id: user.user_id })
             // return token & data
             return {
                 token, data: { ...user, password: undefined }
@@ -86,9 +83,7 @@ export class AuthService {
             where: { OR: [{ email: username_or_email }, { username: username_or_email }] }
         })
         // generate link with expiring token as a parameter
-        const token = await this.signToken<JwtForgotPasswordTokenPayload>(
-            { user_id, num_edited_profile }, JWT_EXPIRES_AT.FORGOT_PASSWORD
-        )
+        const token = await this.signToken<JwtForgotPasswordTokenPayload>({ user_id, num_edited_profile }, 'EMAIL')
         // send link to mail synchronously 
         this.mailerService.sendMail(
             resetPasswordMailOptions(email, { full_name, token, username })
@@ -107,20 +102,22 @@ export class AuthService {
      */
     async changeForgottenPassword(dto: ChangeForgottenPasswordDto) {
         try {
-            // validate token
-            const token = await this.jwt.verifyAsync<JwtForgotPasswordTokenPayload>(dto.verification_token)
+            // validate email-token
+            const token = await this.jwt.verifyAsync<JwtForgotPasswordTokenPayload>(dto.verification_token, {
+                secret: this.config.get(ENV_VARS.JWT_SECRET_EMAIL)
+            })
             if (!token) {
-                throw new ForbiddenException('Token is invalid or expired')
+                throw new BadRequestException('Token is invalid or expired')
             }
             const hashed = await hash(dto.new_password)
-            const { username, email, user_id } = await this.prisma.users.update(
+            const { user_id } = await this.prisma.users.update(
                 updateUserByIdOptions(token.user_id, { password: hashed })
             )
-            const new_token = await this.signToken<JwtAuthTokenPayload>({ email, user_id, username })
+            const new_token = await this.signToken<JwtAuthTokenPayload>({ user_id })
             return { new_token }
         }
         catch (err) {
-            throw new ForbiddenException('Token is invalid or expired')
+            throw new BadRequestException('Token is invalid or expired')
         }
     }
 
@@ -130,7 +127,7 @@ export class AuthService {
      * @param expiresIn (optional) the expiring timeout for the token.
      * @returns a signed jwt-token with the given parameters as the payload
      */
-    private async signToken<T extends Object>(payload: T, expiresIn: JWT_EXPIRES_AT = JWT_EXPIRES_AT.AUTH__TEST): Promise<string> {
-        return this.jwt.signAsync(payload, { expiresIn })
+    private signToken: signToken = async (payload, token_type = 'AUTH') => {
+        return await this.jwt.signAsync(payload, GetSignTokenOptions(this.config, token_type))
     }
 }

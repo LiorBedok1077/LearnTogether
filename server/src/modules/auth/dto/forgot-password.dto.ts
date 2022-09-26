@@ -1,4 +1,4 @@
-import { Length, IsNotEmpty, IsString, MaxLength } from 'class-validator'
+import { Length, IsNotEmpty, IsString, MaxLength, IsJWT } from 'class-validator'
 
 export class ForgotPasswordDto {
 
@@ -17,6 +17,7 @@ export class ChangeForgottenPasswordDto {
 
     @IsNotEmpty()
     @IsString()
+    @IsJWT({ message: "Invalid verification token" })
     @MaxLength(232)
     verification_token: string
 }
