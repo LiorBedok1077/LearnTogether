@@ -17,6 +17,6 @@ export class ChangeForgottenPasswordDto {
 
     @IsNotEmpty()
     @IsString()
-    @MaxLength(92)
+    @MaxLength(232)
     verification_token: string
 }

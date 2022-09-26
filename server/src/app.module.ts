@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common'
 // configs
-import { ROOT_ENV_FILE } from './configs/constants'
+import { AppModuleOptions_asyncMailer, AppModuleOptions_configs } from './configs/app-module'
 // modules
 import { ConfigModule } from '@nestjs/config'
+import { MailerModule } from '@nestjs-modules/mailer'
 import { AuthModule, PrismaModule, UserModule } from './modules'
 
 @Module({
   imports: [
     // config module - access environment variables globally.
-    ConfigModule.forRoot({
-      envFilePath: ROOT_ENV_FILE.test,
-      isGlobal: true
-    }),
+    ConfigModule.forRoot(AppModuleOptions_configs),
+    // mailer module - allows sending mails globally.
+    MailerModule.forRootAsync(AppModuleOptions_asyncMailer),
+    // prisma module - access to the database globally.
     PrismaModule,
     AuthModule,
     UserModule

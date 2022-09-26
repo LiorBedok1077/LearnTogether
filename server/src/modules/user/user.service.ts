@@ -5,7 +5,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { PrismaService } from "../prisma/prisma.service"
-import { getUserByIdOptions, updateUserByIdOptions } from "../../utils/db"
+import { getUserByIdOptions, updateUserByIdOptions } from "../../utils/db/options"
 
 
 /**

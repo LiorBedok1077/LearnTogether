@@ -4,7 +4,7 @@ import * as pactum from 'pactum';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
 // types
-import { SigninDto, SignupDto } from '../src/modules/auth/dto';
+import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '../src/interfaces/db-models';
 import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
 
@@ -17,7 +17,6 @@ describe('AppController (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule]
     }).compile()
-
     app = moduleRef.createNestApplication()
     app.useGlobalPipes(new ValidationPipe({
       whitelist: true
@@ -40,11 +39,12 @@ describe('AppController (e2e)', () => {
     // Auth testing
     describe('sign-up', () => {
       const SignupDto: SignupDto = {
-        full_name: 'Lior Bedok',
+        full_name: 'Newton',
         gender: GenderEnum.MALE,
-        email: "unrelated_user@gmail.com",
+        // email: "natanelmich103@gmail.com",
+        email: "swuicnkds01@gmail.com",
         password: "123456789",
-        username: "unrelated_user",
+        username: "Artemixx",
         bio: "I like 1, 2, 3 and 4",
         interests: ["Psychology", "Astronomy", "Philosophy"],
         prefered_langs: [
@@ -53,7 +53,7 @@ describe('AppController (e2e)', () => {
         ]
       }
       // error: password is empty
-      it('should throw error - password is missing', () => pactum
+      it('error: password is missing', () => pactum
         .spec()
         .post("/auth/signup")
         .withBody({
@@ -62,7 +62,7 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.BAD_REQUEST)
       )
       // error: no dto
-      it('should throw error - no dto', () => pactum
+      it('error: no dto', () => pactum
         .spec()
         .post("/auth/signup")
         .withBody({})
@@ -84,18 +84,18 @@ describe('AppController (e2e)', () => {
     describe('sign-in', () => {
       const SigninDto: SigninDto = {
         password: "123456789",
-        username: "unrelated_user",
+        username: "Artemixx",
         remember_me: false
       }
       // error: email is empty
-      it('should throw error - username is empty', () => pactum
+      it('error: username is empty', () => pactum
         .spec()
         .post("/auth/signin")
         .withBody({ password: SigninDto.password })
         .expectStatus(400)
       )
       // error: username is empty
-      it('should throw error - password is empty', () => pactum
+      it('error: password is empty', () => pactum
         .spec()
         .post("/auth/signin")
         .withBody({ username: SigninDto.username })
@@ -110,17 +110,79 @@ describe('AppController (e2e)', () => {
         .stores('userAt', 'token')
       )
     })
+    describe('forgot-password (step 1 - receive email)', () => {
+      const ForgotPasswordDto: ForgotPasswordDto = {
+        username_or_email: "Artemixx"
+      }
+      // error: do body provided
+      it('error: do body provided', () => pactum
+        .spec()
+        .post('/auth/forgot-password')
+        .expectStatus(HttpStatus.BAD_REQUEST))
+      // should return OK (sends email in the background)
+      it('should return OK (sends email in the background)', () => pactum
+        .spec()
+        .post('/auth/forgot-password')
+        .withBody(ForgotPasswordDto)
+        .expectStatus(HttpStatus.OK)
+        .stores('change-password-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
+        .inspect())
+    })
+    describe('forgot-password (step 2 - change password using email-token)', () => {
+      // change forgotten password dto (dynamic fields)
+      const ChangeForgottenPasswordDto = (verification_token: string): ChangeForgottenPasswordDto => ({
+        new_password: 'new-password-yeahh',
+        verification_token
+      })
+      // error: invalid token
+      it('error: token is invalid', () => pactum
+        .spec()
+        .patch('/auth/forgot-password')
+        .withBody(ChangeForgottenPasswordDto('some-invalid-token'))
+        .expectStatus(HttpStatus.FORBIDDEN)
+        .inspect())
+      // should change forgotten password successfully
+      it('should change forgotten password', () => pactum
+        .spec()
+        .patch('/auth/forgot-password')
+        .withBody(ChangeForgottenPasswordDto('$S{change-password-email-token}'))
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+      // error: unauthorized (using old password)
+      it('error: unauthorized (using old password)', () => pactum
+        .spec()
+        .post('/auth/signin')
+        .withBody({
+          username: 'Artemixx',
+          password: "123456789",
+          remember_me: false
+        } as SigninDto)
+        .expectStatus(HttpStatus.FORBIDDEN)
+        .inspect())
+      // should signin with new password
+      it('should signin with new password', () => pactum
+        .spec()
+        .post('/auth/signin')
+        .withBody({
+          username: 'Artemixx',
+          password: "new-password-yeahh",
+          remember_me: false
+        } as SigninDto)
+        .expectStatus(HttpStatus.OK)
+        .stores('userAt', 'token')
+        .inspect())
+    });
   })
   describe('User', () => {
     // User testing
     describe('get-user-data', () => {
       // error: no authorization header (unauthorized)
-      it('should throw error - no auth header', () => pactum
+      it('error: no auth header', () => pactum
         .spec()
         .get("/user")
         .expectStatus(HttpStatus.UNAUTHORIZED))
       // error: invalid authorization header (unauthorized)
-      it('should throw error - invalid auth header', () => pactum
+      it('error: invalid auth header', () => pactum
         .spec()
         .get("/user")
         .withHeaders({
@@ -137,7 +199,7 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.OK)
         .stores('userId', 'user_id'))
       // error: user does not exist
-      it('should throw error - user does not exist', () => pactum
+      it('error: user does not exist', () => pactum
         .spec()
         .get("/user/non-existing-user-id")
         .expectStatus(HttpStatus.NOT_FOUND))
@@ -154,13 +216,13 @@ describe('AppController (e2e)', () => {
         bio: "I'm a cool music artist"
       }
       // error: unauthorized
-      it('should throw error - unauthorized', () => pactum
+      it('error: unauthorized', () => pactum
         .spec()
         .patch("/user")
         .expectStatus(HttpStatus.UNAUTHORIZED)
       )
       // error: no body
-      it('should throw error - body not provided', () => pactum
+      it('error: body not provided', () => pactum
         .spec()
         .patch("/user")
         .withHeaders({
@@ -182,16 +244,16 @@ describe('AppController (e2e)', () => {
     })
     describe('change-password', () => {
       const ChangePasswordDto: ChangePasswordDto = {
-        old_password: "123456789",
-        new_password: "new_password_123"
+        old_password: "new-password-yeahh",
+        new_password: "even-newer-password-yoo"
       }
       // error: unauthorized (invalid auth header)
-      it('should throw error - unauthorized (no auth header)', () => pactum
+      it('error: unauthorized (no auth header)', () => pactum
         .spec()
         .post('/user/change-password')
         .expectStatus(HttpStatus.UNAUTHORIZED))
       // error: old-password is incorrect
-      it('should throw error - old-password is incorrect', () => pactum
+      it('error: old-password is incorrect', () => pactum
         .spec()
         .post('/user/change-password')
         .withHeaders({
@@ -211,7 +273,7 @@ describe('AppController (e2e)', () => {
     });
     describe('delete-user', () => {
       // error: no authorization header (unauthorized)
-      it('should throw error - invalid auth header', () => pactum
+      it('error: invalid auth header', () => pactum
         .spec()
         .delete("/user/$S{userId}")
         .expectStatus(HttpStatus.UNAUTHORIZED))

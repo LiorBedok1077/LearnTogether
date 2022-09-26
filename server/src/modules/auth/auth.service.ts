@@ -4,13 +4,15 @@ import { verify, hash } from 'argon2'
 // types
 import { SignupDto, SigninDto, ChangeForgottenPasswordDto, ForgotPasswordDto } from "./dto";
 import { ENV_VARS, JWT_EXPIRES_AT } from "../../configs/constants";
-import { JwtForgotPasswordTokenPayload } from "../../interfaces/globals";
+import { JwtAuthTokenPayload, JwtForgotPasswordTokenPayload } from "../../interfaces/globals";
+// utils
+import { updateUserByIdOptions } from "../../utils/db/options";
 // services
-import { PrismaService } from "../prisma/prisma.service";
-import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { updateUserByIdOptions } from "../../utils/db";
-
+import { JwtService } from '@nestjs/jwt'
+import { PrismaService } from "../prisma/prisma.service";
+import { MailerService } from '@nestjs-modules/mailer'
+import { resetPasswordMailOptions } from "../../utils/mail/options";
 
 /**
  * (Auth) Service handles user-authorization functionallities (e.g. sign-in, sign-up, etc.)
@@ -18,9 +20,10 @@ import { updateUserByIdOptions } from "../../utils/db";
 @Injectable()
 export class AuthService {
     constructor(
-        private prisma: PrismaService,
+        private config: ConfigService,
         private jwt: JwtService,
-        private config: ConfigService
+        private prisma: PrismaService,
+        private mailerService: MailerService
     ) { }
 
     /**
@@ -77,22 +80,24 @@ export class AuthService {
      * Method changes (forgotten) password (step 1) - sends verification email.
      * @param dto The new password & the token to verify before changing the password
      */
-    async forgotPassword(dto: ForgotPasswordDto) {
-        try {
-            // find user via dto parameters
-            const { user_id, num_edited_profile } = await this.prisma.users.findFirstOrThrow({
-                where: { OR: [{ email: dto.username_or_email }, { username: dto.username_or_email }] }
-            })
-            // generating link with expiring token as a parameter (2m)
-            const token = await this.signToken<JwtForgotPasswordTokenPayload>(
-                { user_id, num_edited_profile }, JWT_EXPIRES_AT.FORGOT_PASSWORD
-            )
-            // send link to mail (in a styled html message)
-            // end connection (side-request should come after with the generated token & the new password)
-            // # await MailerService.mail(token)
-        }
-        catch (err) {
-            throw new BadRequestException('User does not exist')
+    async forgotPassword({ username_or_email }: ForgotPasswordDto) {
+        // find user via dto parameters
+        const { user_id, num_edited_profile, email, username, full_name } = await this.prisma.users.findFirstOrThrow({
+            where: { OR: [{ email: username_or_email }, { username: username_or_email }] }
+        })
+        // generate link with expiring token as a parameter
+        const token = await this.signToken<JwtForgotPasswordTokenPayload>(
+            { user_id, num_edited_profile }, JWT_EXPIRES_AT.FORGOT_PASSWORD
+        )
+        // send link to mail synchronously 
+        this.mailerService.sendMail(
+            resetPasswordMailOptions(email, { full_name, token, username })
+        )
+        // end connection (side-request should come after with the generated token & the new password)
+        return {
+            msg: (`A reset link has been sent to ${email}. Please use it to reset your password`),
+            // temp response field - simulating email verification - testing change-password (step 2)
+            EMAIL_TOKEN__FOR_TESTING_ONLY: token
         }
     }
 
@@ -108,10 +113,11 @@ export class AuthService {
                 throw new ForbiddenException('Token is invalid or expired')
             }
             const hashed = await hash(dto.new_password)
-            const result = await this.prisma.users.update(
+            const { username, email, user_id } = await this.prisma.users.update(
                 updateUserByIdOptions(token.user_id, { password: hashed })
             )
-            return result
+            const new_token = await this.signToken<JwtAuthTokenPayload>({ email, user_id, username })
+            return { new_token }
         }
         catch (err) {
             throw new ForbiddenException('Token is invalid or expired')
@@ -120,15 +126,11 @@ export class AuthService {
 
     /**
      * Method signs a jwt-token with the given parameters.
-     * @param user_id a user id (string)
-     * @param username a user's username (string)
+     * @param payload the token's payload.
+     * @param expiresIn (optional) the expiring timeout for the token.
      * @returns a signed jwt-token with the given parameters as the payload
      */
     private async signToken<T extends Object>(payload: T, expiresIn: JWT_EXPIRES_AT = JWT_EXPIRES_AT.AUTH__TEST): Promise<string> {
-        // -- demo jwt payload
-        return this.jwt.signAsync(payload, {
-            expiresIn,
-            secret: this.config.get(ENV_VARS.JWT_SECRET)
-        })
+        return this.jwt.signAsync(payload, { expiresIn })
     }
 }
