@@ -1,8 +1,12 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException, Injectable, BadRequestException } from '@nestjs/common'
 // types
-import { CreateGroupDto } from './dto';
+import { CreateGroupDto, JoinGroupDto } from './dto'
+import { Users } from '../../interfaces/db-models'
 // services
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service'
+import { JwtService } from '../jwt/jwt.service'
+import { MailerService } from '@nestjs-modules/mailer'
+import { requestJoinGroupMailOptions } from '../../utils/mail'
 
 /**
  * (Group) Service handles learning-group crud operations (e.g. create-group, edit-group, etc.)
@@ -10,7 +14,9 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class GroupService {
     constructor(
-        private prisma: PrismaService
+        private prisma: PrismaService,
+        private jwt: JwtService,
+        private mailer: MailerService
     ) { }
 
     /**
@@ -34,8 +40,60 @@ export class GroupService {
             })
             return result
         }
+        catch (err) { }
+    }
+
+    async requestJoinGroup(user: Users, group_id: string) {
+        try {
+            // find group with it's creator
+            const group = await this.prisma.learning_groups.findUnique({
+                where: { group_id },
+                include: {
+                    creator: {
+                        select: { email: true, username: true }
+                    }
+                }
+            })
+            // check if requested group is not owned by the requesting user
+            if (group.creator.username === user.username) {
+                throw new BadRequestException('Cannot join your own group')
+            }
+            // push notification (later)
+            // create request token
+            const token = await this.jwt.signToken_joinGroup({ group_id, user_id: user.user_id })
+            // send mail request to the creator
+            this.mailer.sendMail(
+                requestJoinGroupMailOptions(group.creator.email, {
+                    token,
+                    username: group.creator.username,
+                    group_title: group.title,
+                    requesting_username: user.username
+                })
+            )
+            return {
+                msg: (`A request has been sent to "${group.creator.email}"`),
+                // temp response field - simulating email verification - testing change-password (step 2)
+                EMAIL_TOKEN__FOR_TESTING_ONLY: token
+            }
+        }
         catch (err) {
-            throw new InternalServerErrorException(err)
+            throw new BadRequestException({ err })
+        }
+    }
+
+    async joinGroup(dto: JoinGroupDto) {
+        try {
+            // validate email-token
+            const { group_id, user_id } = await this.jwt.verifyToken(dto.verification_token, 'request-join-group')
+            // update database with the hashed password 
+            const result = await this.prisma.learning_groups.update({
+                where: { group_id },
+                data: { participants: { connect: { user_id } } },
+            })
+            return `Joined successfully to group "${result.title}"`
+        }
+        catch (err) {
+            throw new BadRequestException({ err })
         }
     }
 }

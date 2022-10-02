@@ -18,6 +18,6 @@ export class ChangeForgottenPasswordDto {
     @IsNotEmpty()
     @IsString()
     @IsJWT({ message: "Invalid verification token" })
-    @MaxLength(232)
+    @MaxLength(312)
     verification_token: string
 }

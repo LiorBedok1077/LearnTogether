@@ -52,6 +52,11 @@ describe('AppController (e2e)', () => {
           PreferedLanguagesEnum.HEBREW
         ]
       }
+      const SignupDto2: SignupDto = {
+        ...SignupDto,
+        username: 'Jake',
+        email: "natanelmich103@gmail.com"
+      }
       // error: password is empty
       it('error: password is missing', () => pactum
         .spec()
@@ -67,7 +72,7 @@ describe('AppController (e2e)', () => {
         .post("/auth/signup")
         .withBody({})
         .expectStatus(HttpStatus.BAD_REQUEST))
-      // // should sign up
+      // should sign up
       it('should sign-up', () => pactum
         .spec()
         .post("/auth/signup")
@@ -79,6 +84,13 @@ describe('AppController (e2e)', () => {
         .withBody(SignupDto)
         .expectStatus(HttpStatus.BAD_REQUEST)
       )
+      // should sign up a second user
+      it('should sign-up a 2nd user', () => pactum
+        .spec()
+        .post("/auth/signup")
+        .withBody(SignupDto2)
+        .expectStatus(HttpStatus.CREATED)
+        .stores('userAt2', 'token'))
     })
     describe('sign-in', () => {
       const SigninDto: SigninDto = {
@@ -154,7 +166,7 @@ describe('AppController (e2e)', () => {
         .patch('/auth/forgot-password')
         .withBody(ChangeForgottenPasswordDto('$S{change-password-email-token}'))
         .expectStatus(HttpStatus.OK)
-      )
+        .inspect())
       // error: unauthorized (using old password)
       it('error: unauthorized (using old password)', () => pactum
         .spec()
@@ -303,7 +315,11 @@ describe('AppController (e2e)', () => {
       members: [],
       tags: ["Tag-1"]
     }
+    const JoinGroupDto = (verification_token: string): any => ({
+      verification_token
+    })
     describe('Create group', () => {
+      // create a group
       it('should create a group', () => pactum
         .spec()
         .post('/group')
@@ -311,7 +327,46 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .withBody(CreateGroupDto)
-        .expectStatus(HttpStatus.CREATED))
+        .expectStatus(HttpStatus.CREATED)
+        .stores('group_id', 'group_id'))
+      // error: cannot join your own group
+      it('error: cannot join your own group (user1 -> user1)', () => pactum
+        .spec()
+        .put(`/group/request-join/$S{group_id}`)
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.BAD_REQUEST))
+      // request-join a group
+      it('should request-join a group (user2 -> user1)', () => pactum
+        .spec()
+        .put(`/group/request-join/$S{group_id}`)
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .expectStatus(HttpStatus.OK)
+        .stores('join-group-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
+        .inspect())
+      // invalid token
+      it('error: invalid token (attempting to use auth-token)', () => pactum
+        .spec()
+        .post('/group/join')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .withBody(JoinGroupDto('$S{userAt2}'))
+        .expectStatus(HttpStatus.BAD_REQUEST)
+        .inspect())
+      // join a group
+      it('should join a group using a request link', () => pactum
+        .spec()
+        .post('/group/join')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .withBody(JoinGroupDto('$S{join-group-email-token}'))
+        .expectStatus(HttpStatus.OK)
+        .inspect())
     })
   })
 });

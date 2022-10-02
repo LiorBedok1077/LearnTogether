@@ -28,3 +28,6 @@ export const JWT_EXPIRE_TOKEN = {
 
 // reset-password client url - with a dynamic token param
 export const RESET_PASSWORD_CLIENT_URL = (token: string) => `http://localhost:3000/reset-password/${token}`
+
+// join-group client url - with a dynamic token param
+export const JOIN_GROUP_CLIENT_URL = (token: string) => `http://localhost:3000/join-group/${token}`

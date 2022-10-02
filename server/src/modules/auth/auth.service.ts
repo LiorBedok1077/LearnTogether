@@ -18,7 +18,7 @@ export class AuthService {
     constructor(
         private jwt: JwtService,
         private prisma: PrismaService,
-        private mailerService: MailerService
+        private mailer: MailerService
     ) { }
 
     /**
@@ -73,7 +73,7 @@ export class AuthService {
         })
         // generate & send link with expiring token as a parameter (asynchronously)
         const token = await this.jwt.signToken_forgotPassword({ user_id, num_edited_profile })
-        this.mailerService.sendMail(
+        this.mailer.sendMail(
             resetPasswordMailOptions(email, { full_name, token, username })
         )
         return {
@@ -90,7 +90,7 @@ export class AuthService {
     async changeForgottenPassword(dto: ChangeForgottenPasswordDto) {
         try {
             // validate email-token
-            const verification_token = await this.jwt.verifyToken_forgotPassword(dto.verification_token)
+            const verification_token = await this.jwt.verifyToken(dto.verification_token, 'forgot-password')
             const hashed = await hash(dto.new_password)
             // update database with the hashed password 
             const { user_id } = await this.prisma.users.update(
@@ -101,7 +101,7 @@ export class AuthService {
             return { new_token }
         }
         catch (err) {
-            throw new BadRequestException('Token is invalid or expired')
+            throw new BadRequestException({ msg: 'Token is invalid or expired', err })
         }
     }
 }
