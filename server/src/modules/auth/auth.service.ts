@@ -4,11 +4,12 @@ import { verify, hash } from 'argon2'
 // types
 import { SignupDto, SigninDto, ChangeForgottenPasswordDto, ForgotPasswordDto } from "./dto"
 // utils
-import { resetPasswordMailOptions, updateUserByIdOptions } from "../../utils"
+import { updateUserByIdOptions } from "../../utils"
 // services
-import { MailerService } from '@nestjs-modules/mailer'
 import { PrismaService } from "../prisma/prisma.service"
 import { JwtService } from '../jwt/jwt.service'
+import { JWT_EXPIRE_TOKEN } from "../../configs/constants"
+import { MailService } from "../mail/mail.service"
 
 /**
  * (Auth) Service handles user-authorization functionallities (e.g. sign-in, sign-up, etc.)
@@ -18,7 +19,8 @@ export class AuthService {
     constructor(
         private jwt: JwtService,
         private prisma: PrismaService,
-        private mailer: MailerService
+        // private mailer: MailerService
+        private mailer: MailService
     ) { }
 
     /**
@@ -34,7 +36,7 @@ export class AuthService {
             throw new ForbiddenException('Password is incorrect')
         }
         // return token & data
-        const token = await this.jwt.signToken_auth({ user_id: user.user_id })
+        const token = await this.jwt.signToken({ user_id: user.user_id }, 'auth', JWT_EXPIRE_TOKEN.AUTH__TEST)
         return { token }
     }
 
@@ -50,7 +52,7 @@ export class AuthService {
             // create user
             const user = await this.prisma.users.create({ data: { ...dto, password: hashed } })
             // generate token
-            const token = await this.jwt.signToken_auth({ user_id: user.user_id })
+            const token = await this.jwt.signToken({ user_id: user.user_id }, 'auth', JWT_EXPIRE_TOKEN.AUTH__TEST)
             // return token & data
             return { token, data: { ...user, password: undefined } }
         }
@@ -71,15 +73,15 @@ export class AuthService {
         const { user_id, num_edited_profile, email, username, full_name } = await this.prisma.users.findFirstOrThrow({
             where: { OR: [{ email: username_or_email }, { username: username_or_email }] }
         })
-        // generate & send link with expiring token as a parameter (asynchronously)
-        const token = await this.jwt.signToken_forgotPassword({ user_id, num_edited_profile })
-        this.mailer.sendMail(
-            resetPasswordMailOptions(email, { full_name, token, username })
+        // send 'reset-password' email (asynchronously, with token as temporary return value)
+        const email_token = await this.mailer.sendResetPaswordMail(
+            email, { full_name, username }, { num_edited_profile, user_id }
         )
+        // return email-token for testing (temp)
         return {
             msg: (`A reset link has been sent to ${email}. Please use it to reset your password`),
             // temp response field - simulating email verification - testing change-password (step 2)
-            EMAIL_TOKEN__FOR_TESTING_ONLY: token
+            EMAIL_TOKEN__FOR_TESTING_ONLY: email_token
         }
     }
 
@@ -97,7 +99,7 @@ export class AuthService {
                 updateUserByIdOptions(verification_token.user_id, { password: hashed })
             )
             // generate and return a new token
-            const new_token = await this.jwt.signToken_auth({ user_id })
+            const new_token = await this.jwt.signToken({ user_id }, 'auth', JWT_EXPIRE_TOKEN.AUTH__TEST)
             return { new_token }
         }
         catch (err) {

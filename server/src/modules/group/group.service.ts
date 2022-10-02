@@ -1,12 +1,11 @@
-import { InternalServerErrorException, Injectable, BadRequestException } from '@nestjs/common'
+import { Injectable, BadRequestException } from '@nestjs/common'
 // types
 import { CreateGroupDto, JoinGroupDto } from './dto'
 import { Users } from '../../interfaces/db-models'
 // services
 import { PrismaService } from '../prisma/prisma.service'
 import { JwtService } from '../jwt/jwt.service'
-import { MailerService } from '@nestjs-modules/mailer'
-import { requestJoinGroupMailOptions } from '../../utils/mail'
+import { MailService } from '../mail/mail.service'
 
 /**
  * (Group) Service handles learning-group crud operations (e.g. create-group, edit-group, etc.)
@@ -16,7 +15,7 @@ export class GroupService {
     constructor(
         private prisma: PrismaService,
         private jwt: JwtService,
-        private mailer: MailerService
+        private mailer: MailService
     ) { }
 
     /**
@@ -48,32 +47,23 @@ export class GroupService {
             // find group with it's creator
             const group = await this.prisma.learning_groups.findUnique({
                 where: { group_id },
-                include: {
-                    creator: {
-                        select: { email: true, username: true }
-                    }
-                }
+                include: { creator: { select: { email: true, username: true } } }
             })
             // check if requested group is not owned by the requesting user
             if (group.creator.username === user.username) {
                 throw new BadRequestException('Cannot join your own group')
             }
-            // push notification (later)
-            // create request token
-            const token = await this.jwt.signToken_joinGroup({ group_id, user_id: user.user_id })
-            // send mail request to the creator
-            this.mailer.sendMail(
-                requestJoinGroupMailOptions(group.creator.email, {
-                    token,
-                    username: group.creator.username,
-                    group_title: group.title,
-                    requesting_username: user.username
-                })
+            // -- push notification (later)
+            // send mail request to the creator (asynchronously, with token as temporary return value)
+            const email_token = await this.mailer.sendRequestJoinGroupMail(
+                group.creator.email,
+                { username: group.creator.username, group_title: group.title, requesting_username: user.username },
+                { group_id, user_id: user.user_id }
             )
             return {
                 msg: (`A request has been sent to "${group.creator.email}"`),
                 // temp response field - simulating email verification - testing change-password (step 2)
-                EMAIL_TOKEN__FOR_TESTING_ONLY: token
+                EMAIL_TOKEN__FOR_TESTING_ONLY: email_token
             }
         }
         catch (err) {

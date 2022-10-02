@@ -10,6 +10,7 @@ export const ENV_VARS = {
     DATABASE_URL: 'DATABASE_URL',
     SERVER_PORT: 'SERVER_PORT',
     // jwt
+    JWT_SECRET: 'JWT_SECRET',
     JWT_SECRET_AUTH: 'JWT_SECRET_AUTH',
     JWT_SECRET_EMAIL: 'JWT_SECRET_EMAIL',
     // mailer related
@@ -23,7 +24,8 @@ export const ENV_VARS = {
 export const JWT_EXPIRE_TOKEN = {
     AUTH__TEST: '15m',  // use while testing
     AUTH: '7d',
-    FORGOT_PASSWORD: '5m'
+    FORGOT_PASSWORD: '5m',
+    REQUEST_JOIN_GROUP: '7d'
 }
 
 // reset-password client url - with a dynamic token param
