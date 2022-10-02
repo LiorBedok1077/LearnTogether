@@ -1,13 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common"
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common"
 import { hash, verify } from 'argon2'
-// utils
-import { getUserByIdOptions, updateUserByIdOptions } from "../../utils/db"
 // types
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { PrismaService } from "../prisma/prisma.service"
-
 
 /**
  * (User) Service handles user operations (e.g. get-data, update-data, etc.)
@@ -21,20 +18,16 @@ export class UserService {
     /**
      * Method gets a user id and returns the corresponding user's data.
      * @param user_id the user id (from url params).
+     * @param isForeign the user id is the same as the requested user id (boolean).
      * @returns The user's data (by the given id).
      */
-    async getForeignUserData(user_id: string) {
+    async getForeignUserData(user_id: string, isForeign: boolean) {
         try {
-            const result = await this.prisma.users.findUnique({ where: { user_id } })
-            if (!result) {
-                throw new NotFoundException('User does not exist')
-            }
-            // udpate cms fields synchronously
-            this.prisma.users.update(getUserByIdOptions(user_id))
-            return result
+            // find user & udpate cms fields synchronously
+            return await this.prisma.findUserById(user_id, { isForeign })
         }
         catch (err) {
-            throw new NotFoundException('User does not exist')
+            throw new BadRequestException('User does not exist')
         }
     }
 
@@ -46,12 +39,12 @@ export class UserService {
         try {
             const result = await this.prisma.users.delete({ where: { user_id } })
             if (!result) {
-                throw new NotFoundException('User does not exist')
+                throw new BadRequestException('User does not exist')
             }
             return result
         }
         catch (err) {
-            throw new NotFoundException('User does not exist')
+            throw new BadRequestException('User does not exist')
         }
     }
 
@@ -66,10 +59,7 @@ export class UserService {
             throw new BadRequestException('No data was provided')
         }
         try {
-            const result = await this.prisma.users.update(
-                updateUserByIdOptions(user_id, dto)
-            )
-            return result
+            return await this.prisma.updateUserById(user_id, dto)
         }
         catch (err) {
             if (err instanceof PrismaClientKnownRequestError) {
@@ -93,9 +83,7 @@ export class UserService {
             }
             // generate pw
             const hashed = await hash(dto.new_password)
-            const result = await this.prisma.users.update(
-                updateUserByIdOptions(user_id, { password: hashed })
-            )
+            const result = await this.prisma.updateUserById(user_id, { password: hashed })
             return ('Password changed successfully')
         }
         catch (err) {

@@ -216,12 +216,13 @@ describe('AppController (e2e)', () => {
           'Authorization': "Bearer $S{userAt}"
         })
         .expectStatus(HttpStatus.OK)
-        .stores('userId', 'user_id'))
+        .stores('userId', 'user_id')
+        .inspect())
       // error: user does not exist
       it('error: user does not exist', () => pactum
         .spec()
         .get("/user/non-existing-user-id")
-        .expectStatus(HttpStatus.NOT_FOUND))
+        .expectStatus(HttpStatus.BAD_REQUEST))
       // success: should get (another) user data
       it('should get (another) user data', () => pactum
         .spec()

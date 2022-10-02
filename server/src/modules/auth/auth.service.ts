@@ -3,8 +3,6 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { verify, hash } from 'argon2'
 // types
 import { SignupDto, SigninDto, ChangeForgottenPasswordDto, ForgotPasswordDto } from "./dto"
-// utils
-import { updateUserByIdOptions } from "../../utils"
 // services
 import { PrismaService } from "../prisma/prisma.service"
 import { JwtService } from '../jwt/jwt.service'
@@ -19,7 +17,6 @@ export class AuthService {
     constructor(
         private jwt: JwtService,
         private prisma: PrismaService,
-        // private mailer: MailerService
         private mailer: MailService
     ) { }
 
@@ -95,9 +92,7 @@ export class AuthService {
             const verification_token = await this.jwt.verifyToken(dto.verification_token, 'forgot-password')
             const hashed = await hash(dto.new_password)
             // update database with the hashed password 
-            const { user_id } = await this.prisma.users.update(
-                updateUserByIdOptions(verification_token.user_id, { password: hashed })
-            )
+            const { user_id } = await this.prisma.updateUserById(verification_token.user_id, { password: hashed })
             // generate and return a new token
             const new_token = await this.jwt.signToken({ user_id }, 'auth', JWT_EXPIRE_TOKEN.AUTH__TEST)
             return { new_token }

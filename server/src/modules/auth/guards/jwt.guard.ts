@@ -5,3 +5,12 @@ export class JwtGuard extends AuthGuard('jwt') {
         super()
     }
 }
+
+export class JwtOptionalGuard extends AuthGuard('jwt') {
+    constructor() {
+        super()
+    }
+    handleRequest(err, user) {
+        return user
+    }
+}

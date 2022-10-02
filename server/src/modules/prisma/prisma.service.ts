@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Users } from '@prisma/client'
 import { ConfigService } from "@nestjs/config"
 // configs
 import { ENV_VARS } from '../../configs/constants'
@@ -17,6 +17,35 @@ export class PrismaService extends PrismaClient {
                 }
             }
         })
+    }
+
+    /**
+     * Method updates a user by a given id and payload while updating analytical fields (e.g. "num_edited_profile").
+     * @param user_id the user id.
+     * @param data the updated data.
+     * @returns The updated user.
+     */
+    async updateUserById(user_id: string, data: Partial<Users>): Promise<Users> {
+        return await this.users.update({
+            where: { user_id },
+            data: { ...data, num_edited_profile: { increment: 1 } }
+        })
+    }
+
+    /**
+     * Method finds a user by a given id while updating analytical fields (e.g. "num_viewed_profile")
+     * @param user_id the used id.
+     * @param opts the searching options.
+     * @returns a user by the given id.
+     */
+    async findUserById(user_id: string, opts?: { isForeign: boolean }) {
+        if (opts?.isForeign) {
+            return await this.users.update({
+                where: { user_id },
+                data: { num_viewed_profile: { increment: 1 } }
+            })
+        }
+        else return await this.users.findUniqueOrThrow({ where: { user_id } })
     }
 
     /**

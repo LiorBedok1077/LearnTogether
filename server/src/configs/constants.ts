@@ -1,3 +1,4 @@
+import { Users } from "@prisma/client"
 
 // enviroment-variables file path
 export const ROOT_ENV_FILE = {

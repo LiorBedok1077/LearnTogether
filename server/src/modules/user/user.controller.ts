@@ -6,6 +6,7 @@ import { Users } from "prisma/prisma-client"
 import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { UserService } from "./user.service"
+import { JwtOptionalGuard } from "../auth/guards/jwt.guard"
 
 @Controller({
     path: 'user',
@@ -50,9 +51,10 @@ export class UserController {
      * @description Endpoint for visiting foreign user-data.
      */
     @Get(':user_id')
+    @UseGuards(JwtOptionalGuard)
     @HttpCode(HttpStatus.OK)
-    async getForeignUserData(@Param('user_id') user_id: string) {
-        return await this.userService.getForeignUserData(user_id)
+    async getForeignUserData(@Param('user_id') user_id: string, @GetUser('user_id') my_id: string) {
+        return await this.userService.getForeignUserData(user_id, my_id && user_id !== my_id)
     }
 
     /**
