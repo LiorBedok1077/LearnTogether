@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New request to Join a Group - {{username}}</title>
+</head>
+<body> 
+    <!-- request-join-group template for email body -->
+    <h2>Hello {{username}}!</h2>
+    <p>You've received a new request from {{requesting_username}} to join your group: <b>{{group_title}}</b>.</p> 
+    <p>You can <a href="{{link}}">accept or decline</a> this request.</p>
+    <br>
+    <p>This request will expire in 7 days.</p>
+    <b>In regards,<br>LearnTogether team.</b>
+</body>
+</html>

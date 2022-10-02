@@ -1,8 +1,9 @@
-import { resolve } from "path";
-import { ENV_VARS, ROOT_ENV_FILE } from "./constants";
+import { resolve } from "path"
+// configs
+import { ENV_VARS, ROOT_ENV_FILE } from "./constants"
 // services options
 import { ConfigModuleOptions, ConfigService } from '@nestjs/config'
-import { MailerAsyncOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-async-options.interface';
+import { MailerAsyncOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-async-options.interface'
 // adapters
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 

@@ -7,7 +7,6 @@ import { PrismaService } from '../src/modules/prisma/prisma.service';
 import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '../src/interfaces/db-models';
 import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
-import { isRFC3339 } from 'class-validator';
 import { CreateGroupDto } from '../src/modules/group/dto';
 
 const TEST_PORT = 5001
@@ -43,7 +42,6 @@ describe('AppController (e2e)', () => {
       const SignupDto: SignupDto = {
         full_name: 'Newton',
         gender: GenderEnum.MALE,
-        // email: "natanelmich103@gmail.com",
         email: "swuicnkds01@gmail.com",
         password: "123456789",
         username: "Artemixx",
@@ -74,8 +72,7 @@ describe('AppController (e2e)', () => {
         .spec()
         .post("/auth/signup")
         .withBody(SignupDto)
-        .expectStatus(HttpStatus.CREATED)
-        .inspect())
+        .expectStatus(HttpStatus.CREATED))
       it('should not sign-up - credentials are taken', () => pactum
         .spec()
         .post("/auth/signup")
@@ -110,6 +107,7 @@ describe('AppController (e2e)', () => {
         .withBody({ ...SigninDto })
         .expectStatus(HttpStatus.OK)
         .stores('userAt', 'token')
+        .inspect()
       )
     })
     describe('forgot-password (step 1 - receive email)', () => {
@@ -149,7 +147,7 @@ describe('AppController (e2e)', () => {
         .patch('/auth/forgot-password')
         .withBody(ChangeForgottenPasswordDto('$S{userAt}'))
         .expectStatus(HttpStatus.BAD_REQUEST)
-      )
+        .inspect())
       // should change forgotten password successfully
       it('should change forgotten password', () => pactum
         .spec()
@@ -313,8 +311,7 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .withBody(CreateGroupDto)
-        .expectStatus(HttpStatus.CREATED)
-        .inspect())
+        .expectStatus(HttpStatus.CREATED))
     })
   })
 });

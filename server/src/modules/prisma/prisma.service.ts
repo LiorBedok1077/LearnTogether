@@ -4,6 +4,9 @@ import { ConfigService } from "@nestjs/config"
 // configs
 import { ENV_VARS } from '../../configs/constants'
 
+/**
+ * (Prisma) Service wraps prisma-functionallity with custom methods (e.g. cleanDB).
+ */
 @Injectable()
 export class PrismaService extends PrismaClient {
     constructor(config: ConfigService) {
