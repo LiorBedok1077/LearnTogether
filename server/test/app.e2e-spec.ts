@@ -5,7 +5,7 @@ import { AppModule } from './../src/app.module';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
 // types
 import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
-import { PreferedLanguagesEnum, GenderEnum } from '../src/interfaces/db-models';
+import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client';
 import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
 import { CreateGroupDto } from '../src/modules/group/dto';
 

@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post
 import { JwtGuard } from "../auth/guards"
 import { GetUser } from "../auth/decorators"
 // types
-import { Users } from "prisma/prisma-client"
+import { Users } from "@prisma/client"
 import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { UserService } from "./user.service"

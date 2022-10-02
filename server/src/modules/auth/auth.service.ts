@@ -3,10 +3,10 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { verify, hash } from 'argon2'
 // types
 import { SignupDto, SigninDto, ChangeForgottenPasswordDto, ForgotPasswordDto } from "./dto"
+import { JWT_EXPIRE_TOKEN } from "../../configs/constants"
 // services
 import { PrismaService } from "../prisma/prisma.service"
 import { JwtService } from '../jwt/jwt.service'
-import { JWT_EXPIRE_TOKEN } from "../../configs/constants"
 import { MailService } from "../mail/mail.service"
 
 /**

@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common'
 // types
 import { CreateGroupDto, JoinGroupDto } from './dto'
-import { Users } from '../../interfaces/db-models'
+import { Users } from '@prisma/client'
 // services
 import { PrismaService } from '../prisma/prisma.service'
 import { JwtService } from '../jwt/jwt.service'
