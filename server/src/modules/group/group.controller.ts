@@ -26,7 +26,7 @@ export class GroupController {
     }
 
     /**
-     * @description Endpoint for sending gruop-join-requests.
+     * @description Endpoint for sending group-join-requests (step 1 - send notification & email).
      */
     @Put('/request-join/:group_id')
     @UseGuards(JwtGuard)
@@ -35,7 +35,10 @@ export class GroupController {
         return this.groupService.requestJoinGroup(user, group_id)
     }
 
-    @Post('/join')
+    /**
+     * @description Endpoing for allowing group-join-requests (step 2 - verify an email-token).
+     */
+    @Post('/request-join')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
     async joinGroup(@Body() dto: JoinGroupDto) {

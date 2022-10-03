@@ -126,8 +126,8 @@ describe('AppController (e2e)', () => {
       const ForgotPasswordDto: ForgotPasswordDto = {
         username_or_email: "Artemixx"
       }
-      // error: do body provided
-      it('error: do body provided', () => pactum
+      // error: no body provided
+      it('error: no body provided', () => pactum
         .spec()
         .post('/auth/forgot-password')
         .expectStatus(HttpStatus.BAD_REQUEST))
@@ -330,6 +330,8 @@ describe('AppController (e2e)', () => {
         .withBody(CreateGroupDto)
         .expectStatus(HttpStatus.CREATED)
         .stores('group_id', 'group_id'))
+    })
+    describe('Request-Join-Group (step 1 - receive email)', () => {
       // error: cannot join your own group
       it('error: cannot join your own group (user1 -> user1)', () => pactum
         .spec()
@@ -348,10 +350,12 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.OK)
         .stores('join-group-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
         .inspect())
+    })
+    describe('Request-Join-Group (step 2 - allow group join request using email-token', () => {
       // invalid token
       it('error: invalid token (attempting to use auth-token)', () => pactum
         .spec()
-        .post('/group/join')
+        .post('/group/request-join')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt2}'
         })
@@ -361,7 +365,7 @@ describe('AppController (e2e)', () => {
       // join a group
       it('should join a group using a request link', () => pactum
         .spec()
-        .post('/group/join')
+        .post('/group/request-join')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt2}'
         })
