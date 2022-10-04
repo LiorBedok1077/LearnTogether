@@ -3,7 +3,7 @@ import { JwtGuard } from "../auth/guards"
 // decorators
 import { GetUser, IdParam } from '../auth/decorators'
 // types
-import { CreateGroupDto, RequestJoinGroupDto, UpdateParticipantsDto } from './dto'
+import { CreateGroupDto, JoinGroupDto, UpdateParticipantsDto } from './dto'
 import { Users } from '@prisma/client'
 // services
 import { GroupService } from './group.service'
@@ -43,7 +43,7 @@ export class GroupController {
     @Post('/request-join')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
-    async joinGroup(@Body() dto: RequestJoinGroupDto) {
+    async joinGroup(@Body() dto: JoinGroupDto) {
         return await this.groupService.joinGroup(dto)
     }
 

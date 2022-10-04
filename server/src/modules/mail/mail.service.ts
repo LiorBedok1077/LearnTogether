@@ -46,7 +46,7 @@ export class MailService {
      */
     sendRequestJoinGroupMail: SendMailTypes['request-join-group'] = async (to, context, token_payload) => {
         // generate link with expiring token as a parameter
-        const token = await this.jwt.signToken(token_payload, 'request-join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
+        const token = await this.jwt.signToken(token_payload, 'join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
         // send email in the background & return email-token (temp)
         this.mailer.sendMail({
             to,
@@ -70,7 +70,7 @@ export class MailService {
      */
     sendInviteToGroupMail: SendMailTypes['invite-to-group'] = async (to, context, token_payload) => {
         // generate link with expiring token as a parameter
-        const token = await this.jwt.signToken(token_payload, 'invite-to-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
+        const token = await this.jwt.signToken(token_payload, 'join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
         // send email in the background & return email-token (temp)
         this.mailer.sendMail({
             to,

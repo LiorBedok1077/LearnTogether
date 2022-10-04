@@ -390,7 +390,17 @@ describe('AppController (e2e)', () => {
         })
         .withBody(UpdateParticipantsDto(listActionsEnum.invite))
         .expectStatus(HttpStatus.OK)
-        .stores('invite-user-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
+        .stores('group-invitation-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
+        .inspect())
+      // join a group
+      it('should join a group using a request link', () => pactum
+        .spec()
+        .post('/group/request-join')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(JoinGroupDto('$S{group-invitation-email-token}'))
+        .expectStatus(HttpStatus.OK)
         .inspect())
     })
   })

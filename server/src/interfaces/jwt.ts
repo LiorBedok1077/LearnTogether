@@ -8,13 +8,9 @@ export type JwtForgotPasswordTokenPayload = { user_id: string, num_edited_profil
 // request-join-group jwt-token payload
 export type JwtRequestJoinGroupPayload = { user_id: string, group_id: string }
 
-// invite-to-group jwt-token payload
-export type JwtInviteToGroupPayload = JwtRequestJoinGroupPayload
-
 // jwt payload types as key-value pairs
 export type JwtPayloadTypes = {
     'auth': JwtAuthTokenPayload
     'forgot-password': JwtForgotPasswordTokenPayload
-    'request-join-group': JwtRequestJoinGroupPayload
-    'invite-to-group': JwtInviteToGroupPayload
+    'join-group': JwtRequestJoinGroupPayload
 }

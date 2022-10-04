@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common'
 // types
-import { CreateGroupDto, RequestJoinGroupDto, UpdateParticipantsDto } from './dto'
+import { CreateGroupDto, JoinGroupDto, UpdateParticipantsDto } from './dto'
 import { Users } from '@prisma/client'
 import { listActionsEnum } from '../../interfaces/dto'
 // services
@@ -79,10 +79,10 @@ export class GroupService {
      * Method accepts group join-requests from users with a valid link.
      * @param dto the body with the verification token.
      */
-    async joinGroup({ verification_token }: RequestJoinGroupDto) {
+    async joinGroup({ verification_token }: JoinGroupDto) {
         try {
             // validate email-token
-            const { group_id, user_id } = await this.jwt.verifyToken(verification_token, 'request-join-group')
+            const { group_id, user_id } = await this.jwt.verifyToken(verification_token, 'join-group')
             // update database with the hashed password 
             const result = await this.prisma.learning_groups.update({
                 where: { group_id },
