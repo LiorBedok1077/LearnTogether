@@ -143,4 +143,17 @@ export class GroupService {
             throw new BadRequestException('User not found')
         }
     }
+
+    /**
+     * Method returns a group's data by a given group id.
+     * @param group_id the group id.
+     */
+    async getGroupData(group_id: string) {
+        try {
+            return await this.prisma.learning_groups.findUniqueOrThrow({ where: { group_id } })
+        }
+        catch (err) {
+            throw new BadRequestException('Group does not exist')
+        }
+    }
 }

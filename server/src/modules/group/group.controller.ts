@@ -1,4 +1,4 @@
-import { Controller, UseGuards, HttpCode, HttpStatus, Patch, Post, Put, Body } from '@nestjs/common'
+import { Controller, UseGuards, Get, HttpCode, HttpStatus, Patch, Post, Put, Body } from '@nestjs/common'
 import { JwtGuard } from "../auth/guards"
 // decorators
 import { GetUser, IdParam } from '../auth/decorators'
@@ -55,5 +55,14 @@ export class GroupController {
     @HttpCode(HttpStatus.OK)
     async updateParticipantsList(@Body() dto: UpdateParticipantsDto) {
         return await this.groupService.updateParticipants(dto)
+    }
+
+    /**
+     * @description Endpoint for sending group data.
+     */
+    @Get('/:group_id')
+    @HttpCode(HttpStatus.OK)
+    async getGroupData(@IdParam('group_id') group_id: string) {
+        return await this.groupService.getGroupData(group_id)
     }
 }

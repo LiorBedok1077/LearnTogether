@@ -402,6 +402,23 @@ describe('AppController (e2e)', () => {
         .withBody(JoinGroupDto('$S{group-invitation-email-token}'))
         .expectStatus(HttpStatus.OK)
         .inspect())
+      // join a group
+      it('should join a group using a request link', () => pactum
+        .spec()
+        .post('/group/request-join')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(JoinGroupDto('$S{group-invitation-email-token}'))
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+    })
+    describe('Get group data', () => {
+      it('should get group data', () => pactum
+        .spec()
+        .get('/group/$S{group_id}')
+        .expectStatus(HttpStatus.OK)
+        .inspect())
     })
   })
 });
