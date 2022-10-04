@@ -12,9 +12,7 @@ export const ENV_VARS = {
     SERVER_PORT: 'SERVER_PORT',
     // jwt
     JWT_SECRET: 'JWT_SECRET',
-    JWT_SECRET_AUTH: 'JWT_SECRET_AUTH',
-    JWT_SECRET_EMAIL: 'JWT_SECRET_EMAIL',
-    // mailer related
+    // mailer
     MAIL_HOST: 'MAIL_HOST',
     MAIL_USER: 'MAIL_USER',
     MAIL_FROM: 'MAIL_FROM',

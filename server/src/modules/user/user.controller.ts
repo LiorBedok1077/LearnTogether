@@ -29,13 +29,13 @@ export class UserController {
     }
 
     /**
-     * @description Endpoint for updating user-data.
+     * @description Endpoint for visiting foreign user-data.
      */
-    @Patch()
-    @UseGuards(JwtGuard)
+    @Get(':user_id')
+    @UseGuards(JwtOptionalGuard)
     @HttpCode(HttpStatus.OK)
-    async updateUser(@GetUser('user_id') user_id: string, @Body() dto: UpdateUserDto) {
-        return await this.userService.updateUser(user_id, dto)
+    async getForeignUserData(@IdParam('user_id') user_id: string, @GetUser('user_id') my_id: string) {
+        return await this.userService.getForeignUserData(user_id, my_id && user_id !== my_id)
     }
 
     /**
@@ -49,13 +49,13 @@ export class UserController {
     }
 
     /**
-     * @description Endpoint for visiting foreign user-data.
+     * @description Endpoint for updating user-data.
      */
-    @Get(':user_id')
-    @UseGuards(JwtOptionalGuard)
+    @Patch()
+    @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
-    async getForeignUserData(@IdParam('user_id') user_id: string, @GetUser('user_id') my_id: string) {
-        return await this.userService.getForeignUserData(user_id, my_id && user_id !== my_id)
+    async updateUser(@GetUser('user_id') user_id: string, @Body() dto: UpdateUserDto) {
+        return await this.userService.updateUser(user_id, dto)
     }
 
     /**

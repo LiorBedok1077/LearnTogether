@@ -356,7 +356,7 @@ describe('AppController (e2e)', () => {
       // invalid token
       it('error: invalid token (attempting to use auth-token)', () => pactum
         .spec()
-        .post('/group/request-join')
+        .post('/group/join')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt2}'
         })
@@ -366,7 +366,7 @@ describe('AppController (e2e)', () => {
       // join a group
       it('should join a group using a request link', () => pactum
         .spec()
-        .post('/group/request-join')
+        .post('/group/join')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt2}'
         })
@@ -395,7 +395,7 @@ describe('AppController (e2e)', () => {
       // join a group
       it('should join a group using a request link', () => pactum
         .spec()
-        .post('/group/request-join')
+        .post('/group/join')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt}'
         })
@@ -405,7 +405,7 @@ describe('AppController (e2e)', () => {
       // join a group
       it('should join a group using a request link', () => pactum
         .spec()
-        .post('/group/request-join')
+        .post('/group/join')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt}'
         })

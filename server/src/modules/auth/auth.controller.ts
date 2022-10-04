@@ -1,7 +1,8 @@
 import { Body, Controller, HttpCode, HttpStatus, Patch, Post } from "@nestjs/common";
-import { AuthService } from "./auth.service";
 // types
 import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from "./dto";
+// services
+import { AuthService } from "./auth.service";
 
 @Controller({
     path: 'auth',
@@ -36,9 +37,6 @@ export class AuthController {
     @Post('forgot-password')
     @HttpCode(HttpStatus.OK)
     async forgotPassword(@Body() dto: ForgotPasswordDto) {
-        // generating link with expiring token as a parameter (2m)
-        // send link to mail (in a styled html message)
-        // end connection (side-request should come after with the generated token & the new password)
         return await this.authService.forgotPassword(dto)
     }
 
@@ -48,8 +46,6 @@ export class AuthController {
     @Patch('forgot-password')
     @HttpCode(HttpStatus.OK)
     async changeForgottenPassword(@Body() dto: ChangeForgottenPasswordDto) {
-        // verify token in dto
-        // change password in db
         return await this.authService.changeForgottenPassword(dto)
     }
 }

@@ -28,36 +28,6 @@ export class GroupController {
     }
 
     /**
-     * @description Endpoint for sending group-join-requests (step 1 - send notification & email).
-     */
-    @Put('/request-join/:group_id')
-    @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.OK)
-    async requestJoinGroup(@IdParam('group_id') group_id: string, @GetUser() user: Users) {
-        return this.groupService.requestJoinGroup(user, group_id)
-    }
-
-    /**
-     * @description Endpoing for allowing group-join-requests (step 2 - verify an email-token).
-     */
-    @Post('/request-join')
-    @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.OK)
-    async joinGroup(@Body() dto: JoinGroupDto) {
-        return await this.groupService.joinGroup(dto)
-    }
-
-    /**
-     * @description Endpoint for updating the participants list in a group.
-     */
-    @Patch('/participants')
-    @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.OK)
-    async updateParticipantsList(@Body() dto: UpdateParticipantsDto) {
-        return await this.groupService.updateParticipants(dto)
-    }
-
-    /**
      * @description Endpoint for sending group data.
      */
     @Get('/:group_id')
@@ -84,5 +54,35 @@ export class GroupController {
     @HttpCode(HttpStatus.OK)
     async deleteGroup(@IdParam('group_id') group_id: string) {
         return await this.groupService.deleteGroup(group_id)
+    }
+
+    /**
+     * @description Endpoint for updating the participants list in a group (invite/remove/modify participants).
+     */
+    @Patch('/participants')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async updateParticipantsList(@Body() dto: UpdateParticipantsDto) {
+        return await this.groupService.updateParticipants(dto)
+    }
+
+    /**
+     * @description Endpoint for sending group-join-requests (sends notification & email).
+     */
+    @Put('/request-join/:group_id')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async requestJoinGroup(@IdParam('group_id') group_id: string, @GetUser() user: Users) {
+        return this.groupService.requestJoinGroup(user, group_id)
+    }
+
+    /**
+     * @description Endpoing for allowing group-join-requests (verifies a given email-token).
+     */
+    @Post('/join')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async joinGroup(@Body() dto: JoinGroupDto) {
+        return await this.groupService.joinGroup(dto)
     }
 }

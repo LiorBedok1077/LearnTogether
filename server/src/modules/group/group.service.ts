@@ -42,6 +42,47 @@ export class GroupService {
     }
 
     /**
+     * Method returns a group's data by a given group id.
+     * @param group_id the group id.
+     */
+    async getGroupData(group_id: string) {
+        try {
+            return await this.prisma.learning_groups.findUniqueOrThrow({ where: { group_id } })
+        }
+        catch (err) {
+            throw new BadRequestException('Group does not exist')
+        }
+    }
+
+    /**
+     * Method updates group data given a group-id and the new data.
+     * @param group_id the group id.
+     * @param dto the new data.
+     */
+    async updateGroupData(group_id: string, dto: UpdateGroupDto) {
+        try {
+            return await this.prisma.learning_groups.update({ where: { group_id }, data: dto })
+        }
+        catch (err) {
+            throw new BadRequestException('Group does not exist')
+        }
+    }
+
+    /**
+     * Method deletes group data given it's id.
+     * @param group_id the group id.
+     */
+    async deleteGroup(group_id: string) {
+        try {
+            const result = await this.prisma.learning_groups.delete({ where: { group_id } })
+            return ('Group has been deleted')
+        }
+        catch (err) {
+            throw new BadRequestException('Group does not exist')
+        }
+    }
+
+    /**
      * Method sends a notification & email in the background - request join group.
      * @param user the request user.
      * @param group_id the group id (url param).
@@ -141,47 +182,6 @@ export class GroupService {
         }
         catch (err) {
             throw new BadRequestException('User not found')
-        }
-    }
-
-    /**
-     * Method returns a group's data by a given group id.
-     * @param group_id the group id.
-     */
-    async getGroupData(group_id: string) {
-        try {
-            return await this.prisma.learning_groups.findUniqueOrThrow({ where: { group_id } })
-        }
-        catch (err) {
-            throw new BadRequestException('Group does not exist')
-        }
-    }
-
-    /**
-     * Method updates group data given a group-id and the new data.
-     * @param group_id the group id.
-     * @param dto the new data.
-     */
-    async updateGroupData(group_id: string, dto: UpdateGroupDto) {
-        try {
-            return await this.prisma.learning_groups.update({ where: { group_id }, data: dto })
-        }
-        catch (err) {
-            throw new BadRequestException('Group does not exist')
-        }
-    }
-
-    /**
-     * Method deletes group data given it's id.
-     * @param group_id the group id.
-     */
-    async deleteGroup(group_id: string) {
-        try {
-            const result = await this.prisma.learning_groups.delete({ where: { group_id } })
-            return ('Group has been deleted')
-        }
-        catch (err) {
-            throw new BadRequestException('Group does not exist')
         }
     }
 }

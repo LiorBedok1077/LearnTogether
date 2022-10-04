@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common"
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { verify, hash } from 'argon2'
 // types
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { SignupDto, SigninDto, ChangeForgottenPasswordDto, ForgotPasswordDto } from "./dto"
 import { JWT_EXPIRE_TOKEN } from "../../configs/constants"
 // services
@@ -43,21 +43,20 @@ export class AuthService {
      * @returns (on sign-up-success): a signed JWT token, the created user data.
      */
     async signup(dto: SignupDto) {
-        // generate pw
-        const hashed = await hash(dto.password)
         try {
+            // generate pw
+            const hashed = await hash(dto.password)
             // create user
             const user = await this.prisma.users.create({ data: { ...dto, password: hashed } })
-            // generate token
+            // generate & return token with data
             const token = await this.jwt.signToken({ user_id: user.user_id }, 'auth', JWT_EXPIRE_TOKEN.AUTH__TEST)
-            // return token & data
             return { token, data: { ...user, password: undefined } }
         }
         catch (err) {
             if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') {
                 throw new BadRequestException('Credentials already taken')
             }
-            throw err
+            throw new BadRequestException(err)
         }
     }
 
