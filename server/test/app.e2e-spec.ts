@@ -7,7 +7,7 @@ import { PrismaService } from '../src/modules/prisma/prisma.service';
 import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client';
 import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
-import { CreateGroupDto, UpdateParticipantsDto } from '../src/modules/group/dto';
+import { CreateGroupDto, UpdateGroupDto, UpdateParticipantsDto } from '../src/modules/group/dto';
 import { listActionsEnum } from '../src/interfaces/dto';
 
 const TEST_PORT = 5001
@@ -417,6 +417,21 @@ describe('AppController (e2e)', () => {
       it('should get group data', () => pactum
         .spec()
         .get('/group/$S{group_id}')
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+    })
+    describe('Update group data', () => {
+      const UpdateGroupDto: UpdateGroupDto = {
+        title: "New group title ayoo",
+        description: "New group description let's goo!"
+      }
+      it('should update group data', () => pactum
+        .spec()
+        .patch('/group/$S{group_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(UpdateGroupDto)
         .expectStatus(HttpStatus.OK)
         .inspect())
     })

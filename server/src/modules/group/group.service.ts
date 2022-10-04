@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common'
 // types
-import { CreateGroupDto, JoinGroupDto, UpdateParticipantsDto } from './dto'
+import { CreateGroupDto, JoinGroupDto, UpdateGroupDto, UpdateParticipantsDto } from './dto'
 import { Users } from '@prisma/client'
 import { listActionsEnum } from '../../interfaces/dto'
 // services
@@ -151,6 +151,20 @@ export class GroupService {
     async getGroupData(group_id: string) {
         try {
             return await this.prisma.learning_groups.findUniqueOrThrow({ where: { group_id } })
+        }
+        catch (err) {
+            throw new BadRequestException('Group does not exist')
+        }
+    }
+
+    /**
+     * Method updates group data given a group-id and the new data.
+     * @param group_id the group id.
+     * @param dto the new data.
+     */
+    async updateGroupData(group_id: string, dto: UpdateGroupDto) {
+        try {
+            return await this.prisma.learning_groups.update({ where: { group_id }, data: dto })
         }
         catch (err) {
             throw new BadRequestException('Group does not exist')

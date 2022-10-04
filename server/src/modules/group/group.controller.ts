@@ -3,7 +3,7 @@ import { JwtGuard } from "../auth/guards"
 // decorators
 import { GetUser, IdParam } from '../auth/decorators'
 // types
-import { CreateGroupDto, JoinGroupDto, UpdateParticipantsDto } from './dto'
+import { CreateGroupDto, JoinGroupDto, UpdateParticipantsDto, UpdateGroupDto } from './dto'
 import { Users } from '@prisma/client'
 // services
 import { GroupService } from './group.service'
@@ -65,4 +65,15 @@ export class GroupController {
     async getGroupData(@IdParam('group_id') group_id: string) {
         return await this.groupService.getGroupData(group_id)
     }
+
+    /**
+     * @description Endpoint for updating group data.
+     */
+    @Patch('/:group_id')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async updateGroupData(@IdParam('group_id') group_id: string, @Body() dto: UpdateGroupDto) {
+        return await this.groupService.updateGroupData(group_id, dto)
+    }
+
 }
