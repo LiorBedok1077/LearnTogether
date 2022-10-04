@@ -29,6 +29,9 @@ export const JWT_EXPIRE_TOKEN = {
     REQUEST_JOIN_GROUP: '7d'
 }
 
+// user id (uuid) length, created by prisma
+export const UUID_LENGTH = 36
+
 // reset-password client url - with a dynamic token param
 export const RESET_PASSWORD_CLIENT_URL = (token: string) => `http://localhost:3000/reset-password/${token}`
 

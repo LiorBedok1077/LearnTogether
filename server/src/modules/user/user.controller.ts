@@ -1,12 +1,13 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from "@nestjs/common"
-import { JwtGuard } from "../auth/guards"
-import { GetUser } from "../auth/decorators"
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post, UseGuards } from "@nestjs/common"
+// decorators
+import { GetUser, IdParam } from "../auth/decorators"
+// guards
+import { JwtGuard, JwtOptionalGuard } from "../auth/guards"
 // types
 import { Users } from "@prisma/client"
 import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { UserService } from "./user.service"
-import { JwtOptionalGuard } from "../auth/guards/jwt.guard"
 
 @Controller({
     path: 'user',
@@ -53,7 +54,7 @@ export class UserController {
     @Get(':user_id')
     @UseGuards(JwtOptionalGuard)
     @HttpCode(HttpStatus.OK)
-    async getForeignUserData(@Param('user_id') user_id: string, @GetUser('user_id') my_id: string) {
+    async getForeignUserData(@IdParam('user_id') user_id: string, @GetUser('user_id') my_id: string) {
         return await this.userService.getForeignUserData(user_id, my_id && user_id !== my_id)
     }
 
@@ -63,8 +64,7 @@ export class UserController {
     @Delete(':user_id')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
-    async deleteUser(@Param('user_id') user_id: string) {
+    async deleteUser(@IdParam('user_id') user_id: string) {
         return await this.userService.deleteUser(user_id)
     }
-
 }

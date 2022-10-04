@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common'
 // configs
 import { JOIN_GROUP_CLIENT_URL, JWT_EXPIRE_TOKEN, RESET_PASSWORD_CLIENT_URL } from '../../configs/constants'
-// types
-import { JwtForgotPasswordTokenPayload, JwtRequestJoinGroupPayload } from '../../interfaces/jwt'
 // services
 import { JwtService } from '../jwt/jwt.service'
 import { MailerService } from '@nestjs-modules/mailer'
+import { SendMailTypes } from '../../interfaces/mail'
 
 /**
  * (Mail) Service wraps normal mailer-functionallities with custom methods.
@@ -23,17 +22,9 @@ export class MailService {
      * @param context The ejs-params.
      * @param token_payload The email-token payload.
      */
-    async sendResetPaswordMail(
-        to: string,
-        context: { username: string, full_name: string },
-        { num_edited_profile, user_id }: JwtForgotPasswordTokenPayload
-    ): Promise<string> {
+    sendResetPaswordMail: SendMailTypes['reset-password'] = async (to, context, token_payload) => {
         // generate link with expiring token as a parameter
-        const token = await this.jwt.signToken(
-            { user_id, num_edited_profile },
-            'forgot-password',
-            JWT_EXPIRE_TOKEN.FORGOT_PASSWORD
-        )
+        const token = await this.jwt.signToken(token_payload, 'forgot-password', JWT_EXPIRE_TOKEN.FORGOT_PASSWORD)
         // send email in the background & return email-token (temp)
         this.mailer.sendMail({
             to,
@@ -48,19 +39,14 @@ export class MailService {
     }
 
     /**
-     * Method sends a 'request-join-group' email in the background
+     * Method sends a 'request-join-group' email in the background.
      * @param to The destination mail.
      * @param context The ejs-params.
      * @param token_payload The email-token payload.
      */
-    async sendRequestJoinGroupMail(
-        to: string,
-        context: { username: string, requesting_username: string, group_title: string },
-        { group_id, user_id }: JwtRequestJoinGroupPayload
-    ) {
-        const token = await this.jwt.signToken(
-            { group_id, user_id }, 'request-join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP
-        )
+    sendRequestJoinGroupMail: SendMailTypes['request-join-group'] = async (to, context, token_payload) => {
+        // generate link with expiring token as a parameter
+        const token = await this.jwt.signToken(token_payload, 'request-join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
         // send email in the background & return email-token (temp)
         this.mailer.sendMail({
             to,
@@ -69,6 +55,30 @@ export class MailService {
             context: {
                 username: context.username,
                 requesting_username: context.requesting_username,
+                group_title: context.group_title,
+                link: JOIN_GROUP_CLIENT_URL(token)
+            }
+        })
+        return token
+    }
+
+    /**
+     * Method sends a 'invite-to-group' email in the background.
+     * @param to The destination mail.
+     * @param context The ejs-params.
+     * @param token_payload The email-token payload.
+     */
+    sendInviteToGroupMail: SendMailTypes['invite-to-group'] = async (to, context, token_payload) => {
+        // generate link with expiring token as a parameter
+        const token = await this.jwt.signToken(token_payload, 'invite-to-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
+        // send email in the background & return email-token (temp)
+        this.mailer.sendMail({
+            to,
+            subject: `LearnTogether - New Invite from ${context.invitor_username} to group "${context.group_title}"`,
+            template: 'invite-to-group',
+            context: {
+                invitor_username: context.invitor_username,
+                target_username: context.target_username,
                 group_title: context.group_title,
                 link: JOIN_GROUP_CLIENT_URL(token)
             }

@@ -1,1 +1,1 @@
-export { JwtGuard } from './jwt.guard'
+export { JwtGuard, JwtOptionalGuard } from './jwt.guard'

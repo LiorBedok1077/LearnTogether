@@ -7,7 +7,8 @@ import { PrismaService } from '../src/modules/prisma/prisma.service';
 import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client';
 import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
-import { CreateGroupDto } from '../src/modules/group/dto';
+import { CreateGroupDto, UpdateParticipantsDto } from '../src/modules/group/dto';
+import { listActionsEnum } from '../src/interfaces/dto';
 
 const TEST_PORT = 5001
 
@@ -371,6 +372,25 @@ describe('AppController (e2e)', () => {
         })
         .withBody(JoinGroupDto('$S{join-group-email-token}'))
         .expectStatus(HttpStatus.OK)
+        .inspect())
+    })
+    describe('Invite-to-group (step 1 - receive email)', () => {
+      const UpdateParticipantsDto = (action: listActionsEnum, roles?: string): UpdateParticipantsDto => ({
+        action,
+        roles,
+        group_id: '$S{group_id}',
+        user_id: '$S{userId}',
+      })
+      // invite a user
+      it('should invite a user to a group', () => pactum
+        .spec()
+        .patch('/group/participants')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .withBody(UpdateParticipantsDto(listActionsEnum.invite))
+        .expectStatus(HttpStatus.OK)
+        .stores('invite-user-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
         .inspect())
     })
   })

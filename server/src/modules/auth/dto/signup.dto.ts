@@ -3,12 +3,10 @@ import { GenderEnum, PreferedLanguagesEnum } from '@prisma/client'
 
 export class SignupDto {
 
-    @IsNotEmpty()
     @IsString()
     @Length(3, 24)
     full_name: string
 
-    @IsNotEmpty()
     @IsString()
     @Length(3, 16)
     username: string
@@ -17,12 +15,10 @@ export class SignupDto {
     @IsEnum(GenderEnum)
     gender: GenderEnum
 
-    @IsNotEmpty()
     @IsEmail()
     @Length(3, 32)
     email: string
 
-    @IsNotEmpty()
     @IsString()
     @Length(6, 32)
     password: string

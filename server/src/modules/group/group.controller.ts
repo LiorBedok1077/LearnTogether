@@ -1,8 +1,10 @@
-import { Controller, UseGuards, HttpCode, HttpStatus, Param, Post, Put, Body } from '@nestjs/common'
+import { Controller, UseGuards, HttpCode, HttpStatus, Patch, Post, Put, Body } from '@nestjs/common'
 import { JwtGuard } from "../auth/guards"
+// decorators
+import { GetUser, IdParam } from '../auth/decorators'
 // types
-import { GetUser } from '../auth/decorators'
-import { CreateGroupDto, JoinGroupDto } from './dto'
+import { CreateGroupDto, RequestJoinGroupDto, UpdateParticipantsDto } from './dto'
+import { Users } from '@prisma/client'
 // services
 import { GroupService } from './group.service'
 
@@ -31,7 +33,7 @@ export class GroupController {
     @Put('/request-join/:group_id')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
-    async requestJoinGroup(@GetUser() user, @Param('group_id') group_id: string) {
+    async requestJoinGroup(@IdParam('group_id') group_id: string, @GetUser() user: Users) {
         return this.groupService.requestJoinGroup(user, group_id)
     }
 
@@ -41,7 +43,17 @@ export class GroupController {
     @Post('/request-join')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
-    async joinGroup(@Body() dto: JoinGroupDto) {
+    async joinGroup(@Body() dto: RequestJoinGroupDto) {
         return await this.groupService.joinGroup(dto)
+    }
+
+    /**
+     * @description Endpoint for updating the participants list in a group.
+     */
+    @Patch('/participants')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async updateParticipantsList(@Body() dto: UpdateParticipantsDto) {
+        return await this.groupService.updateParticipants(dto)
     }
 }

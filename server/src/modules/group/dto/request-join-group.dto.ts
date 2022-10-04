@@ -1,6 +1,6 @@
 import { IsJWT, IsNotEmpty, IsString, MaxLength } from "class-validator";
 
-export class JoinGroupDto {
+export class RequestJoinGroupDto {
 
     @IsNotEmpty()
     @IsString()
