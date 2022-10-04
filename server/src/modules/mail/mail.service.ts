@@ -7,7 +7,7 @@ import { MailerService } from '@nestjs-modules/mailer'
 import { SendMailTypes } from '../../interfaces/mail'
 
 /**
- * (Mail) Service wraps normal mailer-functionallities with custom methods.
+ * (Mail) Service wraps inhirit mailer-functionallities with custom methods.
  */
 @Injectable()
 export class MailService {

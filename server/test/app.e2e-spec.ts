@@ -425,6 +425,7 @@ describe('AppController (e2e)', () => {
         title: "New group title ayoo",
         description: "New group description let's goo!"
       }
+      // update group data
       it('should update group data', () => pactum
         .spec()
         .patch('/group/$S{group_id}')
@@ -432,6 +433,15 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .withBody(UpdateGroupDto)
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+      // delete group
+      it('should delete group', () => pactum
+        .spec()
+        .delete('/group/$S{group_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
         .expectStatus(HttpStatus.OK)
         .inspect())
     })

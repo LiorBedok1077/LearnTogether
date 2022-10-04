@@ -170,4 +170,18 @@ export class GroupService {
             throw new BadRequestException('Group does not exist')
         }
     }
+
+    /**
+     * Method deletes group data given it's id.
+     * @param group_id the group id.
+     */
+    async deleteGroup(group_id: string) {
+        try {
+            const result = await this.prisma.learning_groups.delete({ where: { group_id } })
+            return ('Group has been deleted')
+        }
+        catch (err) {
+            throw new BadRequestException('Group does not exist')
+        }
+    }
 }

@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Get, HttpCode, HttpStatus, Patch, Post, Put, Body } from '@nestjs/common'
+import { Controller, Delete, UseGuards, Get, HttpCode, HttpStatus, Patch, Post, Put, Body } from '@nestjs/common'
 import { JwtGuard } from "../auth/guards"
 // decorators
 import { GetUser, IdParam } from '../auth/decorators'
@@ -76,4 +76,13 @@ export class GroupController {
         return await this.groupService.updateGroupData(group_id, dto)
     }
 
+    /**
+     * @description Endpoint for updating group data.
+     */
+    @Delete('/:group_id')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async deleteGroup(@IdParam('group_id') group_id: string) {
+        return await this.groupService.deleteGroup(group_id)
+    }
 }
