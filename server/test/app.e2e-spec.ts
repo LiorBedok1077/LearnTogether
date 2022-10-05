@@ -120,7 +120,7 @@ describe('AppController (e2e)', () => {
         .withBody({ ...SigninDto })
         .expectStatus(HttpStatus.OK)
         .stores('userAt', 'token')
-        .inspect()
+
       )
     })
     describe('forgot-password (step 1 - receive email)', () => {
@@ -160,14 +160,14 @@ describe('AppController (e2e)', () => {
         .patch('/auth/forgot-password')
         .withBody(ChangeForgottenPasswordDto('$S{userAt}'))
         .expectStatus(HttpStatus.BAD_REQUEST)
-        .inspect())
+      )
       // should change forgotten password successfully
       it('should change forgotten password', () => pactum
         .spec()
         .patch('/auth/forgot-password')
         .withBody(ChangeForgottenPasswordDto('$S{change-password-email-token}'))
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
       // error: unauthorized (using old password)
       it('error: unauthorized (using old password)', () => pactum
         .spec()
@@ -218,7 +218,7 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK)
         .stores('userId', 'user_id')
-        .inspect())
+      )
       // error: user does not exist
       it('error: user does not exist', () => pactum
         .spec()
@@ -350,7 +350,7 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK)
         .stores('join-group-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-        .inspect())
+      )
     })
     describe('Request-Join-Group (step 2 - allow group join request using email-token', () => {
       // invalid token
@@ -362,7 +362,7 @@ describe('AppController (e2e)', () => {
         })
         .withBody(JoinGroupDto('$S{userAt2}'))
         .expectStatus(HttpStatus.BAD_REQUEST)
-        .inspect())
+      )
       // join a group
       it('should join a group using a request link', () => pactum
         .spec()
@@ -372,7 +372,7 @@ describe('AppController (e2e)', () => {
         })
         .withBody(JoinGroupDto('$S{join-group-email-token}'))
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
     })
     describe('Invite-to-group (step 1 - receive email)', () => {
       const UpdateParticipantsDto = (action: listActionsEnum, roles?: string): UpdateParticipantsDto => ({
@@ -391,7 +391,8 @@ describe('AppController (e2e)', () => {
         .withBody(UpdateParticipantsDto(listActionsEnum.invite))
         .expectStatus(HttpStatus.OK)
         .stores('group-invitation-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-        .inspect())
+        .inspect()
+      )
       // join a group
       it('should join a group using a request link', () => pactum
         .spec()
@@ -401,7 +402,7 @@ describe('AppController (e2e)', () => {
         })
         .withBody(JoinGroupDto('$S{group-invitation-email-token}'))
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
       // join a group
       it('should join a group using a request link', () => pactum
         .spec()
@@ -411,14 +412,14 @@ describe('AppController (e2e)', () => {
         })
         .withBody(JoinGroupDto('$S{group-invitation-email-token}'))
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
     })
     describe('Get group data', () => {
       it('should get group data', () => pactum
         .spec()
         .get('/group/$S{group_id}')
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
     })
     describe('Update group data', () => {
       const UpdateGroupDto: UpdateGroupDto = {
@@ -434,7 +435,7 @@ describe('AppController (e2e)', () => {
         })
         .withBody(UpdateGroupDto)
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
       // delete group
       it('should delete group', () => pactum
         .spec()
@@ -443,7 +444,7 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
     })
   })
 });

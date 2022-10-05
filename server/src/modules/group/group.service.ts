@@ -125,11 +125,13 @@ export class GroupService {
             // validate email-token
             const { group_id, user_id } = await this.jwt.verifyToken(verification_token, 'join-group')
             // update database with the hashed password 
-            const result = await this.prisma.learning_groups.update({
-                where: { group_id },
-                data: { participants: { connect: { user_id } } },
+            const group = await this.prisma.learning_groups.update({
+                where: { group_id }, data: { participants: { connect: { user_id } } }
             })
-            return `Joined successfully to group "${result.title}"`
+            const user = await this.prisma.users.update({
+                where: { user_id }, data: { participating_groups: { connect: { group_id } } }
+            })
+            return `Joined successfully to group "${group.title}"`
         }
         catch (err) {
             throw new BadRequestException('Link is invalid or expired')

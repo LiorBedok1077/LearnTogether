@@ -39,16 +39,6 @@ export class GroupController {
     /**
      * @description Endpoint for updating group data.
      */
-    @Patch('/:group_id')
-    @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.OK)
-    async updateGroupData(@IdParam('group_id') group_id: string, @Body() dto: UpdateGroupDto) {
-        return await this.groupService.updateGroupData(group_id, dto)
-    }
-
-    /**
-     * @description Endpoint for updating group data.
-     */
     @Delete('/:group_id')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
@@ -64,6 +54,16 @@ export class GroupController {
     @HttpCode(HttpStatus.OK)
     async updateParticipantsList(@Body() dto: UpdateParticipantsDto) {
         return await this.groupService.updateParticipants(dto)
+    }
+
+    /**
+     * @description Endpoint for updating group data.
+     */
+    @Patch('/:group_id')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async updateGroupData(@IdParam('group_id') group_id: string, @Body() dto: UpdateGroupDto) {
+        return await this.groupService.updateGroupData(group_id, dto)
     }
 
     /**

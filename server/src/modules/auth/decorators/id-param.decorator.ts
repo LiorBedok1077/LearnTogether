@@ -7,6 +7,6 @@ import { UUID_LENGTH } from '../../../configs/constants'
 export const IdParam = createParamDecorator((data: string, ctx: ExecutionContext) => {
     const param: string = ctx.switchToHttp().getRequest().params[data]
     if (param?.length !== UUID_LENGTH)
-        throw new BadRequestException(`Invalid params`)
+        throw new BadRequestException(`Invalid param ${param}`)
     else return param
 })
