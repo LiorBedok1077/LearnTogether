@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 // types
 import { CreateArticleDto, UpdateArticleDto } from './dto'
+import { CommentDto } from './dto/comment.dto'
+import { likeOrDislikeEnum } from '../../interfaces/dto'
 // services
 import { PrismaService } from '../prisma/prisma.service'
-import { likeOrDislikeEnum } from '../../interfaces/dto'
-import { CommentDto } from './dto/comment.dto'
 
 /**
  * (Article) Service handles article crud operations (e.g. create-article, edit-article, etc.)
@@ -115,20 +115,6 @@ export class ArticleService {
         }
         catch (err) {
             throw new BadRequestException('Article does not exist')
-        }
-    }
-
-    /**
-     * Method deletes comments.
-     * @param comment_id the comment id.
-     */
-    async deleteComment(comment_id: string) {
-        try {
-            await this.prisma.comments.delete({ where: { comment_id } })
-            return ('Comment deleted successfully')
-        }
-        catch (err) {
-            throw new BadRequestException('Comment does not exist')
         }
     }
 }

@@ -5,3 +5,4 @@ export { AuthModule } from "./auth/auth.module"
 export { UserModule } from "./user/user.module"
 export { GroupModule } from './group/group.module'
 export { ArticleModule } from './article/article.module'
+export { CommentModule } from './comment/comment.module'

@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common'
 import { ConfigsModuleOptions } from './configs/module-options'
 // modules
 import { ConfigModule } from '@nestjs/config'
-import { MailModule, AuthModule, PrismaModule, UserModule, JwtModule, GroupModule, ArticleModule } from './modules'
+import { MailModule, AuthModule, PrismaModule, UserModule, JwtModule, GroupModule, ArticleModule, CommentModule } from './modules'
 
 @Module({
   imports: [
@@ -20,6 +20,7 @@ import { MailModule, AuthModule, PrismaModule, UserModule, JwtModule, GroupModul
     UserModule,
     GroupModule,
     ArticleModule,
+    CommentModule,
   ]
 })
 export class AppModule { }

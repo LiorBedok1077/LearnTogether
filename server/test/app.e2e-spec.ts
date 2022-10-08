@@ -535,58 +535,58 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK))
     })
-    describe('Comments', () => {
-      const CommentDto: CommentDto = {
-        data: "Awesome article! I really liked it."
-      }
-      // comment on article
-      it('should comment on an article', () => pactum
-        .spec()
-        .post('/article/$S{article_id}/comment')
-        .withHeaders({
-          'Authorization': 'Bearer $S{userAt}'
-        })
-        .withBody(CommentDto)
-        .expectStatus(HttpStatus.OK)
-        .stores('comment_id', 'comment_id')
-        .inspect())
-      // forbidden comment delete
-      it('error: forbidden delete comment', () => pactum
-        .spec()
-        .delete('/article/comment/$S{comment_id}')
-        .withHeaders({
-          'Authorization': 'Bearer $S{userAt2}'
-        })
-        .expectStatus(HttpStatus.FORBIDDEN)
-        .inspect())
-      // delete comment
-      it('should delete comment', () => pactum
-        .spec()
-        .delete('/article/comment/$S{comment_id}')
-        .withHeaders({
-          'Authorization': 'Bearer $S{userAt}'
-        })
-        .expectStatus(HttpStatus.OK)
-        .inspect())
-    })
-    describe('Delete an article', () => {
-      // forbidden update
-      it('error: forbidden delete', () => pactum
-        .spec()
-        .delete('/article/$S{article_id}')
-        .withHeaders({
-          'Authorization': 'Bearer $S{userAt2}'
-        })
-        .expectStatus(HttpStatus.FORBIDDEN))
-      // update an article
-      it('should delete an article', () => pactum
-        .spec()
-        .delete('/article/$S{article_id}')
-        .withHeaders({
-          'Authorization': 'Bearer $S{userAt}'
-        })
-        .expectStatus(HttpStatus.OK)
-        .inspect())
-    })
+    // describe('Delete an article', () => {
+    //   // forbidden update
+    //   it('error: forbidden delete', () => pactum
+    //     .spec()
+    //     .delete('/article/$S{article_id}')
+    //     .withHeaders({
+    //       'Authorization': 'Bearer $S{userAt2}'
+    //     })
+    //     .expectStatus(HttpStatus.FORBIDDEN))
+    //   // delete an article
+    //   it('should delete an article', () => pactum
+    //     .spec()
+    //     .delete('/article/$S{article_id}')
+    //     .withHeaders({
+    //       'Authorization': 'Bearer $S{userAt}'
+    //     })
+    //     .expectStatus(HttpStatus.OK)
+    //     .inspect())
+    // })
+  })
+  describe('Comments', () => {
+    const CommentDto: CommentDto = {
+      data: "Awesome article! I really liked it."
+    }
+    // comment on article
+    it('should comment on an article', () => pactum
+      .spec()
+      .post('/article/$S{article_id}/comment')
+      .withHeaders({
+        'Authorization': 'Bearer $S{userAt}'
+      })
+      .withBody(CommentDto)
+      .expectStatus(HttpStatus.OK)
+      .stores('comment_id', 'comment_id')
+      .inspect())
+    // forbidden comment delete
+    it('error: forbidden delete comment', () => pactum
+      .spec()
+      .delete('/comment/$S{comment_id}')
+      .withHeaders({
+        'Authorization': 'Bearer $S{userAt2}'
+      })
+      .expectStatus(HttpStatus.FORBIDDEN)
+      .inspect())
+    // delete comment
+    it('should delete comment', () => pactum
+      .spec()
+      .delete('/comment/$S{comment_id}')
+      .withHeaders({
+        'Authorization': 'Bearer $S{userAt}'
+      })
+      .expectStatus(HttpStatus.OK)
+      .inspect())
   })
 });

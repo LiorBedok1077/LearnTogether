@@ -56,16 +56,6 @@ export class ArticleController {
     }
 
     /**
-     * @description Endpoint for deleting comments.
-     */
-    @Delete('/comment/:comment_id')
-    @UseGuards(JwtGuard, CommentGuard)
-    @HttpCode(HttpStatus.OK)
-    async deleteComment(@IdParam('comment_id') comment_id: string) {
-        return await this.articleService.deleteComment(comment_id)
-    }
-
-    /**
      * @description Endpoint for adding comments to an article.
      */
     @Post('/:article_id/comment')
