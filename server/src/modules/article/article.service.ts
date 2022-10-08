@@ -3,8 +3,6 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import { CreateArticleDto, UpdateArticleDto } from './dto'
 // services
 import { PrismaService } from '../prisma/prisma.service'
-import { JwtService } from '../jwt/jwt.service'
-import { MailService } from '../mail/mail.service'
 import { likeOrDislikeEnum } from '../../interfaces/dto'
 
 /**
@@ -13,9 +11,7 @@ import { likeOrDislikeEnum } from '../../interfaces/dto'
 @Injectable()
 export class ArticleService {
     constructor(
-        private prisma: PrismaService,
-        private jwt: JwtService,
-        private mailer: MailService
+        private prisma: PrismaService
     ) { }
 
     /**
@@ -69,7 +65,7 @@ export class ArticleService {
      */
     async deleteArticle(article_id: string) {
         try {
-            const result = await this.prisma.articles.delete({ where: { article_id } })
+            await this.prisma.articles.delete({ where: { article_id } })
             return ('Article deleted successfully')
         }
         catch (err) {
@@ -78,16 +74,15 @@ export class ArticleService {
     }
 
     /**
-     * 
+     * Method allows users to like/dislike articles.
      * @param user_id the user id.
      * @param article_id the article id.
      * @param like "like" / "dislike"
-     * @returns 
      */
     async likeArticle(user_id: string, article_id: string, like: likeOrDislikeEnum) {
         try {
             const method = (like === likeOrDislikeEnum.like) ? 'connect' : 'disconnect'
-            const result = await this.prisma.articles.update({
+            await this.prisma.articles.update({
                 where: { article_id },
                 data: { likes: { [method]: { user_id } } }
             })

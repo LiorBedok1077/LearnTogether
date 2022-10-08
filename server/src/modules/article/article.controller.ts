@@ -57,6 +57,9 @@ export class ArticleController {
         return await this.articleService.deleteArticle(article_id)
     }
 
+    /**
+     * @description ENdpoint for liking/disliking articles.
+     */
     @Put('/:article_id/:like')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
