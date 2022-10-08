@@ -483,6 +483,14 @@ describe('AppController (e2e)', () => {
         .stores('article_id', 'article_id')
         .inspect())
     })
+    describe('Get article data', () => {
+      // get article data
+      it('should get article data', () => pactum
+        .spec()
+        .get('/article/$S{article_id}')
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+    })
     describe('Update an article', () => {
       // forbidden update
       it('error: forbidden update', () => pactum

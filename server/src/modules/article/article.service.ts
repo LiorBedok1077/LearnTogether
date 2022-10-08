@@ -36,6 +36,19 @@ export class ArticleService {
     }
 
     /**
+     * Method returns an article's data by a given id.
+     * @param article_id the article id.
+     */
+    async getArticleData(article_id: string) {
+        try {
+            return await this.prisma.articles.findUnique({ where: { article_id } })
+        }
+        catch (err) {
+            throw new BadRequestException('Article does not exist')
+        }
+    }
+
+    /**
      * Method updates an article.
      * @param article_id the article id.
      * @param dto the data to update.
@@ -49,6 +62,10 @@ export class ArticleService {
         }
     }
 
+    /**
+     * Method deletes an article.
+     * @param article_id the article id.
+     */
     async deleteArticle(article_id: string) {
         try {
             const result = await this.prisma.articles.delete({ where: { article_id } })
