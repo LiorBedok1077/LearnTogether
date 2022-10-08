@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common'
 import { ConfigsModuleOptions } from './configs/module-options'
 // modules
 import { ConfigModule } from '@nestjs/config'
-import { MailModule, AuthModule, PrismaModule, UserModule, JwtModule, GroupModule } from './modules'
+import { MailModule, AuthModule, PrismaModule, UserModule, JwtModule, GroupModule, ArticleModule } from './modules'
 
 @Module({
   imports: [
@@ -18,7 +18,8 @@ import { MailModule, AuthModule, PrismaModule, UserModule, JwtModule, GroupModul
     // route modules:
     AuthModule,
     UserModule,
-    GroupModule
+    GroupModule,
+    ArticleModule,
   ]
 })
 export class AppModule { }

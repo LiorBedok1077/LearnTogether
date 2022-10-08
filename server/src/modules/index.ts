@@ -4,3 +4,4 @@ export { PrismaModule } from "./prisma/prisma.module"
 export { AuthModule } from "./auth/auth.module"
 export { UserModule } from "./user/user.module"
 export { GroupModule } from './group/group.module'
+export { ArticleModule } from './article/article.module'

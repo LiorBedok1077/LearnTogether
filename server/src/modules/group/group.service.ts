@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common'
+import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common'
 // types
 import { CreateGroupDto, JoinGroupDto, UpdateGroupDto, UpdateParticipantsDto } from './dto'
 import { Users } from '@prisma/client'

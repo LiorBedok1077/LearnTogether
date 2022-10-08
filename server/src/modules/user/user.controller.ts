@@ -63,7 +63,7 @@ export class UserController {
      */
     @Delete(':user_id')
     @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
+    @HttpCode(HttpStatus.OK)
     async deleteUser(@IdParam('user_id') user_id: string) {
         return await this.userService.deleteUser(user_id)
     }

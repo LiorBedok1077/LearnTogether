@@ -9,6 +9,7 @@ import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client';
 import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
 import { CreateGroupDto, UpdateGroupDto, UpdateParticipantsDto } from '../src/modules/group/dto';
 import { listActionsEnum } from '../src/interfaces/dto';
+import { CreateArticleDto } from '../src/modules/article/dto';
 
 const TEST_PORT = 5001
 
@@ -306,7 +307,7 @@ describe('AppController (e2e)', () => {
         .withHeaders({
           'Authorization': 'Bearer $S{userAt}'
         })
-        .expectStatus(HttpStatus.NO_CONTENT))
+        .expectStatus(HttpStatus.OK))
     })
     */
   })
@@ -426,6 +427,22 @@ describe('AppController (e2e)', () => {
         title: "New group title ayoo",
         description: "New group description let's goo!"
       }
+      // error: unauthorized
+      it('error: unauthorized', () => pactum
+        .spec()
+        .patch('/group/$S{group_id}')
+        .withBody(UpdateGroupDto)
+        .expectStatus(HttpStatus.UNAUTHORIZED))
+      // error: forbidden update
+      it('error: forbidden update', () => pactum
+        .spec()
+        .patch('/group/$S{group_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .withBody(UpdateGroupDto)
+        .expectStatus(HttpStatus.FORBIDDEN)
+        .inspect())
       // update group data
       it('should update group data', () => pactum
         .spec()
@@ -434,8 +451,7 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .withBody(UpdateGroupDto)
-        .expectStatus(HttpStatus.OK)
-      )
+        .expectStatus(HttpStatus.OK))
       // have other functionality to check 0_0 (groups)
       // // delete group
       // it('should delete group', () => pactum
@@ -446,6 +462,65 @@ describe('AppController (e2e)', () => {
       //   })
       //   .expectStatus(HttpStatus.OK)
       // )
+    })
+  })
+  describe('Articles', () => {
+    const CreateArticleDto: CreateArticleDto = {
+      title: 'NEW: Fireworks in Minecraft 1.4.6!!!',
+      content: 'Hello guys welcome to my youtube channel and today we\'re going to make some fireworks!',
+      tags: ['tag-1'],
+    }
+    describe('Create an article', () => {
+      // create a new article
+      it('should create an article', () => pactum
+        .spec()
+        .post('/article')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(CreateArticleDto)
+        .expectStatus(HttpStatus.CREATED)
+        .stores('article_id', 'article_id')
+        .inspect())
+    })
+    describe('Update an article', () => {
+      // forbidden update
+      it('error: forbidden update', () => pactum
+        .spec()
+        .patch('/article/$S{article_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .withBody(CreateArticleDto)
+        .expectStatus(HttpStatus.FORBIDDEN)
+        .inspect())
+      // update an article
+      it('should update an article', () => pactum
+        .spec()
+        .patch('/article/$S{article_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(CreateArticleDto)
+        .expectStatus(HttpStatus.OK))
+    })
+    describe('Delete an article', () => {
+      // forbidden update
+      it('error: forbidden delete', () => pactum
+        .spec()
+        .delete('/article/$S{article_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .expectStatus(HttpStatus.FORBIDDEN))
+      // update an article
+      it('should delete an article', () => pactum
+        .spec()
+        .delete('/article/$S{article_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.OK))
     })
   })
 });
