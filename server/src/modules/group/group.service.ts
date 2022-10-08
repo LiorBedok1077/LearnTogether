@@ -27,7 +27,7 @@ export class GroupService {
      */
     async createGroup(user_id: string, { description, members, tags, title }: CreateGroupDto) {
         try {
-            const result = await this.prisma.learning_groups.create({
+            return await this.prisma.learning_groups.create({
                 data: {
                     title, description, tags,
                     creator: { connect: { user_id } },
@@ -36,7 +36,6 @@ export class GroupService {
                     progress: 0,
                 }
             })
-            return result
         }
         catch (err) { }
     }
@@ -122,14 +121,10 @@ export class GroupService {
      */
     async joinGroup({ verification_token }: JoinGroupDto) {
         try {
-            // validate email-token
+            // validate email-token & update database with the hashed password 
             const { group_id, user_id } = await this.jwt.verifyToken(verification_token, 'join-group')
-            // update database with the hashed password 
             const group = await this.prisma.learning_groups.update({
                 where: { group_id }, data: { participants: { connect: { user_id } } }
-            })
-            const user = await this.prisma.users.update({
-                where: { user_id }, data: { participating_groups: { connect: { group_id } } }
             })
             return `Joined successfully to group "${group.title}"`
         }

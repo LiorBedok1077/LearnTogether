@@ -436,15 +436,16 @@ describe('AppController (e2e)', () => {
         .withBody(UpdateGroupDto)
         .expectStatus(HttpStatus.OK)
       )
-      // delete group
-      it('should delete group', () => pactum
-        .spec()
-        .delete('/group/$S{group_id}')
-        .withHeaders({
-          'Authorization': 'Bearer $S{userAt}'
-        })
-        .expectStatus(HttpStatus.OK)
-      )
+      // have other functionality to check 0_0 (groups)
+      // // delete group
+      // it('should delete group', () => pactum
+      //   .spec()
+      //   .delete('/group/$S{group_id}')
+      //   .withHeaders({
+      //     'Authorization': 'Bearer $S{userAt}'
+      //   })
+      //   .expectStatus(HttpStatus.OK)
+      // )
     })
   })
 });
