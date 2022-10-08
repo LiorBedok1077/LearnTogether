@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common'
+import { Injectable, BadRequestException } from '@nestjs/common'
 // types
 import { CreateGroupDto, JoinGroupDto, UpdateGroupDto, UpdateParticipantsDto } from './dto'
 import { Users } from '@prisma/client'
@@ -6,7 +6,7 @@ import { listActionsEnum } from '../../interfaces/dto'
 // services
 import { PrismaService } from '../prisma/prisma.service'
 import { JwtService } from '../jwt/jwt.service'
-import { MailService } from '../mail/mail.service'
+import { NotificationService } from '../notification/notification.service'
 
 /**
  * (Group) Service handles learning-group crud operations (e.g. create-group, edit-group, etc.)
@@ -16,7 +16,7 @@ export class GroupService {
     constructor(
         private prisma: PrismaService,
         private jwt: JwtService,
-        private mailer: MailService
+        private notification: NotificationService
     ) { }
 
     /**
@@ -97,13 +97,16 @@ export class GroupService {
             if (group.creator.username === username) {
                 throw new BadRequestException('Cannot join your own group')
             }
-            // -- push notification (later)
-            // send mail request to the creator (asynchronously, with token as temporary return value)
-            const email_token = await this.mailer.sendRequestJoinGroupMail(
-                group.creator.email,
-                { username: group.creator.username, group_title: group.title, requesting_username: username },
-                { group_id, user_id }
-            )
+            // push notification
+            const email_token = await this.notification.requestJoinGroup({
+                to: group.creator.email,
+                context: {
+                    username: group.creator.username,
+                    group_title: group.title,
+                    requesting_username: username
+                },
+                token_payload: { group_id, user_id }
+            })
             return {
                 msg: (`A request has been sent to "${group.creator.email}"`),
                 // temp response field - simulating email verification - testing change-password (step 2)
@@ -153,17 +156,22 @@ export class GroupService {
                 // -- invite user to a group
                 case listActionsEnum.invite: {
                     // find target user & group
-                    const user = await this.prisma.users.findUnique({ where: { user_id }, select: { username: true, email: true } })
+                    const user = await this.prisma.users.findUnique({
+                        where: { user_id }, select: { username: true, email: true }
+                    })
                     const group = await this.prisma.learning_groups.findUniqueOrThrow({
                         where: { group_id }, include: { creator: { select: { username: true } } }
                     })
-                    // -- push notification (later)
-                    // send 'invite-to-group' email
-                    const email_token = await this.mailer.sendInviteToGroupMail(
-                        user.email,
-                        { group_title: group.title, invitor_username: group.creator.username, target_username: user.username },
-                        { group_id, user_id }
-                    )
+                    // push notification
+                    const email_token = await this.notification.inviteToGroup({
+                        to: user.email,
+                        context: {
+                            group_title: group.title,
+                            invitor_username: group.creator.username,
+                            target_username: user.username
+                        },
+                        token_payload: { group_id, user_id }
+                    })
                     return ({
                         msg: `User has been invited to group "${group.title}"`,
                         // temp response field - simulating email verification - testing invite-to-group (step 2)

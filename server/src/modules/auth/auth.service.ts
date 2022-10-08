@@ -7,7 +7,7 @@ import { JWT_EXPIRE_TOKEN } from "../../configs/constants"
 // services
 import { PrismaService } from "../prisma/prisma.service"
 import { JwtService } from '../jwt/jwt.service'
-import { MailService } from "../mail/mail.service"
+import { NotificationService } from "../notification/notification.service"
 
 /**
  * (Auth) Service handles user-authorization functionallities (e.g. sign-in, sign-up, etc.)
@@ -17,7 +17,7 @@ export class AuthService {
     constructor(
         private jwt: JwtService,
         private prisma: PrismaService,
-        private mailer: MailService
+        private notification: NotificationService
     ) { }
 
     /**
@@ -69,10 +69,12 @@ export class AuthService {
         const { user_id, num_edited_profile, email, username, full_name } = await this.prisma.users.findFirstOrThrow({
             where: { OR: [{ email: username_or_email }, { username: username_or_email }] }
         })
-        // send 'reset-password' email (asynchronously, with token as temporary return value)
-        const email_token = await this.mailer.sendResetPaswordMail(
-            email, { full_name, username }, { num_edited_profile, user_id }
-        )
+        // send 'reset-password' email
+        const email_token = await this.notification.sendResetPassword({
+            to: email,
+            context: { full_name, username },
+            token_payload: { num_edited_profile, user_id }
+        })
         // return email-token for testing (temp)
         return {
             msg: (`A reset link has been sent to ${email}. Please use it to reset your password`),

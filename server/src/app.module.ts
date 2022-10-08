@@ -1,20 +1,28 @@
 import { Module } from '@nestjs/common'
 // configs
-import { ConfigsModuleOptions } from './configs/module-options'
+import { ConfigsModuleOptions, MailerModuleAsyncOptions } from './configs/module-options'
 // modules
 import { ConfigModule } from '@nestjs/config'
-import { MailModule, AuthModule, PrismaModule, UserModule, JwtModule, GroupModule, ArticleModule, CommentModule } from './modules'
+import { MailerModule } from '@nestjs-modules/mailer'
+import {
+  ArticleModule,
+  AuthModule,
+  CommentModule,
+  GroupModule,
+  JwtModule,
+  NotificationModule,
+  PrismaModule,
+  UserModule
+} from './modules'
 
 @Module({
   imports: [
-    // config module - access environment variables globally.
-    ConfigModule.forRoot(ConfigsModuleOptions),
-    // mailer module - allows sending mails globally.
-    MailModule,
-    // prisma module - access to main database globally.
-    PrismaModule,
-    // jwt module - access normal & custom jwt-methods globally.
-    JwtModule,
+    // global modules:
+    ConfigModule.forRoot(ConfigsModuleOptions),           // -- config module - access environment variables globally.
+    MailerModule.forRootAsync(MailerModuleAsyncOptions),  // -- mailer module - allows sending mails globally.
+    PrismaModule,                                         // -- prisma module - access to main database globally.
+    JwtModule,                                            // -- jwt module - access normal & custom jwt-methods globally.
+    NotificationModule,                                   // -- notification module - push notifications.
     // route modules:
     AuthModule,
     UserModule,

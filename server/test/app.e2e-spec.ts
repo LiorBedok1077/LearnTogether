@@ -392,7 +392,7 @@ describe('AppController (e2e)', () => {
         .withBody(UpdateParticipantsDto(listActionsEnum.invite))
         .expectStatus(HttpStatus.OK)
         .stores('group-invitation-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-        .inspect()
+        
       )
       // join a group
       it('should join a group using a request link', () => pactum
@@ -442,7 +442,7 @@ describe('AppController (e2e)', () => {
         })
         .withBody(UpdateGroupDto)
         .expectStatus(HttpStatus.FORBIDDEN)
-        .inspect())
+        )
       // update group data
       it('should update group data', () => pactum
         .spec()
@@ -481,7 +481,7 @@ describe('AppController (e2e)', () => {
         .withBody(CreateArticleDto)
         .expectStatus(HttpStatus.CREATED)
         .stores('article_id', 'article_id')
-        .inspect())
+        )
     })
     describe('Get article data', () => {
       // get article data
@@ -489,7 +489,7 @@ describe('AppController (e2e)', () => {
         .spec()
         .get('/article/$S{article_id}')
         .expectStatus(HttpStatus.OK)
-        .inspect())
+        )
     })
     describe('Update an article', () => {
       // forbidden update
@@ -501,7 +501,7 @@ describe('AppController (e2e)', () => {
         })
         .withBody(CreateArticleDto)
         .expectStatus(HttpStatus.FORBIDDEN)
-        .inspect())
+        )
       // update an article
       it('should update an article', () => pactum
         .spec()
@@ -552,7 +552,7 @@ describe('AppController (e2e)', () => {
     //       'Authorization': 'Bearer $S{userAt}'
     //     })
     //     .expectStatus(HttpStatus.OK)
-    //     .inspect())
+    //     )
     // })
   })
   describe('Comments', () => {
@@ -570,7 +570,7 @@ describe('AppController (e2e)', () => {
         .withBody(CommentDto)
         .expectStatus(HttpStatus.CREATED)
         .stores('comment_id', 'comment_id')
-        .inspect())
+        )
     })
     describe('Edit a comment', () => {
       //  forbidden
@@ -582,7 +582,7 @@ describe('AppController (e2e)', () => {
         })
         .withBody(CommentDto)
         .expectStatus(HttpStatus.FORBIDDEN)
-        .inspect())
+        )
       //  edit a comment
       it('should edit a comment', () => pactum
         .spec()
@@ -592,7 +592,7 @@ describe('AppController (e2e)', () => {
         })
         .withBody(CommentDto)
         .expectStatus(HttpStatus.OK)
-        .inspect())
+        )
     })
     describe('Like a comment', () => {
       //  forbidden
@@ -603,7 +603,7 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt2}'
         })
         .expectStatus(HttpStatus.FORBIDDEN)
-        .inspect())
+        )
       //  invalid method-param
       it('error: invalid method-param', () => pactum
         .spec()
@@ -612,7 +612,7 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .expectStatus(HttpStatus.BAD_REQUEST)
-        .inspect())
+        )
       //  like a comment
       it('should like a comment', () => pactum
         .spec()
@@ -621,7 +621,7 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .expectStatus(HttpStatus.OK)
-        .inspect())
+        )
       //  dislike a comment
       it('should dislike a comment', () => pactum
         .spec()
@@ -630,7 +630,7 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .expectStatus(HttpStatus.OK)
-        .inspect())
+        )
     })
     describe('Delete a comment', () => {
       // forbidden comment delete
