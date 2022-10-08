@@ -594,6 +594,44 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.OK)
         .inspect())
     })
+    describe('Like a comment', () => {
+      //  forbidden
+      it('error: forbidden editing', () => pactum
+        .spec()
+        .patch('/comment/$S{comment_id}/dislike')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .expectStatus(HttpStatus.FORBIDDEN)
+        .inspect())
+      //  invalid method-param
+      it('error: invalid method-param', () => pactum
+        .spec()
+        .patch('/comment/$S{comment_id}/some-method')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.BAD_REQUEST)
+        .inspect())
+      //  like a comment
+      it('should like a comment', () => pactum
+        .spec()
+        .patch('/comment/$S{comment_id}/like')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+      //  dislike a comment
+      it('should dislike a comment', () => pactum
+        .spec()
+        .patch('/comment/$S{comment_id}/dislike')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+    })
     describe('Delete a comment', () => {
       // forbidden comment delete
       it('error: forbidden delete comment', () => pactum

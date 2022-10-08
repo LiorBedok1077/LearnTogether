@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
+import { likeOrDislikeEnum } from '../../interfaces/dto'
 import { CommentDto } from '../article/dto'
 // types
 // services
@@ -12,6 +13,26 @@ export class CommentService {
     constructor(
         private prisma: PrismaService
     ) { }
+
+    /**
+     * Method allows users to like/dislike comments.
+     * @param user_id the user id.
+     * @param comment_id the comment id.
+     * @param like "like" / "dislike".
+     */
+    async likeComment(user_id: string, comment_id: string, like: likeOrDislikeEnum) {
+        try {
+            const method = (like === likeOrDislikeEnum.like) ? 'connect' : 'disconnect'
+            await this.prisma.comments.update({
+                where: { comment_id },
+                data: { likes: { [method]: { user_id } } }
+            })
+            return (`Comment ${like}d successfully`)
+        }
+        catch (err) {
+            throw new BadRequestException('Comment does ont exist')
+        }
+    }
 
     /**
      * Method updates a comment.
