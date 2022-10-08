@@ -1,5 +1,5 @@
 import { Body, Delete, Get, HttpCode, HttpStatus, UseGuards, Controller, Param, Patch, Post, Put } from '@nestjs/common'
-import { ArticleGuard, JwtGuard } from "../auth/guards"
+import { ArticleGuard, CommentGuard, JwtGuard } from "../auth/guards"
 // decorators
 import { GetUser, IdParam } from '../auth/decorators'
 // types
@@ -53,6 +53,16 @@ export class ArticleController {
     @HttpCode(HttpStatus.OK)
     async deleteArticle(@IdParam('article_id') article_id: string) {
         return await this.articleService.deleteArticle(article_id)
+    }
+
+    /**
+     * @description Endpoint for deleting comments.
+     */
+    @Delete('/comment/:comment_id')
+    @UseGuards(JwtGuard, CommentGuard)
+    @HttpCode(HttpStatus.OK)
+    async deleteComment(@IdParam('comment_id') comment_id: string) {
+        return await this.articleService.deleteComment(comment_id)
     }
 
     /**

@@ -104,17 +104,31 @@ export class ArticleService {
      */
     async comment(user_id: string, article_id: string, dto: CommentDto) {
         try {
-            await this.prisma.comments.create({
+            const result = await this.prisma.comments.create({
                 data: {
                     author: { connect: { user_id } },
                     article: { connect: { article_id } },
                     data: dto.data
                 }
             })
-            return ('Comment added successfully')
+            return result
         }
         catch (err) {
-            throw new BadRequestException({ user_id, article_id, err, msg: 'Article does not exist' })
+            throw new BadRequestException('Article does not exist')
+        }
+    }
+
+    /**
+     * Method deletes comments.
+     * @param comment_id the comment id.
+     */
+    async deleteComment(comment_id: string) {
+        try {
+            await this.prisma.comments.delete({ where: { comment_id } })
+            return ('Comment deleted successfully')
+        }
+        catch (err) {
+            throw new BadRequestException('Comment does not exist')
         }
     }
 }

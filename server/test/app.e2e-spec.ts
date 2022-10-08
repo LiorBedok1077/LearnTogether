@@ -535,7 +535,7 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK))
     })
-    describe('Comment article', () => {
+    describe('Comments', () => {
       const CommentDto: CommentDto = {
         data: "Awesome article! I really liked it."
       }
@@ -547,6 +547,25 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .withBody(CommentDto)
+        .expectStatus(HttpStatus.OK)
+        .stores('comment_id', 'comment_id')
+        .inspect())
+      // forbidden comment delete
+      it('error: forbidden delete comment', () => pactum
+        .spec()
+        .delete('/article/comment/$S{comment_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .expectStatus(HttpStatus.FORBIDDEN)
+        .inspect())
+      // delete comment
+      it('should delete comment', () => pactum
+        .spec()
+        .delete('/article/comment/$S{comment_id}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
         .expectStatus(HttpStatus.OK)
         .inspect())
     })
