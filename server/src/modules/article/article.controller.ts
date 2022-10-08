@@ -1,11 +1,13 @@
-import { Body, Delete, Get, HttpCode, HttpStatus, UseGuards, Controller, Patch, Post } from '@nestjs/common'
+import { Body, Delete, Get, HttpCode, HttpStatus, UseGuards, Controller, Param, Patch, Post, Put } from '@nestjs/common'
 import { ArticleGuard, JwtGuard } from "../auth/guards"
 // decorators
 import { GetUser, IdParam } from '../auth/decorators'
 // types
 import { CreateArticleDto, UpdateArticleDto } from './dto'
+import { likeOrDislikeEnum } from '../../interfaces/dto'
 // services
 import { ArticleService } from './article.service'
+import { LikeArticleParam } from './dto/like-article.param'
 
 @Controller({
     path: 'article',
@@ -53,5 +55,14 @@ export class ArticleController {
     @HttpCode(HttpStatus.OK)
     async deleteArticle(@IdParam('article_id') article_id: string) {
         return await this.articleService.deleteArticle(article_id)
+    }
+
+    @Put('/:article_id/:like')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async likeArticle(
+        @IdParam('article_id') article_id: string, @GetUser('user_id') user_id: string, @Param() { like }: LikeArticleParam
+    ) {
+        return await this.articleService.likeArticle(user_id, article_id, like)
     }
 }

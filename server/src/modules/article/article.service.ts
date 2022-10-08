@@ -5,6 +5,7 @@ import { CreateArticleDto, UpdateArticleDto } from './dto'
 import { PrismaService } from '../prisma/prisma.service'
 import { JwtService } from '../jwt/jwt.service'
 import { MailService } from '../mail/mail.service'
+import { likeOrDislikeEnum } from '../../interfaces/dto'
 
 /**
  * (Article) Service handles article crud operations (e.g. create-article, edit-article, etc.)
@@ -41,7 +42,7 @@ export class ArticleService {
      */
     async getArticleData(article_id: string) {
         try {
-            return await this.prisma.articles.findUnique({ where: { article_id } })
+            return await this.prisma.articles.findUniqueOrThrow({ where: { article_id } })
         }
         catch (err) {
             throw new BadRequestException('Article does not exist')
@@ -73,6 +74,27 @@ export class ArticleService {
         }
         catch (err) {
             throw new BadRequestException('Article does not exist')
+        }
+    }
+
+    /**
+     * 
+     * @param user_id the user id.
+     * @param article_id the article id.
+     * @param like "like" / "dislike"
+     * @returns 
+     */
+    async likeArticle(user_id: string, article_id: string, like: likeOrDislikeEnum) {
+        try {
+            const method = (like === likeOrDislikeEnum.like) ? 'connect' : 'disconnect'
+            const result = await this.prisma.articles.update({
+                where: { article_id },
+                data: { likes: { [method]: { user_id } } }
+            })
+            return (`article ${like}d successfully`)
+        }
+        catch (err) {
+            throw new BadRequestException('Article does ont exist')
         }
     }
 }

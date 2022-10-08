@@ -512,6 +512,29 @@ describe('AppController (e2e)', () => {
         .withBody(CreateArticleDto)
         .expectStatus(HttpStatus.OK))
     })
+    describe('Like an article', () => {
+      // unauthorized
+      it('error: unauthorized', () => pactum
+        .spec()
+        .put('/article/$S{article_id}/dislike')
+        .expectStatus(HttpStatus.UNAUTHORIZED))
+      // unknown method
+      it('error: like-parameter is invalid', () => pactum
+        .spec()
+        .put('/article/$S{article_id}/nope')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.BAD_REQUEST))
+      // like an article
+      it('should like an article', () => pactum
+        .spec()
+        .put('/article/$S{article_id}/like')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.OK))
+    })
     describe('Delete an article', () => {
       // forbidden update
       it('error: forbidden delete', () => pactum
