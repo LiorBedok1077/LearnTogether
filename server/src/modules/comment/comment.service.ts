@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
+import { CommentDto } from '../article/dto'
 // types
 // services
 import { PrismaService } from '../prisma/prisma.service'
@@ -13,7 +14,21 @@ export class CommentService {
     ) { }
 
     /**
-     * Method deletes comments.
+     * Method updates a comment.
+     * @param comment_id the comment id.
+     * @param dto the new comment data.
+     */
+    async editComment(comment_id: string, { data }: CommentDto) {
+        try {
+            return await this.prisma.comments.update({ where: { comment_id }, data: { data } })
+        }
+        catch (err) {
+            throw new BadRequestException('Comment does not exist')
+        }
+    }
+
+    /**
+     * Method deletes a comment.
      * @param comment_id the comment id.
      */
     async deleteComment(comment_id: string) {

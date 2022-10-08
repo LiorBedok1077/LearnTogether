@@ -60,7 +60,7 @@ export class ArticleController {
      */
     @Post('/:article_id/comment')
     @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.OK)
+    @HttpCode(HttpStatus.CREATED)
     async comment(@GetUser('user_id') user_id: string, @IdParam('article_id') article_id: string, @Body() dto: CommentDto) {
         return await this.articleService.comment(user_id, article_id, dto)
     }
