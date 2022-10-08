@@ -4,6 +4,7 @@ import { CreateArticleDto, UpdateArticleDto } from './dto'
 // services
 import { PrismaService } from '../prisma/prisma.service'
 import { likeOrDislikeEnum } from '../../interfaces/dto'
+import { CommentDto } from './dto/comment.dto'
 
 /**
  * (Article) Service handles article crud operations (e.g. create-article, edit-article, etc.)
@@ -65,6 +66,8 @@ export class ArticleService {
      */
     async deleteArticle(article_id: string) {
         try {
+            // delete article & it's comments
+            await this.prisma.comments.deleteMany({ where: { article_id } })
             await this.prisma.articles.delete({ where: { article_id } })
             return ('Article deleted successfully')
         }
@@ -90,6 +93,28 @@ export class ArticleService {
         }
         catch (err) {
             throw new BadRequestException('Article does ont exist')
+        }
+    }
+
+    /**
+     * Method adds comments to an article.
+     * @param user_id the user id.
+     * @param article_id the article id.
+     * @param dto the comment payload.
+     */
+    async comment(user_id: string, article_id: string, dto: CommentDto) {
+        try {
+            await this.prisma.comments.create({
+                data: {
+                    author: { connect: { user_id } },
+                    article: { connect: { article_id } },
+                    data: dto.data
+                }
+            })
+            return ('Comment added successfully')
+        }
+        catch (err) {
+            throw new BadRequestException({ user_id, article_id, err, msg: 'Article does not exist' })
         }
     }
 }

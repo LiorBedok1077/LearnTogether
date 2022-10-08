@@ -3,11 +3,9 @@ import { ArticleGuard, JwtGuard } from "../auth/guards"
 // decorators
 import { GetUser, IdParam } from '../auth/decorators'
 // types
-import { CreateArticleDto, UpdateArticleDto } from './dto'
-import { likeOrDislikeEnum } from '../../interfaces/dto'
+import { CreateArticleDto, UpdateArticleDto, CommentDto, LikeArticleParam } from './dto'
 // services
 import { ArticleService } from './article.service'
-import { LikeArticleParam } from './dto/like-article.param'
 
 @Controller({
     path: 'article',
@@ -58,7 +56,17 @@ export class ArticleController {
     }
 
     /**
-     * @description ENdpoint for liking/disliking articles.
+     * @description Endpoint for adding comments to an article.
+     */
+    @Post('/:article_id/comment')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async comment(@GetUser('user_id') user_id: string, @IdParam('article_id') article_id: string, @Body() dto: CommentDto) {
+        return await this.articleService.comment(user_id, article_id, dto)
+    }
+
+    /**
+     * @description Endpoint for liking/disliking articles.
      */
     @Put('/:article_id/:like')
     @UseGuards(JwtGuard)

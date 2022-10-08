@@ -9,7 +9,7 @@ import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client';
 import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
 import { CreateGroupDto, UpdateGroupDto, UpdateParticipantsDto } from '../src/modules/group/dto';
 import { listActionsEnum } from '../src/interfaces/dto';
-import { CreateArticleDto } from '../src/modules/article/dto';
+import { CommentDto, CreateArticleDto } from '../src/modules/article/dto';
 
 const TEST_PORT = 5001
 
@@ -535,6 +535,21 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK))
     })
+    describe('Comment article', () => {
+      const CommentDto: CommentDto = {
+        data: "Awesome article! I really liked it."
+      }
+      // comment on article
+      it('should comment on an article', () => pactum
+        .spec()
+        .post('/article/$S{article_id}/comment')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .withBody(CommentDto)
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+    })
     describe('Delete an article', () => {
       // forbidden update
       it('error: forbidden delete', () => pactum
@@ -551,7 +566,8 @@ describe('AppController (e2e)', () => {
         .withHeaders({
           'Authorization': 'Bearer $S{userAt}'
         })
-        .expectStatus(HttpStatus.OK))
+        .expectStatus(HttpStatus.OK)
+        .inspect())
     })
   })
 });
