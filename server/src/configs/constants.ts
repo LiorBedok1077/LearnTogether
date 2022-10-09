@@ -1,6 +1,6 @@
 // Global constants file
 
-// file-names (not paths)
+// file-names (not paths!)
 export const FILENAMES = {
     // environment-variable filenames
     env: {
