@@ -13,6 +13,11 @@ export interface NotificationTypes {
         context: { username: string, requesting_username: string, group_title: string },
         token_payload: JwtRequestJoinGroupPayload
     }) => Promise<string>
+    'user-joined-group': (metadata: {
+        to: string,
+        context: { username: string, group_title: string },
+        group_id: string
+    }) => Promise<void>
     'invite-to-group': (metadata: {
         to: string,
         context: { target_username: string, invitor_username: string, group_title: string },

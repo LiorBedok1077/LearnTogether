@@ -1,6 +1,6 @@
 import { resolve } from "path"
 // configs
-import { ENV_VARS, ROOT_ENV_FILE } from "./constants"
+import { ENV_VARS, FILENAMES } from "./constants"
 // types (services options)
 import { ConfigModuleOptions, ConfigService } from '@nestjs/config'
 import { MailerAsyncOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-async-options.interface'
@@ -9,7 +9,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 
 // config module options
 export const ConfigsModuleOptions: ConfigModuleOptions = {
-    envFilePath: ROOT_ENV_FILE.test,
+    envFilePath: FILENAMES.env.test,
     isGlobal: true
 }
 

@@ -120,14 +120,19 @@ export class GroupService {
 
     /**
      * Method accepts group join-requests from users with a valid link.
+     * @param user the request user data.
      * @param dto the body with the verification token.
      */
-    async joinGroup({ verification_token }: JoinGroupDto) {
+    async joinGroup({ email, username }: Users, { verification_token }: JoinGroupDto) {
         try {
             // validate email-token & update database with the hashed password 
             const { group_id, user_id } = await this.jwt.verifyToken(verification_token, 'join-group')
             const group = await this.prisma.learning_groups.update({
                 where: { group_id }, data: { participants: { connect: { user_id } } }
+            })
+            // send notification & email
+            await this.notification.userJoinedGroup({
+                to: email, group_id, context: { username, group_title: group.title }
             })
             return `Joined successfully to group "${group.title}"`
         }
@@ -156,7 +161,7 @@ export class GroupService {
                 // -- invite user to a group
                 case listActionsEnum.invite: {
                     // find target user & group
-                    const user = await this.prisma.users.findUnique({
+                    const user = await this.prisma.users.findUniqueOrThrow({
                         where: { user_id }, select: { username: true, email: true }
                     })
                     const group = await this.prisma.learning_groups.findUniqueOrThrow({

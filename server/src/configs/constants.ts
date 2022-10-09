@@ -1,9 +1,19 @@
-import { Users } from "@prisma/client"
+// Global constants file
 
-// enviroment-variables file path
-export const ROOT_ENV_FILE = {
-    test: '.env.test',
-    prod: '.env.prod'
+// file-names (not paths)
+export const FILENAMES = {
+    // environment-variable filenames
+    env: {
+        test: '.env.test',
+        prod: '.env.prod'
+    },
+    // handlebars filenames
+    hbs_template: {
+        invite_to_group: 'invite-to-group',
+        request_join_group: 'request-join-group',
+        reset_password: 'reset-password',
+        user_joined_group: 'user-joined-group',
+    }
 }
 
 // enviroment-variables keys
@@ -30,8 +40,13 @@ export const JWT_EXPIRE_TOKEN = {
 // user id (uuid) length, created by prisma
 export const UUID_LENGTH = 36
 
-// reset-password client url - with a dynamic token param
-export const RESET_PASSWORD_CLIENT_URL = (token: string) => `http://localhost:3000/reset-password/${token}`
-
-// join-group client url - with a dynamic token param
-export const JOIN_GROUP_CLIENT_URL = (token: string) => `http://localhost:3000/join-group/${token}`
+// the client base-uri
+export const CLIENT_URI = `http://localhost:3000`
+export const CLIENT_URLS = {
+    // reset-password client url - with a dynamic token param
+    RESET_PASSWORD: (token: string) => `${CLIENT_URI}/reset-password/${token}`,
+    // join-group client url - with a dynamic token param
+    JOIN_GROUP: (token: string) => `${CLIENT_URI}/join-group/${token}`,
+    // join-group client url - with a dynamic token param
+    GROUP: (group_id: string) => `${CLIENT_URI}/group/${group_id}`,
+}

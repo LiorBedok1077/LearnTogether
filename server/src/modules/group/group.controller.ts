@@ -84,7 +84,7 @@ export class GroupController {
     @Post('/join')
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.OK)
-    async joinGroup(@Body() dto: JoinGroupDto) {
-        return await this.groupService.joinGroup(dto)
+    async joinGroup(@GetUser() user: Users, @Body() dto: JoinGroupDto) {
+        return await this.groupService.joinGroup(user, dto)
     }
 }
