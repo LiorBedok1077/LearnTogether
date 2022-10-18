@@ -12,42 +12,43 @@ datasource db {
 
 model Users {
     // user data:
-    user_id              String                  @id @default(uuid())
-    username             String                  @unique
-    email                String                  @unique
-    full_name            String
-    password             String
-    created_at           DateTime                @default(now())
-    role                 Roles?
-    profile_pic_src      String?
+    user_id                 String                  @id @default(uuid())
+    username                String                  @unique
+    email                   String                  @unique
+    full_name               String
+    password                String
+    created_at              DateTime                @default(now())
+    role                    Roles?
+    profile_pic_src         String?
     // personal data:
-    phone_number         String?
-    gender               GenderEnum              @default(MALE)
-    bio                  String?
-    interests            String[]
-    prefered_langs       PreferedLanguagesEnum[]
-    favorite_tags        Favorite_tags[]
+    phone_number            String?
+    gender                  GenderEnum              @default(MALE)
+    bio                     String?
+    interests               String[]
+    prefered_langs          PreferedLanguagesEnum[]
+    favorite_tags           Favorite_tags[]
     // stars for user
-    num_stars            Int                     @default(0)
-    star_id              String?
-    star_giver           Users?                  @relation("StarredUser", fields: [star_id], references: [user_id])
-    stars_given          Users[]                 @relation("StarredUser")
+    num_stars               Int                     @default(0)
+    star_id                 String?
+    star_giver              Users?                  @relation("StarredUser", fields: [star_id], references: [user_id])
+    stars_given             Users[]                 @relation("StarredUser")
     // articles, liked_articles
-    articles             Articles[]              @relation("Articles")
-    liked_article_user   Articles[]              @relation("UsersLiked") // -- keep track of liked articles!
+    articles                Articles[]              @relation("Articles")
+    liked_article_user      Articles[]              @relation("UsersLiked") // -- keep track of liked articles!
     // comments, liked_comments
-    comments             Comments[]              @relation("CreatedComments")
-    liked_comments       Comments[]              @relation("LikedComments") // -- keep track of liked comments!
+    comments                Comments[]              @relation("CreatedComments")
+    liked_comments          Comments[]              @relation("LikedComments") // -- keep track of liked comments!
     // groups, participating_groups
-    groups               Learning_groups[]       @relation("CreatedGroups")
-    participating_groups Learning_groups[]       @relation("Participants") // -- keep track of participating groups!
+    groups                  Learning_groups[]       @relation("CreatedGroups")
+    participating_groups    Learning_groups[]       @relation("Participants") // -- keep track of participating groups!
     // notifications
-    notifications        Notification[]
+    notifications           Notification[]
+    last_seen_notifications DateTime                @default(now())
     // roles data (according to role access–modifier):
     // — (teacher_data, admin_data, etc) — 
     // cms
-    num_viewed_profile   Int                     @default(0)
-    num_edited_profile   Int                     @default(0)
+    num_viewed_profile      Int                     @default(0)
+    num_edited_profile      Int                     @default(0)
 }
 
 model Learning_groups {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 // configs
-import { JWT_EXPIRE_TOKEN, CLIENT_URLS, FILENAMES } from '../../configs/constants'
+import { JWT_EXPIRE_TOKEN, CLIENT_URLS } from '../../configs/constants'
 import { MailSubject } from '../../configs/data'
 // types
 import { NotificationTypes } from '../../interfaces/notification'
@@ -19,6 +19,17 @@ export class NotificationService {
         private prisma: PrismaService,
         private mailer: MailerService
     ) { }
+
+    /**
+     * Method updates the <last_seen_notifications> value.
+     * @param user_id the user id.
+     */
+    async readNotifications(user_id: string) {
+        await this.prisma.users.update({
+            where: { user_id },
+            data: { last_seen_notifications: new Date() }
+        })
+    }
 
     /**
      * Method sends an 'invite-to-group' notification (and email, if enabled) to a given user.

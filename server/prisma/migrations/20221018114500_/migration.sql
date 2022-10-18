@@ -23,6 +23,7 @@ CREATE TABLE "Users" (
     "prefered_langs" "PreferedLanguagesEnum"[],
     "num_stars" INT4 NOT NULL DEFAULT 0,
     "star_id" STRING,
+    "last_seen_notifications" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "num_viewed_profile" INT4 NOT NULL DEFAULT 0,
     "num_edited_profile" INT4 NOT NULL DEFAULT 0,
 
@@ -34,7 +35,7 @@ CREATE TABLE "Learning_groups" (
     "group_id" STRING NOT NULL,
     "creator_id" STRING NOT NULL,
     "tags" STRING[],
-    "thumbnail_src" STRING NOT NULL,
+    "thumbnail_src" STRING,
     "title" STRING NOT NULL,
     "description" STRING NOT NULL,
     "goals" STRING[],

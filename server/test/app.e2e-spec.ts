@@ -404,16 +404,6 @@ describe('AppController (e2e)', () => {
         .withBody(JoinGroupDto('$S{group-invitation-email-token}'))
         .expectStatus(HttpStatus.OK)
       )
-      // join a group
-      it('should join a group using a request link', () => pactum
-        .spec()
-        .post('/group/join')
-        .withHeaders({
-          'Authorization': 'Bearer $S{userAt}'
-        })
-        .withBody(JoinGroupDto('$S{group-invitation-email-token}'))
-        .expectStatus(HttpStatus.OK)
-      )
     })
     describe('Get group data', () => {
       it('should get group data', () => pactum
@@ -630,6 +620,15 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK)
       )
+    })
+    describe('Read notifications', () => {
+      it('should mark \'read notifications\'', () => pactum
+        .spec()
+        .put('/user/read-notifications')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.NO_CONTENT))
     })
     describe('Delete a comment', () => {
       // forbidden comment delete

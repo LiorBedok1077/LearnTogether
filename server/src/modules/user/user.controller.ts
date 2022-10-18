@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post, UseGuards } from "@nestjs/common"
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post, Put, UseGuards } from "@nestjs/common"
 // decorators
 import { GetUser, IdParam } from "../auth/decorators"
 // guards
@@ -8,6 +8,7 @@ import { Users } from "@prisma/client"
 import { ChangePasswordDto, UpdateUserDto } from "./dto"
 // services
 import { UserService } from "./user.service"
+import { NotificationService } from "../notification/notification.service"
 
 @Controller({
     path: 'user',
@@ -15,7 +16,8 @@ import { UserService } from "./user.service"
 })
 export class UserController {
     constructor(
-        private userService: UserService
+        private userService: UserService,
+        private notificationService: NotificationService
     ) { }
 
     /**
@@ -66,5 +68,15 @@ export class UserController {
     @HttpCode(HttpStatus.OK)
     async deleteUser(@IdParam('user_id') user_id: string) {
         return await this.userService.deleteUser(user_id)
+    }
+
+    /**
+     * @description Endpoint for marking 'read-notifications'.
+     */
+    @Put('read-notifications')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async readNotifications(@GetUser('user_id') user_id: string) {
+        return await this.notificationService.readNotifications(user_id)
     }
 }
