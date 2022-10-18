@@ -16,6 +16,7 @@ export const FILENAMES = {
     }
 }
 
+// notification types
 export type NOTIFICATION_TYPES = keyof typeof NOTIFICATION_TYPES
 export const NOTIFICATION_TYPES = {
     'invite-to-group': 'invite-to-group',
@@ -43,6 +44,11 @@ export const JWT_EXPIRE_TOKEN = {
     AUTH: '7d',
     FORGOT_PASSWORD: '5m',
     REQUEST_JOIN_GROUP: '7d'
+}
+
+// pagination value (skip)
+export const DB_PAGINATE = {
+    notification: 20
 }
 
 // user id (uuid) length, created by prisma

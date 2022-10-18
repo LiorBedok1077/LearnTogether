@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post, Put, UseGuards } from "@nestjs/common"
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Put, UseGuards } from "@nestjs/common"
 // decorators
 import { GetUser, IdParam } from "../auth/decorators"
 // guards
@@ -71,12 +71,12 @@ export class UserController {
     }
 
     /**
-     * @description Endpoint for marking 'read-notifications'.
+     * @description Endpoint for sending user notifications.
      */
-    @Put('read-notifications')
+    @Get('notifications/:page')
     @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async readNotifications(@GetUser('user_id') user_id: string) {
-        return await this.notificationService.readNotifications(user_id)
+    @HttpCode(HttpStatus.OK)
+    async getNotifications(@GetUser('user_id') user_id: string, @Param('page', ParseIntPipe) page: number) {
+        return await this.notificationService.getNotifications(user_id, page)
     }
 }

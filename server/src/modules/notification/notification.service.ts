@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 // configs
-import { JWT_EXPIRE_TOKEN, CLIENT_URLS } from '../../configs/constants'
+import { JWT_EXPIRE_TOKEN, CLIENT_URLS, DB_PAGINATE } from '../../configs/constants'
 // types
 import { NotificationServiceMethodType } from '../../interfaces/services/notification'
 // utils
@@ -25,10 +25,20 @@ export class NotificationService {
      * Method updates the <last_seen_notifications> value.
      * @param user_id the user id.
      */
-    async readNotifications(user_id: string) {
-        await this.prisma.users.update({
-            where: { user_id }, data: { last_seen_notifications: new Date() }
+    async getNotifications(user_id: string, page: number) {
+        if (page < 0) {
+            throw new BadRequestException('Page can be 0 or above')
+        }
+        const result = await this.prisma.notification.findMany({
+            where: { user_id },
+            orderBy: { created_at: 'desc' },
+            skip: DB_PAGINATE.notification * page,
+            take: DB_PAGINATE.notification
         })
+        if (page === 0) {
+            this.prisma.users.update({ where: { user_id }, data: { last_seen_notifications: new Date() } })
+        }
+        return result
     }
 
     /**

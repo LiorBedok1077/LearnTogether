@@ -664,12 +664,12 @@ describe('AppController (e2e)', () => {
     describe('Read notifications', () => {
       it('should mark \'read notifications\'', () => pactum
         .spec()
-        .put('/user/read-notifications')
+        .get('/user/notifications/0')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt}'
         })
-        .expectStatus(HttpStatus.NO_CONTENT)
-      )
+        .expectStatus(HttpStatus.OK)
+        .inspect())
     })
     describe('Delete a comment', () => {
       // forbidden comment delete
