@@ -1,23 +1,26 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../state/store";
-import { addNotification } from "../slice";
+import { pushNotification as pn } from "../slice";
 import { useTranslation } from "react-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { bindActionCreators } from "redux";
 
 function NotificationsManager() {
-  const notifications = useSelector((state: RootState) => state.notifications);
+  const { notifications } = useSelector(
+    (state: RootState) => state.notifications
+  );
   const dispatch = useDispatch();
+  const pushNotification = bindActionCreators(pn, dispatch);
   const { t } = useTranslation();
+
   return (
     <div>
-      {notifications.notifications.map((n) => (
-        <h1>{n}</h1>
+      {notifications.map((n) => (
+        <h1>{t("home:welcome_msg")}</h1>
       ))}
-      <button
-        suppressHydrationWarning={true}
-        onClick={() => dispatch(addNotification("nana"))}
-      >
-        {t("btn")}
+      <button onClick={() => pushNotification("nana")}>
+        {t("home:welcome_msg")}
       </button>
     </div>
   );

@@ -14,19 +14,17 @@ interface homeGSPprops {
 export async function getStaticProps({ locale }: homeGSPprops) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["home", "common"])),
+      ...(await serverSideTranslations(locale, ["home", "common", "layout"])),
     },
   };
 }
-
 const Home: NextPage = () => {
   const { t } = useTranslation();
 
   return (
     <>
       <h1 style={{ margin: "1rem" }}>{t("home:welcome_msg")}</h1>
-      <h1 style={{ margin: "1rem" }}>{t("home:welcome_msg")}</h1>
-      <h1 style={{ margin: "1rem" }}>{t("home:welcome_msg")}</h1>
+      <NotificationsManager />
     </>
   );
 };

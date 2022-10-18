@@ -1,9 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap');
 
 html,
-body {
+body,
+div{
   padding: 0;
   margin: 0;
   box-sizing: border-box;
   font-family: 'Rubik', sans-serif;
+  
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+* {
+  font-family: Rubik;
 }
