@@ -1,7 +1,8 @@
 // Prisma-service types
 
+import { AppendUserToNotificationData, CreateNotification } from "../../utils"
 import { NOTIFICATION_TYPES } from "../../configs/constants"
-import { AppendUserToNotificationData, CreateNotification, NotificationJsonDataType } from "../notification"
+import { NotificationJsonDataType } from "../notification"
 
 // Prisma::updateOrCreateNotification method (args) type.
 export type UpdateOrCreateNotificationArgsType = {

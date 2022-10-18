@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 // configs
-import { JWT_EXPIRE_TOKEN, CLIENT_URLS, NOTIFICATION_TYPES } from '../../configs/constants'
-import { MailSubject } from '../../utils/mail'
+import { JWT_EXPIRE_TOKEN, CLIENT_URLS } from '../../configs/constants'
 // types
 import { NotificationServiceMethodType } from '../../interfaces/services/notification'
-import { AppendUserToNotificationData, CreateNotification, NotificationJsonDataType } from '../../interfaces/notification'
+// utils
+import { AppendUserToNotificationData, CreateNotification, MailSubject } from '../../utils'
 // services
 import { MailerService } from '@nestjs-modules/mailer'
 import { PrismaService } from '../prisma/prisma.service'
