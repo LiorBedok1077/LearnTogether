@@ -142,17 +142,20 @@ model Favorite_tags {
 }
 
 model Notification {
-    id            String   @id @default(uuid())
+    id         String   @id @default(uuid())
     // user relation
-    user_id       String
-    user          Users    @relation(fields: [user_id], references: [user_id])
-    // data
-    user_pic_src  String?
-    thumbnail_src String?
-    created_at    DateTime @default(now())
-    title         String
-    description   String
-    link          String?
+    user_id    String
+    user       Users    @relation(fields: [user_id], references: [user_id])
+    created_at DateTime @default(now())
+    // data (dynamicly added via custom type-system, allowing cms features)
+    data       Json
+    n_type     String
+
+    // user_pic_src  String?
+    // thumbnail_src String?
+    // title         String
+    // description   String
+    // link          String?
 }
 
 // enums

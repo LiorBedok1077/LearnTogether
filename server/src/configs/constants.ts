@@ -16,6 +16,14 @@ export const FILENAMES = {
     }
 }
 
+export type NOTIFICATION_TYPES = keyof typeof NOTIFICATION_TYPES
+export const NOTIFICATION_TYPES = {
+    'invite-to-group': 'invite-to-group',
+    'request-join-group': 'request-join-group',
+    'reset-password': 'reset-password',
+    'user-joined-group': 'user-joined-group'
+}
+
 // enviroment-variables keys
 export const ENV_VARS = {
     DATABASE_URL: 'DATABASE_URL',

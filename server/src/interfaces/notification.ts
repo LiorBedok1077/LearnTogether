@@ -1,34 +1,28 @@
-import { JwtForgotPasswordTokenPayload, JwtRequestJoinGroupPayload } from "./jwt";
+import { NOTIFICATION_TYPES } from "../configs/constants"
 
-// Template context types (will be passed to the related template)
-export type TemplateContext = {
-    'reset-password': { username: string, full_name: string }
-    'request-join-group': { username: string, requesting_username: string, group_title: string }
-    'user-joined-group': { username: string, group_title: string }
-    'invite-to-group': { target_username: string, invitor_username: string, group_title: string }
-}
+// notification:data:user type.
+export type UserMetadata = { username: string, user_id: string, profile_pic: string, token?: string }
 
-// Notification methods types
-// *Each returns a string (the generated email token) for testing pusposes, and will be returning `void` in production.
-export interface NotificationTypes {
-    'reset-password': (metadata: {
-        to: string,
-        context: TemplateContext['reset-password'],
-        token_payload: JwtForgotPasswordTokenPayload
-    }) => Promise<string>
-    'request-join-group': (metadata: {
-        to: string,
-        context: TemplateContext['request-join-group'],
-        token_payload: JwtRequestJoinGroupPayload
-    }) => Promise<string>
-    'user-joined-group': (metadata: {
-        to: string,
-        context: TemplateContext['user-joined-group'],
-        group_id: string
-    }) => Promise<void>
-    'invite-to-group': (metadata: {
-        to: string,
-        context: TemplateContext['invite-to-group'],
-        token_payload: JwtRequestJoinGroupPayload
-    }) => Promise<string>
-}
+// The notification:data type (single user).
+export type NotificationJsonDataTypeWithSingleUser = { thumbnail: string, group_title: string, user: UserMetadata }
+
+// The notification:data type.
+export type NotificationJsonDataType = { thumbnail: string, group_title: string, user: UserMetadata[] }
+
+// Notificaiton data shorthand type.
+type CreateNotification = <T extends NOTIFICATION_TYPES>
+    (email: string, n_type: T, data: NotificationJsonDataTypeWithSingleUser) =>
+    { user: { connect: { email: string } }, n_type: T, data: NotificationJsonDataType }
+
+// Notificaiton data shorthand for creating notificaiton.
+export const CreateNotification: CreateNotification = (email, n_type, data) => ({
+    n_type,
+    data: { ...data, user: [data.user] },
+    user: { connect: { email } }
+})
+
+// Append user to notification:data:user array.
+type AppendUserToNotificationData = (data: NotificationJsonDataType, user: UserMetadata) => { data: NotificationJsonDataType }
+export const AppendUserToNotificationData: AppendUserToNotificationData = (data, user) => ({
+    data: { ...data, user: [...data.user, user] }
+})

@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { PrismaClient, Users } from '@prisma/client'
 import { ConfigService } from "@nestjs/config"
 // configs
-import { ENV_VARS } from '../../configs/constants'
+import { ENV_VARS, NOTIFICATION_TYPES } from '../../configs/constants'
+import { AppendUserToNotificationData, CreateNotification, NotificationJsonDataType } from '../../interfaces/notification'
 
 /**
  * (Prisma) Service wraps prisma-functionallity with custom methods (e.g. cleanDB).
@@ -46,6 +47,38 @@ export class PrismaService extends PrismaClient {
             })
         }
         else return await this.users.findUniqueOrThrow({ where: { user_id } })
+    }
+
+    /**
+     * Method updates (or creates) a notification data (reducing queries).
+     * @param args the notification-filtering data & the create/update methods for each scenario.
+     */
+    async updateOrCreateNotification({ data, create, update }: {
+        data: {
+            n_type: NOTIFICATION_TYPES,
+            user_id: string,
+            last_seen_notifications: Date,
+        }
+        create: () => ReturnType<typeof CreateNotification>,
+        update: (data: NotificationJsonDataType) => ReturnType<typeof AppendUserToNotificationData>
+    }) {
+        // find an unread notification.
+        const latest_notification = await this.notification.findFirst({
+            where: {
+                user_id: data.user_id,
+                created_at: { gt: data.last_seen_notifications },
+                n_type: data.n_type
+            }
+        })
+        // update if unread-notification already exists.
+        if (latest_notification) {
+            return await this.notification.update({
+                where: { id: latest_notification.id },
+                data: update(latest_notification.data as NotificationJsonDataType)
+            })
+        }
+        // create a new notification.
+        else return await this.notification.create({ data: create() })
     }
 
     /**

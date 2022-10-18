@@ -59,6 +59,11 @@ describe('AppController (e2e)', () => {
         username: 'Jake',
         email: "natanelmich103@gmail.com"
       }
+      const SignupDto3: SignupDto = {
+        ...SignupDto,
+        username: '3rd',
+        email: "natanelmich2005@gmail.com"
+      }
       // error: password is empty
       it('error: password is missing', () => pactum
         .spec()
@@ -93,6 +98,13 @@ describe('AppController (e2e)', () => {
         .withBody(SignupDto2)
         .expectStatus(HttpStatus.CREATED)
         .stores('userAt2', 'token'))
+      // should sign up a third user
+      it('should sign-up a 3rd user', () => pactum
+        .spec()
+        .post("/auth/signup")
+        .withBody(SignupDto3)
+        .expectStatus(HttpStatus.CREATED)
+        .stores('userAt3', 'token'))
     })
     describe('sign-in', () => {
       const SigninDto: SigninDto = {
@@ -351,7 +363,17 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK)
         .stores('join-group-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-      )
+        .inspect())
+      // request-join a group
+      it('should request-join a group (user3 -> user1)', () => pactum
+        .spec()
+        .put(`/group/request-join/$S{group_id}`)
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt3}'
+        })
+        .expectStatus(HttpStatus.OK)
+        .stores('join-group-email-token-2', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
+        .inspect())
     })
     describe('Request-Join-Group (step 2 - allow group join request using email-token', () => {
       // invalid token
@@ -365,15 +387,23 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.BAD_REQUEST)
       )
       // join a group
-      it('should join a group using a request link', () => pactum
+      it('should join a group using a request link (user2 -> user1)', () => pactum
         .spec()
         .post('/group/join')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt2}'
         })
         .withBody(JoinGroupDto('$S{join-group-email-token}'))
-        .expectStatus(HttpStatus.OK)
-      )
+        .expectStatus(HttpStatus.OK))
+      // join a group
+      it('should join a group using a request link (user3 -> user1)', () => pactum
+        .spec()
+        .post('/group/join')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt3}'
+        })
+        .withBody(JoinGroupDto('$S{join-group-email-token-2}'))
+        .expectStatus(HttpStatus.OK))
     })
     describe('Invite-to-group (step 1 - receive email)', () => {
       const UpdateParticipantsDto = (action: listActionsEnum, roles?: string): UpdateParticipantsDto => ({
@@ -410,7 +440,7 @@ describe('AppController (e2e)', () => {
         .spec()
         .get('/group/$S{group_id}')
         .expectStatus(HttpStatus.OK)
-        .inspect())
+      )
     })
     describe('Update group data', () => {
       const UpdateGroupDto: UpdateGroupDto = {
@@ -621,6 +651,16 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.OK)
       )
     })
+    // success: should get user data
+    it('should get user data', () => pactum
+      .spec()
+      .get("/user")
+      .withHeaders({
+        'Authorization': "Bearer $S{userAt}"
+      })
+      .expectStatus(HttpStatus.OK)
+      .stores('userId', 'user_id')
+      .inspect())
     describe('Read notifications', () => {
       it('should mark \'read notifications\'', () => pactum
         .spec()
@@ -628,7 +668,8 @@ describe('AppController (e2e)', () => {
         .withHeaders({
           'Authorization': 'Bearer $S{userAt}'
         })
-        .expectStatus(HttpStatus.NO_CONTENT))
+        .expectStatus(HttpStatus.NO_CONTENT)
+      )
     })
     describe('Delete a comment', () => {
       // forbidden comment delete
