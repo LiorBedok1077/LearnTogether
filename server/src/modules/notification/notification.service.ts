@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { JWT_EXPIRE_TOKEN, CLIENT_URLS, NOTIFICATION_TYPES } from '../../configs/constants'
 import { MailSubject } from '../../utils/mail'
 // types
-import { NotificationServiceType } from '../../interfaces/services/notification'
+import { NotificationServiceMethodType } from '../../interfaces/services/notification'
 import { AppendUserToNotificationData, CreateNotification, NotificationJsonDataType } from '../../interfaces/notification'
 // services
 import { MailerService } from '@nestjs-modules/mailer'
@@ -36,7 +36,7 @@ export class NotificationService {
      * @param metadata the email destination, the ejs-context & the token payload.
      * @returns the email-token, for testing only.
      */
-    inviteToGroup: NotificationServiceType['invite-to-group'] = async ({ email, context, token_payload }) => {
+    inviteToGroup: NotificationServiceMethodType['invite-to-group'] = async ({ email, context, token_payload }) => {
         // generate link with expiring token as a parameter
         const token = await this.jwt.signToken(token_payload, 'join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
         const link = CLIENT_URLS.JOIN_GROUP(token)
@@ -56,7 +56,7 @@ export class NotificationService {
      * @param metadata the email destination, the ejs-context & the token payload.
      * @returns the email-token, for testing only.
      */
-    userJoinedGroup: NotificationServiceType['user-joined-group'] = async ({ email, context, group_id }) => {
+    userJoinedGroup: NotificationServiceMethodType['user-joined-group'] = async ({ email, context, group_id }) => {
         // generate group link
         const link = CLIENT_URLS.GROUP(group_id)
         // send email in the background (if option is enabled by the user)
@@ -72,7 +72,7 @@ export class NotificationService {
      * @param metadata the email destination, the ejs-context & the token payload.
      * @returns the email-token, for testing only.
      */
-    requestJoinGroup: NotificationServiceType['request-join-group'] = async ({ email, context, token_payload }) => {
+    requestJoinGroup: NotificationServiceMethodType['request-join-group'] = async ({ email, context, token_payload }) => {
         // generate link with expiring token as a parameter
         const token = await this.jwt.signToken(token_payload, 'join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
         const link = CLIENT_URLS.JOIN_GROUP(token)
@@ -99,7 +99,7 @@ export class NotificationService {
      * @param metadata the email destination, the ejs-context & the token payload.
      * @returns the email-token, for testing only.
      */
-    sendResetPassword: NotificationServiceType['reset-password'] = async ({ email, context, token_payload }) => {
+    sendResetPassword: NotificationServiceMethodType['reset-password'] = async ({ email, context, token_payload }) => {
         // generate link with expiring token as a parameter
         const token = await this.jwt.signToken(token_payload, 'forgot-password', JWT_EXPIRE_TOKEN.FORGOT_PASSWORD)
         // send email in the background

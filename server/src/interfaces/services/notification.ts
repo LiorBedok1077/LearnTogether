@@ -1,4 +1,4 @@
-// Notification-service type
+// Notification-service types
 
 import { JwtForgotPasswordTokenPayload, JwtRequestJoinGroupPayload } from "../jwt"
 import { UserMetadata } from "../notification"
@@ -15,7 +15,7 @@ export type TemplateContext = {
 export type MetadataContext = { thumbnail: string, group_title: string, user: UserMetadata }
 
 // *Each returns a string (the generated email token) for testing pusposes, and will be returning `void` in production.
-export interface NotificationServiceType {
+export interface NotificationServiceMethodType {
     'reset-password': (args: {
         email: string,
         context: {
