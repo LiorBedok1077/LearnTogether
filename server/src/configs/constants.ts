@@ -35,7 +35,13 @@ export const ENV_VARS = {
     MAIL_HOST: 'MAIL_HOST',
     MAIL_USER: 'MAIL_USER',
     MAIL_FROM: 'MAIL_FROM',
-    MAIL_PASS: 'MAIL_PASS'
+    MAIL_PASS: 'MAIL_PASS',
+    // redis
+    CACHE_REDIS_HOST: 'CACHE_REDIS_HOST',
+    CACHE_REDIS_PORT: 'CACHE_REDIS_PORT',
+    CACHE_REDIS_USERNAME: 'CACHE_REDIS_USERNAME',
+    CACHE_REDIS_PASSWORD: 'CACHE_REDIS_PASSWORD',
+    CACHE_REDIS_DB: 'CACHE_REDIS_DB',
 }
 
 // jwt expiration times for tokens with different purposes

@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaClient, Users } from '@prisma/client'
 import { ConfigService } from "@nestjs/config"
+// redis
+// import Redis from 'ioredis'
+// import { createPrismaRedisCache } from 'prisma-redis-middleware'
 // configs
 import { ENV_VARS } from '../../configs/constants'
 // types
@@ -12,7 +15,12 @@ import { UpdateOrCreateNotificationArgsType } from '../../interfaces/services/pr
  */
 @Injectable()
 export class PrismaService extends PrismaClient {
-    constructor(config: ConfigService) {
+    // -- redis client instance
+    // private redis: Redis
+
+    constructor(
+        config: ConfigService,
+    ) {
         super({
             datasources: {
                 db: {
@@ -20,6 +28,25 @@ export class PrismaService extends PrismaClient {
                 }
             }
         })
+        // -- USE REDIS MIDDLEWARE @ PRODUCTION --
+        // // instanciate redis client
+        // this.redis = new Redis({
+        //     host: config.get(ENV_VARS.CACHE_REDIS_HOST),
+        //     port: config.get(ENV_VARS.CACHE_REDIS_PORT),
+        //     // username: config.get(ENV_VARS.CACHE_REDIS_USERNAME),
+        //     // password: config.get(ENV_VARS.CACHE_REDIS_PASSWORD),
+        //     db: config.get(ENV_VARS.CACHE_REDIS_DB)
+        // })
+        // // use redis as cache-layer middleware (for prisma-queries)
+        // this.$use(createPrismaRedisCache({
+        //     models: [
+        //         { model: 'Users', cacheTime: 120 },
+        //         { model: 'Articles', cacheTime: 60 },
+        //         { model: 'Learning_groups', cacheTime: 40 }
+        //     ],
+        //     storage: { type: 'redis', options: { invalidation: true, client: this.redis } },
+        //     cacheTime: 1000
+        // }))
     }
 
     /**

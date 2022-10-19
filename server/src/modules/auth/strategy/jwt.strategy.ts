@@ -10,9 +10,6 @@ import { Strategy, ExtractJwt } from 'passport-jwt'
 // services
 import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '../../prisma/prisma.service'
-import { Request } from 'express'
-import { ParamsDictionary } from 'express-serve-static-core'
-import { ParsedQs } from 'qs'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {

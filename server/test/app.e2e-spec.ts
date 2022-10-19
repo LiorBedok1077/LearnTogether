@@ -363,7 +363,7 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK)
         .stores('join-group-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-        .inspect())
+        )
       // request-join a group
       it('should request-join a group (user3 -> user1)', () => pactum
         .spec()
@@ -373,7 +373,7 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK)
         .stores('join-group-email-token-2', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-        .inspect())
+        )
     })
     describe('Request-Join-Group (step 2 - allow group join request using email-token', () => {
       // invalid token
@@ -660,7 +660,7 @@ describe('AppController (e2e)', () => {
       })
       .expectStatus(HttpStatus.OK)
       .stores('userId', 'user_id')
-      .inspect())
+      )
     describe('Read notifications', () => {
       it('should mark \'read notifications\'', () => pactum
         .spec()
@@ -669,7 +669,7 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt}'
         })
         .expectStatus(HttpStatus.OK)
-        .inspect())
+        )
     })
     describe('Delete a comment', () => {
       // forbidden comment delete
