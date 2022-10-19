@@ -30,7 +30,7 @@ export class CommentService {
             return (`Comment ${like}d successfully`)
         }
         catch (err) {
-            throw new BadRequestException('Comment does ont exist')
+            throw new BadRequestException('Comment does not exist')
         }
     }
 

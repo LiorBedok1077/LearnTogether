@@ -86,7 +86,7 @@ export class GroupService {
      * @param user the request user.
      * @param group_id the group id (url param).
      */
-    async requestJoinGroup({ user_id, username }: Users, group_id: string) {
+    async requestJoinGroup({ user_id, username, profile_pic_src, last_seen_notifications }: Users, group_id: string) {
         try {
             // find group with it's creator
             const group = await this.prisma.learning_groups.findUnique({
@@ -99,11 +99,19 @@ export class GroupService {
             }
             // push notification
             const email_token = await this.notification.requestJoinGroup({
-                to: group.creator.email,
+                email: group.creator.email,
                 context: {
-                    username: group.creator.username,
-                    group_title: group.title,
-                    requesting_username: username
+                    last_seen_notifications,
+                    template: {
+                        username: group.creator.username,
+                        group_title: group.title,
+                        requesting_username: username
+                    },
+                    metadata: {
+                        group_title: group.title,
+                        thumbnail: group.thumbnail_src,
+                        user: { user_id, username, profile_pic: profile_pic_src }
+                    }
                 },
                 token_payload: { group_id, user_id }
             })
@@ -123,7 +131,7 @@ export class GroupService {
      * @param user the request user data.
      * @param dto the body with the verification token.
      */
-    async joinGroup({ email, username }: Users, { verification_token }: JoinGroupDto) {
+    async joinGroup({ email, username, profile_pic_src }: Users, { verification_token }: JoinGroupDto) {
         try {
             // validate email-token & update database with the hashed password 
             const { group_id, user_id } = await this.jwt.verifyToken(verification_token, 'join-group')
@@ -132,7 +140,14 @@ export class GroupService {
             })
             // send notification & email
             await this.notification.userJoinedGroup({
-                to: email, group_id, context: { username, group_title: group.title }
+                email, group_id, context: {
+                    template: { username, group_title: group.title },
+                    metadata: {
+                        group_title: group.title,
+                        thumbnail: group.thumbnail_src,
+                        user: { user_id, username, profile_pic: profile_pic_src }
+                    }
+                }
             })
             return `Joined successfully to group "${group.title}"`
         }
@@ -158,22 +173,30 @@ export class GroupService {
                     }
                     return ('User removed successfully')
                 }
+
                 // -- invite user to a group
                 case listActionsEnum.invite: {
                     // find target user & group
                     const user = await this.prisma.users.findUniqueOrThrow({
-                        where: { user_id }, select: { username: true, email: true }
+                        where: { user_id }, select: { username: true, email: true, profile_pic_src: true }
                     })
                     const group = await this.prisma.learning_groups.findUniqueOrThrow({
                         where: { group_id }, include: { creator: { select: { username: true } } }
                     })
                     // push notification
                     const email_token = await this.notification.inviteToGroup({
-                        to: user.email,
+                        email: user.email,
                         context: {
-                            group_title: group.title,
-                            invitor_username: group.creator.username,
-                            target_username: user.username
+                            template: {
+                                group_title: group.title,
+                                invitor_username: group.creator.username,
+                                target_username: user.username
+                            },
+                            metadata: {
+                                group_title: group.title,
+                                thumbnail: group.thumbnail_src,
+                                user: { profile_pic: user.profile_pic_src, user_id, username: user.username }
+                            }
                         },
                         token_payload: { group_id, user_id }
                     })
@@ -183,6 +206,7 @@ export class GroupService {
                         EMAIL_TOKEN__FOR_TESTING_ONLY: email_token
                     })
                 }
+
                 // -- modify user roles in a group (implement later)
                 case listActionsEnum.modify:
                 default: {

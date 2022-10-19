@@ -1,7 +1,7 @@
-// Data constants file
+// Mail utility file
 
-import { TemplateContext } from "../interfaces/notification"
-import { FILENAMES } from "./constants"
+import { TemplateContext } from "../../interfaces/services/notification"
+import { FILENAMES } from "../../configs/constants"
 
 type link = { link: string }
 

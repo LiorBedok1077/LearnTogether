@@ -71,8 +71,8 @@ export class AuthService {
         })
         // send 'reset-password' email
         const email_token = await this.notification.sendResetPassword({
-            to: email,
-            context: { full_name, username },
+            email: email,
+            context: { template: { full_name, username } },
             token_payload: { num_edited_profile, user_id }
         })
         // return email-token for testing (temp)

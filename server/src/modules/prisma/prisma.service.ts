@@ -1,15 +1,26 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaClient, Users } from '@prisma/client'
 import { ConfigService } from "@nestjs/config"
+// redis
+// import Redis from 'ioredis'
+// import { createPrismaRedisCache } from 'prisma-redis-middleware'
 // configs
 import { ENV_VARS } from '../../configs/constants'
+// types
+import { NotificationJsonDataType } from '../../interfaces/notification'
+import { UpdateOrCreateNotificationArgsType } from '../../interfaces/services/prisma'
 
 /**
  * (Prisma) Service wraps prisma-functionallity with custom methods (e.g. cleanDB).
  */
 @Injectable()
 export class PrismaService extends PrismaClient {
-    constructor(config: ConfigService) {
+    // -- redis client instance
+    // private redis: Redis
+
+    constructor(
+        config: ConfigService,
+    ) {
         super({
             datasources: {
                 db: {
@@ -17,6 +28,25 @@ export class PrismaService extends PrismaClient {
                 }
             }
         })
+        // -- USE REDIS MIDDLEWARE @ PRODUCTION --
+        // // instanciate redis client
+        // this.redis = new Redis({
+        //     host: config.get(ENV_VARS.CACHE_REDIS_HOST),
+        //     port: config.get(ENV_VARS.CACHE_REDIS_PORT),
+        //     // username: config.get(ENV_VARS.CACHE_REDIS_USERNAME),
+        //     // password: config.get(ENV_VARS.CACHE_REDIS_PASSWORD),
+        //     db: config.get(ENV_VARS.CACHE_REDIS_DB)
+        // })
+        // // use redis as cache-layer middleware (for prisma-queries)
+        // this.$use(createPrismaRedisCache({
+        //     models: [
+        //         { model: 'Users', cacheTime: 120 },
+        //         { model: 'Articles', cacheTime: 60 },
+        //         { model: 'Learning_groups', cacheTime: 40 }
+        //     ],
+        //     storage: { type: 'redis', options: { invalidation: true, client: this.redis } },
+        //     cacheTime: 1000
+        // }))
     }
 
     /**
@@ -49,11 +79,35 @@ export class PrismaService extends PrismaClient {
     }
 
     /**
+     * Method updates (or creates) a notification data.
+     * @param args the notification-filtering data & the create/update methods for each scenario.
+     */
+    async updateOrCreateNotification({ data, create, update }: UpdateOrCreateNotificationArgsType) {
+        // find an unread notification.
+        const n_latest = await this.notification.findFirst({
+            where: {
+                user_id: data.user_id,
+                created_at: { gt: data.last_seen_notifications },
+                n_type: data.n_type
+            }
+        })
+        // update if unread-notification exists.
+        if (n_latest) {
+            return await this.notification.update({
+                where: { id: n_latest.id },
+                data: update(n_latest.data as NotificationJsonDataType)
+            })
+        }
+        // create a new notification.
+        else return await this.notification.create({ data: create() })
+    }
+
+    /**
      * Method cleans the test database for optimal testing.
      */
     async cleanDB() {
         return void await this.$transaction([
-            // from low-relevant to high-relevant
+            // from low-relevancy to high-relevancy
             this.notification.deleteMany(),
             this.roles.deleteMany(),
             this.favorite_tags.deleteMany(),

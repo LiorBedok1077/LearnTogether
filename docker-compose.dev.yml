@@ -32,3 +32,9 @@ services:
     volumes:
       # testing directory!
       - "${PWD}/data/cockroach-data/crdb/test:/cockroach/cockroach-data"
+  redis:
+    # testing database
+    container_name: LearnTogether-dev.redis
+    image: redis
+    ports:
+      - "6379:6379"

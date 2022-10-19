@@ -21,7 +21,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "dotenv -e .env.test -- jest --watchAll --no-cache --config ./test/jest-e2e.json"
+    "test:e2e": "dotenv -e .env.test -- jest --watchAll --no-cache --config ./test/jest-e2e.json",
+    "test:redis": "dotenv -e .env.test -- jest --watchAll --no-cache --config ./test/jest-redis.json"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.8.1",
@@ -32,12 +33,15 @@
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^4.4.0",
+    "@types/ioredis": "^4.28.10",
     "argon2": "^0.29.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "ioredis": "^5.2.3",
     "nodemailer": "^6.7.8",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
+    "prisma-redis-middleware": "^4.2.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"
