@@ -10,14 +10,18 @@ import { useTranslation } from "next-i18next";
 
 import { useRouter } from "next/router";
 import { GiHamburgerMenu } from "react-icons/gi";
+import { IoMdNotifications } from "react-icons/io";
 import Link from "next/link";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { CLIENT_ROOTPAGE, routes, socials } from "../../configs/clientRoutes";
+import { routes, socials } from "../../configs/clientRoutes";
 import ProfileDropdown from "./components/profileDropdown";
 import Navbar from "./components/navbar";
-import Feedback from "../../features/UI_apps/feedbacks/components/feedback/feedback";
+import Feedback from "../../features/UI_apps/feedbacks/components/feedback";
 import { useDispatch } from "react-redux";
 import { pushFeedback } from "../../features/UI_apps/feedbacks/slice";
+import { multipleModules } from "../../utils/styles.utils";
+import NotificationsDropdown from "./components/notificationsDropdown";
+
+const getStyles = multipleModules(css);
 
 type Props = { children: JSX.Element[] | JSX.Element };
 
@@ -27,6 +31,8 @@ function General({ children }: Props) {
 
   const [navbarStatus, setNavbarStatus] = useState(false);
   const [dropdownShow, setDropdownShow] = useState(false);
+  const [notificationsDropdownShow, setNotificationsDropdownShow] =
+    useState(false);
 
   useEffect(() => {
     document.body.dir = i18n?.dir() || "ltr";
@@ -40,10 +46,26 @@ function General({ children }: Props) {
       <header className={css["header"]}>
         <div className={css["header__section"]}>
           <img
-            onMouseDown={() => setDropdownShow(!dropdownShow)}
+            onMouseDown={() => {
+              if (!dropdownShow) {
+                setDropdownShow(true);
+                setNotificationsDropdownShow(false);
+              } else setDropdownShow(false);
+            }}
             className={css["header__profileImage"]}
             src="https://img.freepik.com/free-photo/pleasant-looking-serious-man-stands-profile-has-confident-expression-wears-casual-white-t-shirt_273609-16959.jpg?w=2000"
           ></img>
+          <IoMdNotifications
+            onMouseDown={() => {
+              if (!notificationsDropdownShow) {
+                setNotificationsDropdownShow(true);
+                setDropdownShow(false);
+              } else setNotificationsDropdownShow(false);
+            }}
+            className={css["header__notificationsIcon"]}
+            fontSize={"32"}
+            cursor="pointer"
+          />
         </div>
 
         <div className={css["header__section"]}>
@@ -56,15 +78,15 @@ function General({ children }: Props) {
             />
           </Link>
         </div>
-        <div
-          className={`${css["header__section"]} ${css["header__section-hamburger"]}`}
-        >
-          <GiHamburgerMenu
-            fontSize={"35"}
-            color="white"
-            cursor="pointer"
-            onClick={() => setNavbarStatus(!navbarStatus)}
-          />
+        <div className={css["header__section"]}>
+          <div className={css["header__section-hamburger"]}>
+            <GiHamburgerMenu
+              fontSize={"35"}
+              color="white"
+              cursor="pointer"
+              onClick={() => setNavbarStatus(!navbarStatus)}
+            />
+          </div>
         </div>
       </header>
       <Navbar navbarStatus={navbarStatus} />
@@ -75,9 +97,9 @@ function General({ children }: Props) {
           onClick={() => {
             dispatch(
               pushFeedback({
-                color: "",
+                color: "green",
                 title: "Feedback system test",
-                content: "the test passed successfuly. ",
+                content: "fdfdf",
               })
             );
           }}
@@ -119,6 +141,8 @@ function General({ children }: Props) {
         </div>
       </footer>
       <Feedback />
+      {notificationsDropdownShow && <NotificationsDropdown />}
+      {dropdownShow && <ProfileDropdown />}
     </>
   );
 }

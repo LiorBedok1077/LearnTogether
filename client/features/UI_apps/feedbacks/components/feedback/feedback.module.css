@@ -13,6 +13,7 @@
     overflow: hidden;
     user-select: none;
 }
+
 .feedback__header {
     width: 100%;
     background-color: rgba(84, 72, 255, 0.927);

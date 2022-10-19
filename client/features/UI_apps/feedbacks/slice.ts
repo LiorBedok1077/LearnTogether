@@ -1,29 +1,14 @@
 import { CaseReducer, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { feedback } from "./interfaces/slice.types";
 
-interface Istate {
-  title: string | undefined;
-  content: string | undefined;
-  color: string | undefined;
-}
-
-const pushFeedbackAction: CaseReducer<Istate, PayloadAction<Istate>> = (
+const pushFeedbackAction: CaseReducer<feedback, PayloadAction<feedback>> = (
   state,
   action
-) => {
-  console.log(action);
-  return {
-    title: action.payload?.title,
-    content: action.payload?.content,
-    color: action.payload?.color,
-  };
-};
+) => action.payload;
+
 const feedbackSlice = createSlice({
   name: "feedback",
-  initialState: {
-    title: undefined,
-    content: undefined,
-    color: undefined,
-  } as Istate,
+  initialState: {} as feedback,
   reducers: {
     pushFeedback: pushFeedbackAction,
   },

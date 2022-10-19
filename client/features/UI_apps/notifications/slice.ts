@@ -10,6 +10,7 @@ const pushNotificationAction: CaseReducer<Istate, PayloadAction<string>> = (
 ) => {
   return void state.notifications.push(action.payload);
 };
+
 const notificationsSlice = createSlice({
   name: "notifications",
   initialState: {
