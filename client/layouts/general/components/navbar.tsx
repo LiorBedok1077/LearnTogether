@@ -5,6 +5,10 @@ import { CLIENT_ROOTPAGE, routes } from "../../../configs/clientRoutes";
 import css from "./navbar.module.css";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
+import { multipleModules } from "../../../utils/styles.utils";
+
+const getStyles = multipleModules(css);
+
 type Props = {
   navbarStatus: boolean;
 };
@@ -16,12 +20,8 @@ function Navbar({ navbarStatus }: Props) {
 
   const { t, i18n } = useTranslation();
   return (
-    <nav
-      className={`${css["navbar"]} ${!navbarStatus && css["navbar--disabled"]}`}
-    >
-      <div
-        className={`${css["navbar__section"]} ${css["navbar__section-links"]}`}
-      >
+    <nav className={getStyles(`navbar ${!navbarStatus && "navbar--disabled"}`)}>
+      <div className={getStyles(`navbar__section navbar__section-links`)}>
         <Link href={routes.discover}>
           <a className={css["navbar__link"]}>{t("layout:navbar__discover")}</a>
         </Link>

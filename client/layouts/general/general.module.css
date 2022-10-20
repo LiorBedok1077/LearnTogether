@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 40px 0px 40px;
+    padding: 8px 40px 3px 40px;
     height: 3rem;
     background: white;
 }
@@ -24,12 +24,26 @@
     visibility:hidden;
 }
 
+.header__section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header__notificationsIcon {
+    color:#13003D;
+}
 @media screen and (max-width: 600px) {
     .header__section-hamburger {
         visibility:visible;
     }
     .header {
         background-color: #13003D;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .header__notificationsIcon {
+        color:white;
     }
 }
 

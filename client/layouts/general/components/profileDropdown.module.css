@@ -1,12 +1,15 @@
+
+
 .profileDropdown {
     display: flex;
-    background-color: #13003df6;
+    background-color: #13003db4;
     width: 22rem;
     position: absolute;
     top: 5rem;
     left: 1rem;
+    right: 1rem;
     overflow: hidden;
-    border-radius: 3%;
+    border-radius: 0.7rem;
 }
 
 .profileDropdown__right {
@@ -38,7 +41,7 @@
 
 @media screen and (max-width: 550px) {
     .profileDropdown {
-        width: 100%;
+        width: calc(100% - 2rem);
         justify-content: space-between;
     }
 }

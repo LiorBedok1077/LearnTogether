@@ -1,0 +1,121 @@
+
+
+.notificationsDropdown {
+    display: flex;
+    background-color: #292929dc;
+    width: 20rem;
+    position: absolute;
+    top: 4.5rem;
+    left: 1rem;
+    height: 24rem;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0.7rem;
+    padding: 0.5rem;
+    
+}
+
+.notificationsDropdown__header {
+    height: 3rem;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 0.3rem;
+    transform: translateX(-0.3rem);
+}
+
+.notificationsDropdown__title {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.notificationsDropdown__status-newNotifications {
+    color: rgb(116, 253, 255);
+}
+
+.notificationsDropdown__status-empty {
+    color: rgb(255, 29, 47);
+}
+
+.notificationsDropdown__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.notification {
+    width: 90%;
+    height: auto;
+    border-radius: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.notification__left {
+    width: 45%;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification__right {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.notification__title {
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+}
+
+.notification__content {
+    color: white;
+    font-size: 15px;
+}
+
+.notification__creationTime {
+    color: rgba(255, 255, 255, 0.728);
+    position: relative;
+    bottom: 0;
+    text-align: right;
+    width: 100%;
+    font-size: 14px;
+}
+
+.notification__thumbnail {
+    aspect-ratio: 1/1;
+    width: 110%;
+    overflow: hidden;
+}
+
+.notification__users {
+    position: relative;
+    bottom: 5px;
+    right: 5px;
+    display: flex;
+    gap: -15px;
+}
+
+.notification__user {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+@media screen and (max-width: 600px) {
+    .notificationsDropdown {
+        left: 50%;
+        width: 80%;
+        transform: translateX(-50%);
+
+    }
+}
