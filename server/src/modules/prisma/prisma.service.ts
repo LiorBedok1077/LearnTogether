@@ -4,9 +4,6 @@ import { PrismaClient, Users } from '@prisma/client'
 import { ENV_VARS } from '../../configs/constants'
 // utils
 import { PrismaRedisCacheMiddleware } from '../../utils/prisma'
-// types
-import { NotificationJsonDataType } from '../../interfaces/notification'
-import { UpdateOrCreateNotificationArgsType } from '../../interfaces/services/prisma'
 // services
 import { ConfigService } from "@nestjs/config"
 import { RedisService } from '../redis/redis.service'
@@ -27,7 +24,7 @@ export class PrismaService extends PrismaClient {
         })
         // use redis as cache-layer middleware (optimizing prisma-queries)
         // fix: currently not suited for testing.
-        this.$use(PrismaRedisCacheMiddleware(redis.cache))
+        // this.$use(PrismaRedisCacheMiddleware(redis.cache))
     }
 
     /**
@@ -57,30 +54,6 @@ export class PrismaService extends PrismaClient {
             })
         }
         else return await this.users.findUniqueOrThrow({ where: { user_id } })
-    }
-
-    /**
-     * Method updates (or creates) a notification data.
-     * @param args the notification-filtering data & the create/update methods for each scenario.
-     */
-    async updateOrCreateNotification({ data, create, update }: UpdateOrCreateNotificationArgsType) {
-        // find an unread notification.
-        const n_latest = await this.notification.findFirst({
-            where: {
-                user_id: data.user_id,
-                created_at: { gt: data.last_seen_notifications },
-                n_type: data.n_type
-            }
-        })
-        // update if unread-notification exists.
-        if (n_latest) {
-            return await this.notification.update({
-                where: { id: n_latest.id },
-                data: update(n_latest.data as NotificationJsonDataType)
-            })
-        }
-        // create a new notification.
-        else return await this.notification.create({ data: create() })
     }
 
     /**

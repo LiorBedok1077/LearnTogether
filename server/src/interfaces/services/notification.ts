@@ -1,4 +1,5 @@
 // Notification-service types
+// Fix: better service codeflow & functionallity.
 
 import { JwtForgotPasswordTokenPayload, JwtRequestJoinGroupPayload } from "../jwt"
 import { UserMetadata } from "../notification"
@@ -28,7 +29,7 @@ export interface NotificationServiceMethodType {
         context: {
             template: TemplateContext['request-join-group']
             metadata: MetadataContext
-            last_seen_notifications: Date
+            last_seen_notifications: number
         }
         token_payload: JwtRequestJoinGroupPayload
     }) => Promise<string>
@@ -37,6 +38,7 @@ export interface NotificationServiceMethodType {
         context: {
             template: TemplateContext['user-joined-group']
             metadata: MetadataContext
+            last_seen_notifications: number
         }
         group_id: string
     }) => Promise<void>
@@ -45,6 +47,7 @@ export interface NotificationServiceMethodType {
         context: {
             template: TemplateContext['invite-to-group']
             metadata: MetadataContext
+            last_seen_notifications: number
         }
         token_payload: JwtRequestJoinGroupPayload
     }) => Promise<string>
