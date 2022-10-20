@@ -5,7 +5,7 @@
     background: linear-gradient(90deg, rgba(2,0,36,0.846673703661152) 0%, rgba(0,67,68,0.7682423311121324) 100%);
     width: 22rem;
     position: absolute;
-    top: 5rem;
+    top: 3.8rem;
     left: 1rem;
     right: 1rem;
     overflow: hidden;
@@ -54,9 +54,7 @@
 
 @media screen and (max-width: 550px) {
     .profileDropdown {
-        width: 70%;
-        transform: translateX(50%);
-        right: 50%;
+        
         justify-content: space-between;
         flex-direction: column-reverse;
     }
@@ -67,6 +65,16 @@
     }
     .profileDropdown__link {
         width: 5rem;
+    }
+    .profileDropdown-ltr {
+        width: 70%;
+        transform: translateX(-50%);
+        left: 50%;
+    }
+    .profileDropdown-rtl {
+        width: 70%;
+        transform: translateX(50%);
+        right: 50%;
     }
 }
 

@@ -1,11 +1,11 @@
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
 import React from "react";
-import { CLIENT_ROOTPAGE, routes } from "../../../configs/clientRoutes";
+import { CLIENT_ROOTPAGE, routes } from "../../../../configs/clientRoutes.ts";
 import css from "./navbar.module.css";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
-import { multipleModules } from "../../../utils/styles.utils";
+import { multipleModules } from "../../../../utils/styles.utils";
 
 const getStyles = multipleModules(css);
 

@@ -1,16 +1,24 @@
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
 import React from "react";
-import { routes } from "../../../configs/clientRoutes";
+import { routes } from "../../../../configs/clientRoutes.ts";
+import { multipleModules } from "../../../../utils/styles.utils";
 import profileDropdownCss from "./profileDropdown.module.css";
 
 type Props = {};
 
+const getStyles = multipleModules(profileDropdownCss);
 function ProfileDropdown({}: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
-    <div className={profileDropdownCss["profileDropdown"]}>
+    <div
+      className={getStyles(
+        `profileDropdown profileDropdown-${
+          i18n.dir() === "rtl" ? "rtl" : "ltr"
+        }`
+      )}
+    >
       <div className={profileDropdownCss["profileDropdown__right"]}>
         <Link href={routes.profile.overview}>
           <a className={profileDropdownCss["profileDropdown__link"]}>

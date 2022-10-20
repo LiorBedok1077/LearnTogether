@@ -1,25 +1,19 @@
 import { CaseReducer, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { NotificationStruct } from "./types";
 
 interface Istate {
-  notifications: string[];
+  notifications: NotificationStruct[];
 }
+//getNotifications
 
-const pushNotificationAction: CaseReducer<Istate, PayloadAction<string>> = (
-  state,
-  action
-) => {
-  return void state.notifications.push(action.payload);
-};
+//getNotification(id)
 
 const notificationsSlice = createSlice({
   name: "notifications",
   initialState: {
-    notifications: ["yo"],
+    notifications: [],
   } as Istate,
-  reducers: {
-    pushNotification: pushNotificationAction,
-  },
+  reducers: {},
 });
 
-export const { pushNotification } = notificationsSlice.actions;
 export default notificationsSlice.reducer;

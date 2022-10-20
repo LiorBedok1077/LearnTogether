@@ -2,8 +2,8 @@ import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { routes } from "../../../../configs/clientRoutes";
-import { multipleModules } from "../../../../utils/styles.utils";
+import { routes } from "../../../../../configs/clientRoutes.ts";
+import { multipleModules } from "../../../../../utils/styles.utils";
 import css from "./notificationsDropdown.module.css";
 
 type Props = {};

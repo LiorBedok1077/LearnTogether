@@ -1,0 +1,72 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 40px 3px 40px;
+    height: 3rem;
+    background: white;
+}
+
+.header__profileImage {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+.header__title {
+    width: 80px;
+    height: 80px;
+}
+
+.header__section-hamburger {
+    visibility:hidden;
+}
+
+.header__section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header__notificationsIcon {
+    color:#13003D;
+}
+
+.header__notificationsCounter {
+    position: relative;
+    top: -1rem;
+    border-radius: 50%;
+    color: red;
+    font-size: 13px;
+    font-weight: 500;
+    
+}
+
+.header__notificationsCounter-rtl {
+    left: -2px;
+}
+
+.header__notificationsCounter-ltr {
+    right: -2px;
+}
+@media screen and (max-width: 600px) {
+    .header__section-hamburger {
+        visibility:visible;
+    }
+    .header {
+        background-color: #13003D;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .header__notificationsIcon {
+        color:white;
+    }
+}
+
+@media screen and (max-width: 330px) {
+    .header__title {
+        visibility: hidden;
+    }
+}
