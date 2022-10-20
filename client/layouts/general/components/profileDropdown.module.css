@@ -2,7 +2,7 @@
 
 .profileDropdown {
     display: flex;
-    background-color: #13003db4;
+    background: linear-gradient(90deg, rgba(2,0,36,0.846673703661152) 0%, rgba(0,67,68,0.7682423311121324) 100%);
     width: 22rem;
     position: absolute;
     top: 5rem;
@@ -33,16 +33,40 @@
 }
 
 .profileDropdown__image {
-    width: 5.5rem;
-    height: 5.5rem;
+    width: 6.5rem;
+    height: 6.5rem;
     border-radius: 50%;
     margin-right: 1rem;
+    animation: profile-colorChanger 5s infinite;
+}
+
+@keyframes profile-colorChanger {
+    0% {
+        border: 3px solid rgba(0, 89, 24, 0);
+    }
+    50% {
+        border: 3px solid rgb(0, 170, 173)
+    }
+    100% {
+        border: 3px solid rgba(0, 89, 24, 0)
+    }
 }
 
 @media screen and (max-width: 550px) {
     .profileDropdown {
-        width: calc(100% - 2rem);
+        width: 70%;
+        transform: translateX(50%);
+        right: 50%;
         justify-content: space-between;
+        flex-direction: column-reverse;
+    }
+    .profileDropdown__right {
+        flex-wrap: wrap;
+        height: 180px;
+        gap: 0.2rem;
+    }
+    .profileDropdown__link {
+        width: 5rem;
     }
 }
 
