@@ -41,8 +41,16 @@
 
 @media screen and (max-width: 550px) {
     .profileDropdown {
-        width: calc(100% - 2rem);
+        width: 70%;
+        transform: translateX(50%);
+        right: 50%;
         justify-content: space-between;
+        flex-direction: column-reverse;
+    }
+    .profileDropdown__right {
+        flex-wrap: wrap;
+        height: 130px;
+        gap: 0.2rem;
     }
 }
 
