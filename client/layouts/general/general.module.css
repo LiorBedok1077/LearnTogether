@@ -9,10 +9,23 @@
 }
 
 .header__profileImage {
-    width: 35px;
-    height: 35px;
+    width: 37px;
+    height: 37px;
     border-radius: 50%;
     cursor: pointer;
+    animation: profile-colorChanger 5s infinite;
+}
+
+@keyframes profile-colorChanger {
+    0% {
+        border: 3px solid rgba(0, 89, 24, 0);
+    }
+    50% {
+        border: 3px solid rgba(189, 0, 167, 0.582);
+    }
+    100% {
+        border: 3px solid rgba(0, 89, 24, 0)
+    }
 }
 
 .header__title {
@@ -32,6 +45,17 @@
 
 .header__notificationsIcon {
     color:#13003D;
+}
+
+.header__notificationsCounter {
+    position: relative;
+    top: -1rem;
+    left: -2px;
+    border-radius: 50%;
+    color: red;
+    font-size: 13px;
+    font-weight: 500;
+    
 }
 @media screen and (max-width: 600px) {
     .header__section-hamburger {

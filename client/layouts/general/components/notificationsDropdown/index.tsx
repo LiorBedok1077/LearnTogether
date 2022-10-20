@@ -64,8 +64,8 @@ function NotificationsDropdown({}: Props) {
           >
             <h3 className={css["notification__title"]}>משתמש חדש נוסף!</h3>
             <p className={css["notification__content"]}>
-              <b style={{ color: "cyan" }}>Liorson10772</b> הצטרף לקבוצה. לפרטים
-              הצטרף לקבוצה. לפרטים נוספים הקש 1 או המתן.
+              <b className={css["notification__content-bold"]}>Liorson10772</b>{" "}
+              הצטרף לקבוצה. לפרטים הצטרף לקבוצה. לפרטים נוספים הקש 1 או המתן.
             </p>
             <div className={css["notification__creationTime"]}>לפני 3 שעות</div>
           </div>

@@ -10,7 +10,7 @@ import { useTranslation } from "next-i18next";
 
 import { useRouter } from "next/router";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { IoMdNotifications } from "react-icons/io";
+import { BsBell } from "react-icons/bs";
 import Link from "next/link";
 import { routes, socials } from "../../configs/clientRoutes";
 import ProfileDropdown from "./components/profileDropdown";
@@ -55,17 +55,20 @@ function General({ children }: Props) {
             className={css["header__profileImage"]}
             src="https://img.freepik.com/free-photo/pleasant-looking-serious-man-stands-profile-has-confident-expression-wears-casual-white-t-shirt_273609-16959.jpg?w=2000"
           ></img>
-          <IoMdNotifications
-            onMouseDown={() => {
-              if (!notificationsDropdownShow) {
-                setNotificationsDropdownShow(true);
-                setDropdownShow(false);
-              } else setNotificationsDropdownShow(false);
-            }}
-            className={css["header__notificationsIcon"]}
-            fontSize={"32"}
-            cursor="pointer"
-          />
+          <div className={css["header__notifications"]}>
+            <small className={css["header__notificationsCounter"]}>1</small>
+            <BsBell
+              onMouseDown={() => {
+                if (!notificationsDropdownShow) {
+                  setNotificationsDropdownShow(true);
+                  setDropdownShow(false);
+                } else setNotificationsDropdownShow(false);
+              }}
+              className={css["header__notificationsIcon"]}
+              fontSize={"28"}
+              cursor="pointer"
+            />
+          </div>
         </div>
 
         <div className={css["header__section"]}>

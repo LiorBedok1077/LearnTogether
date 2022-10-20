@@ -43,6 +43,7 @@
 
 .notificationsDropdown__status-newNotifications {
     color: rgb(116, 253, 255);
+    animation: boldAnimation 8s infinite;
 }
 
 .notificationsDropdown__status-empty {
@@ -104,6 +105,22 @@
 .notification__content {
     color: white;
     font-size: 11px;
+}
+
+.notification__content-bold {
+    animation: boldAnimation 8s infinite;
+}
+
+@keyframes boldAnimation {
+    0% {
+        color:rgb(255, 255, 255);
+    }
+    50% {
+        color: rgb(0, 170, 173)
+    }
+    100% {
+        color: rgb(255, 255, 255)
+    }
 }
 
 .notification__creationTime {
