@@ -32,7 +32,7 @@ export class NotificationService {
         const result = await this.redis.getNotifications(user_id)
         return result
             .sort((na, nb) => na.created_at - nb.created_at)
-            .slice(page, page * DB_PAGINATE.notification)
+            .slice(page, (page + 1) * DB_PAGINATE.notification)
     }
 
     /**

@@ -1,4 +1,4 @@
-import { Injectable, ImATeapotException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from "@nestjs/config"
 // redis
 import Redis from 'ioredis'
@@ -39,27 +39,22 @@ export class RedisService {
         const result = await this.readUserNotifications(user_id)
         const n_latest = result.find(n => n.created_at > lastSeenNotifications && n.group_title === data.group_title)
         // append to latest notification
-        try {
-            if (n_latest) {
-                // (existing) notification entry key
-                const n_key = REDIS_KEYS.notification(user_id, n_latest.created_at)
-                // (existing) notification entry
-                const n_data = JSON.stringify({ ...n_latest, user: [...n_latest.user, data.user] })
-                // update existing entry with the new user
-                await this.notifications.set(n_key, n_data, 'KEEPTTL')
-            }
-            // create a notification entry (otherwise)
-            else {
-                // notification entry key
-                const n_key = REDIS_KEYS.notification(user_id)
-                // create a notification entry
-                await this.notifications.set(n_key, JSON.stringify(ConvertToNotificationType(data)))
-                // add new entry to notification-keys-list
-                await this.notifications.sadd(user_id, n_key)
-            }
+        if (n_latest) {
+            // (existing) notification entry key
+            const n_key = REDIS_KEYS.notification(user_id, n_latest.created_at)
+            // (existing) notification entry
+            const n_data = JSON.stringify({ ...n_latest, user: [...n_latest.user, data.user] })
+            // update existing entry with the new user
+            await this.notifications.set(n_key, n_data, 'KEEPTTL')
         }
-        catch (err) {
-            throw new ImATeapotException({ msg: 'teapott', err, n_latest })
+        // create a notification entry (otherwise)
+        else {
+            // notification entry key
+            const n_key = REDIS_KEYS.notification(user_id)
+            // create a notification entry
+            await this.notifications.set(n_key, JSON.stringify(ConvertToNotificationType(data)))
+            // add new entry to notification-keys-list
+            await this.notifications.sadd(user_id, n_key)
         }
     }
 
@@ -71,6 +66,14 @@ export class RedisService {
     async getNotifications(user_id: string): Promise<NotificationType[]> {
         // set expiration to unset keys (read all expires them)
         return await this.readUserNotifications(user_id, { setExpiration: true })
+    }
+
+    /**
+     * Method cleans the redis database for optimal testing.
+     */
+    async cleanDB() {
+        await this.cache.flushdb()
+        await this.notifications.flushdb()
     }
 
     // private methods
@@ -85,13 +88,13 @@ export class RedisService {
         // get notification
         const n_keys_list = await this.notifications.smembers(user_id)
         return await Promise.all(
-            n_keys_list.map(async k => {
-                const result: NotificationType = JSON.parse(await this.notifications.get(k))
+            n_keys_list.map(async key => {
+                const result: NotificationType = JSON.parse(await this.notifications.get(key))
                 // set expiration to notification (because we read it)
                 if (opts?.setExpiration) {
-                    this.notifications.expire(k, REDIS_EXPIRE_NOTIFICATION_TIME, 'NX')
+                    this.notifications.expire(key, REDIS_EXPIRE_NOTIFICATION_TIME, 'NX')
                 }
-                return { ...result, created_at: REDIS_KEYS.get_notification_date(k) }
+                return result
             })
         )
     }
