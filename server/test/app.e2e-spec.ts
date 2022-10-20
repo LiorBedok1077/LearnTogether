@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
 import * as pactum from 'pactum';
 import { AppModule } from './../src/app.module';
-import { PrismaService } from '../src/modules/prisma/prisma.service';
 // types
 import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client';
@@ -10,12 +9,15 @@ import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
 import { CreateGroupDto, UpdateGroupDto, UpdateParticipantsDto } from '../src/modules/group/dto';
 import { listActionsEnum } from '../src/interfaces/dto';
 import { CommentDto, CreateArticleDto } from '../src/modules/article/dto';
+import { PrismaService } from '../src/modules/prisma/prisma.service';
+import { RedisService } from '../src/modules/redis/redis.service';
 
 const TEST_PORT = 5001
 
 describe('AppController (e2e)', () => {
   let app: INestApplication
   let prisma: PrismaService
+  let redis: RedisService
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule]
@@ -31,7 +33,9 @@ describe('AppController (e2e)', () => {
     await app.listen(TEST_PORT)
 
     prisma = app.get(PrismaService)
+    redis = app.get(RedisService)
     await prisma.cleanDB()
+    await redis.cleanDB()
     pactum.request.setBaseUrl(`http://localhost:${TEST_PORT}/v1`)
   })
 
@@ -363,7 +367,7 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK)
         .stores('join-group-email-token', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-        )
+      )
       // request-join a group
       it('should request-join a group (user3 -> user1)', () => pactum
         .spec()
@@ -373,7 +377,7 @@ describe('AppController (e2e)', () => {
         })
         .expectStatus(HttpStatus.OK)
         .stores('join-group-email-token-2', 'EMAIL_TOKEN__FOR_TESTING_ONLY')
-        )
+      )
     })
     describe('Request-Join-Group (step 2 - allow group join request using email-token', () => {
       // invalid token
@@ -660,16 +664,16 @@ describe('AppController (e2e)', () => {
       })
       .expectStatus(HttpStatus.OK)
       .stores('userId', 'user_id')
-      )
+    )
     describe('Read notifications', () => {
-      it('should mark \'read notifications\'', () => pactum
+      it('should read notifications', () => pactum
         .spec()
         .get('/user/notifications/0')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt}'
         })
         .expectStatus(HttpStatus.OK)
-        )
+        .inspect())
     })
     describe('Delete a comment', () => {
       // forbidden comment delete

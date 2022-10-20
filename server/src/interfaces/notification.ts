@@ -1,9 +1,26 @@
-
 // notification:data:user type.
 export type UserMetadata = { username: string, user_id: string, profile_pic: string, token?: string }
 
-// The notification:data type (single user).
-export type NotificationJsonDataTypeWithSingleUser = { thumbnail: string, group_title: string, user: UserMetadata }
+// notification types
+export type NotificationTypes = 'invite-to-group' | 'request-join-group' | 'reset-password' | 'user-joined-group'
 
-// The notification:data type.
-export type NotificationJsonDataType = { thumbnail: string, group_title: string, user: UserMetadata[] }
+// A redis:notification (on create) data type (with a single user).
+export type CreateNotificationType = {
+    group_title: string,
+    n_type: NotificationTypes,
+    thumbnail: string,
+    user: UserMetadata
+}
+
+// A redis:notification data type.
+export type NotificationType = {
+    created_at: number,
+    group_title: string,
+    n_type: NotificationTypes,
+    thumbnail: string,
+    user: UserMetadata[]
+}
+
+// Convert <CreateNotificationType> to <NotificationType>
+export const ConvertToNotificationType = (data: CreateNotificationType): NotificationType =>
+    ({ ...data, created_at: new Date().getTime(), user: [data.user] })

@@ -4,11 +4,11 @@ import { JWT_EXPIRE_TOKEN, CLIENT_URLS, DB_PAGINATE } from '../../configs/consta
 // types
 import { NotificationServiceMethodType } from '../../interfaces/services/notification'
 // utils
-import { AppendUserToNotificationData, CreateNotification, MailSubject } from '../../utils'
+import { MailSubject } from '../../utils'
 // services
 import { MailerService } from '@nestjs-modules/mailer'
-import { PrismaService } from '../prisma/prisma.service'
 import { JwtService } from '../jwt/jwt.service'
+import { RedisService } from '../redis/redis.service'
 
 /**
  * (Notification) Service handles app-notification operations (e.g. sending emails, pushing notificaitons).
@@ -17,7 +17,7 @@ import { JwtService } from '../jwt/jwt.service'
 export class NotificationService {
     constructor(
         private jwt: JwtService,
-        private prisma: PrismaService,
+        private redis: RedisService,
         private mailer: MailerService
     ) { }
 
@@ -29,16 +29,10 @@ export class NotificationService {
         if (page < 0) {
             throw new BadRequestException('Page can be 0 or above')
         }
-        const result = await this.prisma.notification.findMany({
-            where: { user_id },
-            orderBy: { created_at: 'desc' },
-            skip: DB_PAGINATE.notification * page,
-            take: DB_PAGINATE.notification
-        })
-        if (page === 0) {
-            this.prisma.users.update({ where: { user_id }, data: { last_seen_notifications: new Date() } })
-        }
+        const result = await this.redis.getNotifications(user_id)
         return result
+            .sort((na, nb) => na.created_at - nb.created_at)
+            .slice(page, (page + 1) * DB_PAGINATE.notification)
     }
 
     /**
@@ -53,11 +47,11 @@ export class NotificationService {
         // send email in the background (if option is enabled by the user)
         this.mailer.sendMail(MailSubject.inviteToGroup(email, { ...context.template, link }))
         // send notification
-        await this.prisma.notification.create({
-            data: CreateNotification(email, 'invite-to-group', {
-                ...context.metadata, user: { ...context.metadata.user, token }
-            })
-        })
+        await this.redis.createNotification(
+            token_payload.user_id,
+            context.last_seen_notifications,
+            { n_type: 'invite-to-group', ...context.metadata, user: { ...context.metadata.user, token } }
+        )
         return token
     }
 
@@ -72,9 +66,11 @@ export class NotificationService {
         // send email in the background (if option is enabled by the user)
         this.mailer.sendMail(MailSubject.userJoinedGroup(email, { ...context.template, link }))
         // send notification
-        await this.prisma.notification.create({
-            data: CreateNotification(email, 'user-joined-group', context.metadata)
-        })
+        await this.redis.createNotification(
+            context.metadata.user.user_id,
+            context.last_seen_notifications,
+            { n_type: 'user-joined-group', ...context.metadata }
+        )
     }
 
     /**
@@ -89,18 +85,11 @@ export class NotificationService {
         // send email in the background (if option is enabled by the user)
         this.mailer.sendMail(MailSubject.requestJoinGroup(email, { ...context.template, link }))
         // send notification
-        // -- append requesting-user to found-notification, create one otherwise.
-        await this.prisma.updateOrCreateNotification({
-            data: {
-                user_id: token_payload.user_id,
-                n_type: 'request-join-group',
-                last_seen_notifications: context.last_seen_notifications
-            },
-            update: (data) => AppendUserToNotificationData(data, { ...context.metadata.user, token }),
-            create: () => CreateNotification(email, 'request-join-group', {
-                ...context.metadata, user: { ...context.metadata.user, token }
-            })
-        })
+        await this.redis.createNotification(
+            token_payload.user_id,
+            context.last_seen_notifications,
+            { n_type: 'request-join-group', ...context.metadata, user: { ...context.metadata.user, token } }
+        )
         return token
     }
 

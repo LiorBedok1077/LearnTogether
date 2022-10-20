@@ -101,7 +101,7 @@ export class GroupService {
             const email_token = await this.notification.requestJoinGroup({
                 email: group.creator.email,
                 context: {
-                    last_seen_notifications,
+                    last_seen_notifications: last_seen_notifications.getTime(),
                     template: {
                         username: group.creator.username,
                         group_title: group.title,
@@ -131,7 +131,7 @@ export class GroupService {
      * @param user the request user data.
      * @param dto the body with the verification token.
      */
-    async joinGroup({ email, username, profile_pic_src }: Users, { verification_token }: JoinGroupDto) {
+    async joinGroup({ email, username, profile_pic_src, last_seen_notifications }: Users, { verification_token }: JoinGroupDto) {
         try {
             // validate email-token & update database with the hashed password 
             const { group_id, user_id } = await this.jwt.verifyToken(verification_token, 'join-group')
@@ -146,13 +146,14 @@ export class GroupService {
                         group_title: group.title,
                         thumbnail: group.thumbnail_src,
                         user: { user_id, username, profile_pic: profile_pic_src }
-                    }
+                    },
+                    last_seen_notifications: last_seen_notifications.getTime()
                 }
             })
             return `Joined successfully to group "${group.title}"`
         }
         catch (err) {
-            throw new BadRequestException('Link is invalid or expired')
+            throw new BadRequestException({ msg: 'Link is invalid or expired', err })
         }
     }
 
@@ -178,7 +179,8 @@ export class GroupService {
                 case listActionsEnum.invite: {
                     // find target user & group
                     const user = await this.prisma.users.findUniqueOrThrow({
-                        where: { user_id }, select: { username: true, email: true, profile_pic_src: true }
+                        where: { user_id },
+                        select: { username: true, email: true, profile_pic_src: true, last_seen_notifications: true }
                     })
                     const group = await this.prisma.learning_groups.findUniqueOrThrow({
                         where: { group_id }, include: { creator: { select: { username: true } } }
@@ -196,7 +198,8 @@ export class GroupService {
                                 group_title: group.title,
                                 thumbnail: group.thumbnail_src,
                                 user: { profile_pic: user.profile_pic_src, user_id, username: user.username }
-                            }
+                            },
+                            last_seen_notifications: user.last_seen_notifications.getTime()
                         },
                         token_payload: { group_id, user_id }
                     })
