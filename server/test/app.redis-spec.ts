@@ -1,15 +1,11 @@
-import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
-import * as pactum from 'pactum';
-import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/modules/prisma/prisma.service';
+import { Test } from '@nestjs/testing'
+import { HttpStatus, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common'
+import * as pactum from 'pactum'
+import { AppModule } from '../src/app.module'
+import { PrismaService } from '../src/modules/prisma/prisma.service'
 // types
-import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
-import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client';
-import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
-import { CreateGroupDto, UpdateGroupDto, UpdateParticipantsDto } from '../src/modules/group/dto';
-import { listActionsEnum } from '../src/interfaces/dto';
-import { CommentDto, CreateArticleDto } from '../src/modules/article/dto';
+import { SigninDto, SignupDto } from '../src/modules/auth/dto';
+import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client'
 
 const TEST_PORT = 5001
 
@@ -75,22 +71,22 @@ describe('AppController (e2e)', () => {
         .expectStatus(HttpStatus.OK)
         .stores('userAt', 'token'))
     })
-    describe('User', () => {
-      // User testing
-      describe('get-user-data', () => {
-        const getUserMeth = () => pactum
-          .spec()
-          .get("/user")
-          .withHeaders({
-            'Authorization': "Bearer $S{userAt}"
-          })
-          .expectStatus(HttpStatus.OK)
-          .stores('userId', 'user_id')
-        for (let i = 1; i < 6; i++) {
-          // get user data (i)
-          it(`should get-user-data (${i})`, getUserMeth)
-        }
-      })
+  })
+  describe('User', () => {
+    // User testing
+    describe('get-user-data', () => {
+      const ITERATIONS = 9, getUserMeth = () => pactum
+        .spec()
+        .get("/user")
+        .withHeaders({
+          'Authorization': "Bearer $S{userAt}"
+        })
+        .expectStatus(HttpStatus.OK)
+        .stores('userId', 'user_id')
+      for (let i = 1; i <= ITERATIONS; i++) {
+        // get user data (i)
+        it(`should get-user-data (${i})`, getUserMeth)
+      }
     })
   })
 })

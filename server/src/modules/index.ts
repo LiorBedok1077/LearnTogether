@@ -1,6 +1,7 @@
 export { NotificationModule } from './notification/notification.module'
 export { JwtModule } from "./jwt/jwt.module"
 export { PrismaModule } from "./prisma/prisma.module"
+export { RedisModule } from "./redis/redis.module"
 export { AuthModule } from "./auth/auth.module"
 export { UserModule } from "./user/user.module"
 export { GroupModule } from './group/group.module'
