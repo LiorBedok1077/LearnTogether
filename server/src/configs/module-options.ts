@@ -1,6 +1,6 @@
 import { resolve } from "path"
 // configs
-import { ENV_VARS, FILENAMES } from "./constants"
+import { ENV_VARS, FILENAMES, REDIS_DB_INDEX } from "./constants"
 // types (services options)
 import { ConfigModuleOptions, ConfigService } from '@nestjs/config'
 import { MailerAsyncOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-async-options.interface'
@@ -35,3 +35,17 @@ export const MailerModuleAsyncOptions: MailerAsyncOptions = {
     }),
     inject: [ConfigService]
 }
+
+/**
+ * Redis client default configs
+ * @param config the (injected) config-service.
+ * @param db the redis-db-index (0-15).
+ * @returns a config-object for a redis-client.
+ */
+export const RedisConfigOptions = (config: ConfigService, db: number) => ({
+    host: config.get(ENV_VARS.CACHE_REDIS_HOST),
+    port: config.get(ENV_VARS.CACHE_REDIS_PORT),
+    // username: config.get(ENV_VARS.CACHE_REDIS_USERNAME),
+    // password: config.get(ENV_VARS.CACHE_REDIS_PASSWORD),
+    db
+})

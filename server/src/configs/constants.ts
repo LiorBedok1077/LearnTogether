@@ -40,8 +40,7 @@ export const ENV_VARS = {
     CACHE_REDIS_HOST: 'CACHE_REDIS_HOST',
     CACHE_REDIS_PORT: 'CACHE_REDIS_PORT',
     CACHE_REDIS_USERNAME: 'CACHE_REDIS_USERNAME',
-    CACHE_REDIS_PASSWORD: 'CACHE_REDIS_PASSWORD',
-    CACHE_REDIS_DB: 'CACHE_REDIS_DB',
+    CACHE_REDIS_PASSWORD: 'CACHE_REDIS_PASSWORD'
 }
 
 // jwt expiration times for tokens with different purposes
@@ -55,6 +54,10 @@ export const JWT_EXPIRE_TOKEN = {
 // pagination value (skip)
 export const DB_PAGINATE = {
     notification: 20
+}
+
+export enum REDIS_DB_INDEX {
+    CACHE_LAYER, NOTIFICATIONS
 }
 
 // user id (uuid) length, created by prisma

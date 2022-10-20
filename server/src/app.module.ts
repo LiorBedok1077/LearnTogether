@@ -11,16 +11,18 @@ import {
   JwtModule,
   NotificationModule,
   PrismaModule,
+  RedisModule,
   UserModule
 } from './modules'
 
 @Module({
   imports: [
     // global modules:
-    ConfigModule.forRoot(ConfigsModuleOptions),           // -- config module - access environment variables globally.
-    PrismaModule,                                         // -- prisma module - access to main database globally.
-    JwtModule,                                            // -- jwt module - access normal & custom jwt-methods globally.
-    NotificationModule,                                   // -- notification module - push notifications.
+    ConfigModule.forRoot(ConfigsModuleOptions),     // -- access environment-variables globally.
+    PrismaModule,                                   // -- access main database globally.
+    RedisModule,                                    // -- access redis sub-databases via different clients globally.
+    JwtModule,                                      // -- access normal & custom jwt-methods globally.
+    NotificationModule,                             // -- global notifications service (mail, notifications, etc).
     // route modules:
     AuthModule,
     UserModule,
