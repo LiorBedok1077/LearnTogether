@@ -62,7 +62,6 @@ export class PrismaService extends PrismaClient {
     async cleanDB() {
         return void await this.$transaction([
             // from low-relevancy to high-relevancy
-            this.notification.deleteMany(),
             this.roles.deleteMany(),
             this.favorite_tags.deleteMany(),
             this.comments.deleteMany(),

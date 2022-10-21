@@ -61,9 +61,8 @@ export const REDIS_EXPIRE_NOTIFICATION_TIME = 604800
 // generate redis:notification key
 // export const GEN_REDIS_NOTIFICATION_KEY = (user_id: string) => `${user_id}:${new Date().getDate()}`
 export const REDIS_KEYS = {
-    notification: (user_id: string, date?: number) => `${user_id}:${date ?? new Date().getTime()}`,
-    notifications_list: (user_id: string) => `${user_id}/list`,
-    get_notification_date: (key: string) => parseInt(key.split(':').at(-1)),
+    // returns a valid (redis:notificaiton) key - <user_id:time>
+    CreateNotificationKey: (user_id: string, date?: number) => `${user_id}:${date ?? new Date().getTime()}`,
 }
 
 // the client base-uri

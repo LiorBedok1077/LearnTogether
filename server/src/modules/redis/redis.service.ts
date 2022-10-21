@@ -6,7 +6,7 @@ import Redis from 'ioredis'
 import { REDIS_DB_INDEX, REDIS_EXPIRE_NOTIFICATION_TIME, REDIS_KEYS } from '../../configs/constants'
 // types
 import { RedisConfigOptions } from '../../configs/module-options'
-import { ConvertToNotificationType, CreateNotificationType, NotificationType } from '../../interfaces/notification'
+import { ConvertToNotificationType, CreateNotificationType, NotificationType, NotificationTypesEnum } from '../../interfaces/notification'
 
 /**
  * (Redis) Service allows access to multiple redis clients.
@@ -41,7 +41,7 @@ export class RedisService {
         // append to latest notification
         if (n_latest) {
             // (existing) notification entry key
-            const n_key = REDIS_KEYS.notification(user_id, n_latest.created_at)
+            const n_key = REDIS_KEYS.CreateNotificationKey(user_id, n_latest.created_at)
             // (existing) notification entry
             const n_data = JSON.stringify({ ...n_latest, user: [...n_latest.user, data.user] })
             // update existing entry with the new user
@@ -50,22 +50,24 @@ export class RedisService {
         // create a notification entry (otherwise)
         else {
             // notification entry key
-            const n_key = REDIS_KEYS.notification(user_id)
+            const n_data = ConvertToNotificationType(data)
+            const n_key = REDIS_KEYS.CreateNotificationKey(user_id, n_data.created_at)
             // create a notification entry
-            await this.notifications.set(n_key, JSON.stringify(ConvertToNotificationType(data)))
+            await this.notifications.set(n_key, JSON.stringify(n_data))
             // add new entry to notification-keys-list
-            await this.notifications.sadd(user_id, n_key)
+            await this.notifications.sadd(user_id, n_data.created_at)
         }
     }
 
     /**
      * Method returns all notifications for a given user (and sets an expiration date to the unread ones).
      * @param user_id the user id.
+     * @param n_type the notification type to filter (optional).
      * @returns a notifications array.
      */
-    async getNotifications(user_id: string): Promise<NotificationType[]> {
+    async getNotifications(user_id: string, n_type?: NotificationTypesEnum): Promise<NotificationType[]> {
         // set expiration to unset keys (read all expires them)
-        return await this.readUserNotifications(user_id, { setExpiration: true })
+        return await this.readUserNotifications(user_id, { setExpiration: true, nType: n_type })
     }
 
     /**
@@ -84,18 +86,29 @@ export class RedisService {
      * @param opts method options.
      * @returns the value of a given key.
      */
-    private async readUserNotifications(user_id: string, opts?: { setExpiration?: boolean }): Promise<NotificationType[]> {
+    private async readUserNotifications(
+        user_id: string, opts?: { setExpiration?: boolean, nType?: NotificationTypesEnum }
+    ): Promise<NotificationType[]> {
         // get notification
         const n_keys_list = await this.notifications.smembers(user_id)
-        return await Promise.all(
-            n_keys_list.map(async key => {
-                const result: NotificationType = JSON.parse(await this.notifications.get(key))
-                // set expiration to notification (because we read it)
-                if (opts?.setExpiration) {
-                    this.notifications.expire(key, REDIS_EXPIRE_NOTIFICATION_TIME, 'NX')
+        let notifications: NotificationType[] = []
+        await Promise.all(
+            n_keys_list.map(async key_date => {
+                // get key
+                const n_key = REDIS_KEYS.CreateNotificationKey(user_id, parseInt(key_date))
+                const result = await this.notifications.get(n_key)
+                // delete unexisting keys from list
+                if (!result) this.notifications.srem(user_id, key_date)
+                // parse & filter notifications
+                const data: NotificationType = JSON.parse(result)
+                if (!(opts?.nType) || data.n_type === opts?.nType) {
+                    // set expiration to notification (because we read it)
+                    if (opts?.setExpiration) this.notifications.expire(n_key, REDIS_EXPIRE_NOTIFICATION_TIME, 'NX')
+                    // push value to notifications list
+                    notifications.push(data)
                 }
-                return result
             })
         )
+        return notifications
     }
 }

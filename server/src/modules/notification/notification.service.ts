@@ -9,6 +9,9 @@ import { MailSubject } from '../../utils'
 import { MailerService } from '@nestjs-modules/mailer'
 import { JwtService } from '../jwt/jwt.service'
 import { RedisService } from '../redis/redis.service'
+import { GetNotificationsQueryDto } from '../user/dto'
+import { NotificationTypesEnum } from '../../interfaces/notification'
+import { PrismaService } from '../prisma/prisma.service'
 
 /**
  * (Notification) Service handles app-notification operations (e.g. sending emails, pushing notificaitons).
@@ -18,6 +21,7 @@ export class NotificationService {
     constructor(
         private jwt: JwtService,
         private redis: RedisService,
+        private prisma: PrismaService,
         private mailer: MailerService
     ) { }
 
@@ -25,11 +29,12 @@ export class NotificationService {
      * Method updates the <last_seen_notifications> value.
      * @param user_id the user id.
      */
-    async getNotifications(user_id: string, page: number) {
-        if (page < 0) {
-            throw new BadRequestException('Page can be 0 or above')
-        }
-        const result = await this.redis.getNotifications(user_id)
+    async getNotifications(user_id: string, { page, n_type }: GetNotificationsQueryDto) {
+        // get notifications
+        const result = await this.redis.getNotifications(user_id, n_type)
+        // update last_seen_notifications
+        await this.prisma.users.update({ where: { user_id }, data: { last_seen_notifications: new Date() } })
+        // send notificaitons page slice
         return result
             .sort((na, nb) => na.created_at - nb.created_at)
             .slice(page, (page + 1) * DB_PAGINATE.notification)
@@ -50,7 +55,7 @@ export class NotificationService {
         await this.redis.createNotification(
             token_payload.user_id,
             context.last_seen_notifications,
-            { n_type: 'invite-to-group', ...context.metadata, user: { ...context.metadata.user, token } }
+            { n_type: NotificationTypesEnum['invite-to-group'], ...context.metadata, user: { ...context.metadata.user, token } }
         )
         return token
     }
@@ -69,7 +74,7 @@ export class NotificationService {
         await this.redis.createNotification(
             context.metadata.user.user_id,
             context.last_seen_notifications,
-            { n_type: 'user-joined-group', ...context.metadata }
+            { n_type: NotificationTypesEnum['user-joined-group'], ...context.metadata }
         )
     }
 
@@ -88,7 +93,7 @@ export class NotificationService {
         await this.redis.createNotification(
             token_payload.user_id,
             context.last_seen_notifications,
-            { n_type: 'request-join-group', ...context.metadata, user: { ...context.metadata.user, token } }
+            { n_type: NotificationTypesEnum['request-join-group'], ...context.metadata, user: { ...context.metadata.user, token } }
         )
         return token
     }

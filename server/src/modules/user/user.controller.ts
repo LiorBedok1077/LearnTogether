@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from "@nestjs/common"
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, ParseIntPipe, Patch, Post, Query, UseGuards } from "@nestjs/common"
 // decorators
 import { GetUser, IdParam } from "../auth/decorators"
 // guards
 import { JwtGuard, JwtOptionalGuard } from "../auth/guards"
 // types
 import { Users } from "@prisma/client"
-import { ChangePasswordDto, UpdateUserDto } from "./dto"
+import { ChangePasswordDto, GetNotificationsQueryDto, UpdateUserDto } from "./dto"
 // services
 import { UserService } from "./user.service"
 import { NotificationService } from "../notification/notification.service"
@@ -19,6 +19,16 @@ export class UserController {
         private userService: UserService,
         private notificationService: NotificationService
     ) { }
+
+    /**
+     * @description Endpoint for sending user notifications.
+     */
+    @Get('notifications?')
+    @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
+    async getNotifications(@GetUser('user_id') user_id: string, @Query() query: GetNotificationsQueryDto) {
+        return await this.notificationService.getNotifications(user_id, query)
+    }
 
     /**
      * @description Endpoint for sending back user-data.
@@ -68,15 +78,5 @@ export class UserController {
     @HttpCode(HttpStatus.OK)
     async deleteUser(@IdParam('user_id') user_id: string) {
         return await this.userService.deleteUser(user_id)
-    }
-
-    /**
-     * @description Endpoint for sending user notifications.
-     */
-    @Get('notifications/:page')
-    @UseGuards(JwtGuard)
-    @HttpCode(HttpStatus.OK)
-    async getNotifications(@GetUser('user_id') user_id: string, @Param('page', ParseIntPipe) page: number) {
-        return await this.notificationService.getNotifications(user_id, page)
     }
 }

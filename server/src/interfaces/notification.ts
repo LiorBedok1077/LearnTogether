@@ -2,12 +2,16 @@
 export type UserMetadata = { username: string, user_id: string, profile_pic: string, token?: string }
 
 // notification types
-export type NotificationTypes = 'invite-to-group' | 'request-join-group' | 'reset-password' | 'user-joined-group'
+export enum NotificationTypesEnum {
+    'invite-to-group' = 'invite-to-group',
+    'request-join-group' = 'request-join-group',
+    'user-joined-group' = 'user-joined-group'
+}
 
 // A redis:notification (on create) data type (with a single user).
 export type CreateNotificationType = {
     group_title: string,
-    n_type: NotificationTypes,
+    n_type: NotificationTypesEnum,
     thumbnail: string,
     user: UserMetadata
 }
@@ -16,7 +20,7 @@ export type CreateNotificationType = {
 export type NotificationType = {
     created_at: number,
     group_title: string,
-    n_type: NotificationTypes,
+    n_type: NotificationTypesEnum,
     thumbnail: string,
     user: UserMetadata[]
 }

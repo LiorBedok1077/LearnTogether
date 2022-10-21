@@ -11,6 +11,7 @@ import { listActionsEnum } from '../src/interfaces/dto';
 import { CommentDto, CreateArticleDto } from '../src/modules/article/dto';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
 import { RedisService } from '../src/modules/redis/redis.service';
+import { NotificationTypesEnum } from '../src/interfaces/notification';
 
 const TEST_PORT = 5001
 
@@ -39,7 +40,20 @@ describe('AppController (e2e)', () => {
     pactum.request.setBaseUrl(`http://localhost:${TEST_PORT}/v1`)
   })
 
-  afterAll(() => {
+  afterAll(async () => {
+    const keys = await redis.notifications.keys('*')
+    let final = {}
+    await Promise.all(keys.map(async k => {
+      if (k.includes(':')) {
+        final[k] = JSON.parse(await redis.notifications.get(k))
+      }
+      else {
+        const result = await redis.notifications.smembers(k)
+        final[k] = []
+        result.map(kv => final[k].push(kv))
+      }
+    }))
+    console.table(final)
     app.close()
   })
   describe('Auth', () => {
@@ -398,7 +412,8 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt2}'
         })
         .withBody(JoinGroupDto('$S{join-group-email-token}'))
-        .expectStatus(HttpStatus.OK))
+        .expectStatus(HttpStatus.OK)
+      )
       // join a group
       it('should join a group using a request link (user3 -> user1)', () => pactum
         .spec()
@@ -407,7 +422,8 @@ describe('AppController (e2e)', () => {
           'Authorization': 'Bearer $S{userAt3}'
         })
         .withBody(JoinGroupDto('$S{join-group-email-token-2}'))
-        .expectStatus(HttpStatus.OK))
+        .expectStatus(HttpStatus.OK)
+      )
     })
     describe('Invite-to-group (step 1 - receive email)', () => {
       const UpdateParticipantsDto = (action: listActionsEnum, roles?: string): UpdateParticipantsDto => ({
@@ -666,14 +682,64 @@ describe('AppController (e2e)', () => {
       .stores('userId', 'user_id')
     )
     describe('Read notifications', () => {
-      it('should read notifications', () => pactum
+      it('error: invalid page', () => pactum
         .spec()
-        .get('/user/notifications/0')
+        .get('/user/notifications?page=-1')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.BAD_REQUEST))
+      // user 1
+      it('should read notifications (user1)', () => pactum
+        .spec()
+        .get('/user/notifications?page=0')
         .withHeaders({
           'Authorization': 'Bearer $S{userAt}'
         })
         .expectStatus(HttpStatus.OK)
         .inspect())
+      // user 2
+      it('should read notifications (user2)', () => pactum
+        .spec()
+        .get('/user/notifications?page=0')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt2}'
+        })
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+      // user 3
+      it('should read notifications (user3)', () => pactum
+        .spec()
+        .get('/user/notifications?page=0')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt3}'
+        })
+        .expectStatus(HttpStatus.OK)
+        .inspect())
+      it('error: invalid n_type', () => pactum
+        .spec()
+        .get("/user/notifications?page=0&n_type=some-random-category")
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.BAD_REQUEST)
+      )
+      it('should read notifications (with filter)', () => pactum
+        .spec()
+        .get(`/user/notifications?page=0&n_type=${NotificationTypesEnum['request-join-group']}`)
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.OK)
+      )
+      it('should read notifications (with another filter)', () => pactum
+        .spec()
+        .get(`/user/notifications?page=0&n_type=${NotificationTypesEnum['invite-to-group']}`)
+        .withHeaders({
+          'Authorization': 'Bearer $S{userAt}'
+        })
+        .expectStatus(HttpStatus.OK)
+      )
     })
     describe('Delete a comment', () => {
       // forbidden comment delete
