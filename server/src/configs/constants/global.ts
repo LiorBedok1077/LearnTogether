@@ -1,4 +1,4 @@
-// Global constants file
+// Global (constants) file
 
 // file-names (not paths!)
 export const FILENAMES = {
@@ -32,37 +32,6 @@ export const ENV_VARS = {
     CACHE_REDIS_PORT: 'CACHE_REDIS_PORT',
     CACHE_REDIS_USERNAME: 'CACHE_REDIS_USERNAME',
     CACHE_REDIS_PASSWORD: 'CACHE_REDIS_PASSWORD'
-}
-
-// jwt expiration times for tokens with different purposes
-export const JWT_EXPIRE_TOKEN = {
-    AUTH__TEST: '15m',  // use while testing
-    AUTH: '7d',
-    FORGOT_PASSWORD: '5m',
-    REQUEST_JOIN_GROUP: '7d'
-}
-
-// pagination value (skip)
-export const DB_PAGINATE = {
-    notification: 20
-}
-
-// user id (uuid) length, created by prisma
-export const UUID_LENGTH = 36
-
-// redis database indexes (0-15)
-export enum REDIS_DB_INDEX {
-    CACHE_LAYER, NOTIFICATIONS
-}
-
-// expiration date for redis:notifications (7 days)
-export const REDIS_EXPIRE_NOTIFICATION_TIME = 604800
-
-// generate redis:notification key
-// export const GEN_REDIS_NOTIFICATION_KEY = (user_id: string) => `${user_id}:${new Date().getDate()}`
-export const REDIS_KEYS = {
-    // returns a valid (redis:notificaiton) key - <user_id:time>
-    CreateNotificationKey: (user_id: string, date?: number) => `${user_id}:${date ?? new Date().getTime()}`,
 }
 
 // the client base-uri

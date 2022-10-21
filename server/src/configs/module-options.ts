@@ -37,12 +37,12 @@ export const MailerModuleAsyncOptions: MailerAsyncOptions = {
 }
 
 /**
- * Redis client default configs
+ * Redis client default configs. (currently insecure in development)
  * @param config the (injected) config-service.
  * @param db the redis-db-index (0-15).
  * @returns a config-object for a redis-client.
  */
-export const RedisConfigOptions = (config: ConfigService, db: number) => ({
+export const RedisConfigOptions = (config: ConfigService, db: REDIS_DB_INDEX) => ({
     host: config.get(ENV_VARS.CACHE_REDIS_HOST),
     port: config.get(ENV_VARS.CACHE_REDIS_PORT),
     // username: config.get(ENV_VARS.CACHE_REDIS_USERNAME),
