@@ -308,6 +308,7 @@ Databases:
     - Articles - stores all articles created by users.
     - Comments - all (article) comments created by users.
     - Roles (temporary) - user roles with different privileges (customizable, allows cms flexibility).
+    - Favorite_tags (temporary) - stores tags metadata (e.g. num_viewed)
 - Caching layer: **Redis**.
   - Integrates with Prisma-client, for query-optimization.
 - Real-time notifications handling: **Redis (modules)** (experimental).
@@ -417,4 +418,4 @@ Favorite_tags:
 
 ### Database flowchart (24/10)
 
-![database relations flowchart](https://lh5.googleusercontent.com/NZJNHcizMDhd91M3DyuNXOcXrOxZZiNKgERMZuuDjZq9qlgunVFbc1ADxwZWupaxkNP8Zy9S37cOpK-HYb4NsfnOMr_VZafsSZ8WgzmYyIZgGRBJkqDiRSzqvEg973D0QOtKMbJLZroOq8qMoOZgBYI8T5HRdwTdPjtgrdmmDff9FB0x6b8ptr3hDw)
+![database relations flowchart](https://lh5.googleusercontent.com/A43HiYLEG6Ivjq-oTV9Msh_eduambjoLgov4uFz7KCDyxVHGhSGFOpq0rsd2e4TA_zxBfMyJS9u9plcYQgjT7zBS_8GiY8cFB7HTQXnsklvvfS1ulYQZta8TtnoLrk5pGURodRChn1w61IxWfDBdoJg-VR7dEsqa1vReDfgnRT7CzANtCGcxk1pSkg)
