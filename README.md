@@ -18,8 +18,8 @@ The project's full demo characterization document can be found [here](https://do
     - [Routes (initial recap)](#routes-initial-recap)
     - [Responses (on different events)](#responses-on-different-events)
   - [Database architecture](#database-architecture)
-    - [Database model](#database-model)
-    - [Database flowchart](#database-flowchart)
+    - [Database model (24/10)](#database-model-2410)
+    - [Database flowchart (24/10)](#database-flowchart-2410)
 
 
 ## Requirements (21.9)
@@ -153,14 +153,28 @@ The platform contains:
         * username_or_email String
         * password          String
         * remember_me       Boolean
-    * Get user data - private data only goes to authorized users.
-      * Request
-        * Method: GET
+    * Forgot-password (step 1 - send verification email)
+      * Method: POST
+      * Body:
+        * username_or_email String
+    * Forgot-password (step 2 - verify email-token and change the password)
+      * Method: PATCH
+      * Body:
+        * new_password String
+        * verification_token String (Jwt)
+  * User route:
+    * Get [private] user data.
+      * Method: GET
+    * Get [public] user data.
+      * Method: GET
       * Params:
-        * user_id	String?
-      * CMS options:
-        * increment num_viewed_profile on first request
-    * Update user data (username, email, etc).
+        * user_id String
+    * Get notifications.
+      * Method: GET
+      * Params (query):
+        * page Int (0+)
+        * n_type Enum? (notification-types enum - filter notifications)
+    * Update user data.
       * Method: PATCH
       * Body:
         * username?	        String,
@@ -283,116 +297,124 @@ The platform contains:
 
 ## Database architecture
 
-Last update: 8 Aug, 2022
+Last update: 24 Oct, 2022
 
-Database: postgresql
+Databases:
+- Main database: **CockroachDB**.
+  - Client: Prisma ORM
+  - Tables: 
+    - Users - stores all user data (username, email, etc).
+    - Groups - stores groups (learning group) created by users.
+    - Articles - stores all articles created by users.
+    - Comments - all (article) comments created by users.
+    - Roles (temporary) - user roles with different privileges (customizable, allows cms flexibility).
+- Caching layer: **Redis**.
+  - Integrates with Prisma-client, for query-optimization.
+- Real-time notifications handling: **Redis (modules)** (experimental).
+  - Notifications are stored in key-value pairs. 
+    - A Notification-key looks like this: <*user_id:date*>, where the *user-id* identifies the entry from others by referencing it's target id, and the *date* references the unique creation-date of a notification, seperating it from other local notifications.
+    - A Notification-data has a consistant model, but behaves flexibly via a *type* field. The front-end gets the notification data (object), and displays it accordingly using a *predefined model*. This allows the CMS to create customized notification models, triggered by certain specified events.
+    - Once a user reads (the latest) notifications, Redis sets an *expiration date* (about a week) to the returned notifications. This is determined by a special field called *last_seen_notifications*, saved in the main database (consider: moving it to redis).
+    - **Suggestions**:
+      - Make a *config* object field representing the notification display options at the front-end layer (e.g. user-pic position, thumbnail preferences, etc).
+      - Consider moving the *last_seen_notifications* field to Redis itself (with a special key, e.g. "*user_id/lastSeen*").
+- Tagging system: **Elasticsearch**.
+  - Tags are basically strings used in tables (such as articles and learning-groups), representing the different categories a group or article can be about. A search-engine based database is essential for that matter, because it allows fast and searchable queries, with analytical capabilities.
+  - Tags can be created with no constraints. Replicated tags are not created, they instead increment a *num_**table**_used* field, included with each Tag instance.
+  - Tags are saved mainly in the main database. *Elasticsearch* will just act as an analytical tool for that.
+  - **Suggestions**:
+    - Consider using Redis for saving Tags, reducing the use of additional databases (and for even faster performance).
 
-Tables: Users, Learning_groups, Articles, Comments, Roles, Tags, Favorite_tags (extends: *Tags*).
 
-### Database model
+
+### Database model (24/10)
 ```yaml
 Users:
-    # user data:
-    user_id:            uuid    (unique)
-    username:           String  (unique)
-    email:              Email   (unique)
-    full_name: 	        String
-    password:	        String 	(hashed)
-    created_at:	        DateTime
-    role:		        Roles
-    profile_pic_src:    String?
-    # personal data:
-    phone_number:   String?
-    gender: 	    enum
-    bio:    		String?
-    interests:  	String[]
-    prefered_langs: enum[]
-    favorite_tags:	Favorite_tags[]
-    # social media:
-    num_stars:  		    Int         (default=0)
-    stars_given:    		Users[]
-    articles:   		    Articles[]
-    comments:   		    Comments[]
-    articles_likes_given:   Articles[]
-    comments_likes_given:   Comments[]
-    # learning groups:
-    created_groups:		    Learning_groups[]
-    participating_groups:	Learning_groups[]
-    # roles data (according to role access–modifier):
-    # — (teacher_data, admin_data, etc) — 
-    # cms:
-    num_viewed_profile:     Int	(default=0)
-    num_edited_profile:     Int	(updatedAt)
-    # ... other cms properties
-    notifications:			Notification[]
+  # user data:
+  user_id: uuid (unique)
+  username: String (unique)
+  email: Email (unique)
+  full_name: String
+  password: String  # hashed
+  created_at: DateTime
+  role: Roles
+  profile_pic_src: String?
+  # personal data:
+  phone_number: String?
+  gender: Enum (default=MALE)
+  bio: String?
+  interests: String[]
+  prefered_langs: Enum[]
+  favorite_tags: Favorite_tags[]
+  # social media:
+  num_stars: Int (default=0)
+  stars_given: Users[]
+  articles: Articles[]
+  comments: Comments[]
+  articles_likes_given: Articles[]
+  comments_likes_given: Comments[]
+  # learning groups:
+  created_groups: Learning_groups[]
+  participating_groups: Learning_groups[]
+  # roles data (according to role access–modifier):
+  # — (teacher_data, admin_data, etc) — 
+  # cms:
+  num_viewed_profile: Int	(default=0)
+  num_edited_profile: Int	(default=0)
+  # notifications
+  last_seen_notifications: DateTime (default=now)
+  # ... other cms properties
 
 Learning_groups:
-    group_id:       uuid	(unique)
-    user_id:	    uuid
-    user:		    User	@relation(fields: [user_id], references: [user_id])
-    thumbnail_src:	String
-    title:			String
-    description:	String
-    members:		User[]
-    tags:			Tags[]
-    goals:			String[]
-    progress:		Int		# length of goals
+  group_id: uuid	(unique)
+  user_id: uuid
+  user: User
+  thumbnail_src: String
+  title: String
+  description: String
+  members: User[]
+  tags: String[]
+  goals: String[]
+  progress: Int		# length of goals
 
 Articles:
-    article_id:		uuid		(unique)
-    user_id:		uuid
-    user:			User		@relation(fields: [user_id], references: [user_id])
-    created_at:		DateTime	(default=now)
-    updated_at:		DateTime?	(updatedAt)
-    thumbnail_src:	String
-    title:			String
-    content:		String
-    tags:			Tags[]
-    likes:			Users[]
-    comments:		Comments[]
-    num_views:		Int
+  article_id: uuid (unique)
+  user_id: uuid
+  user: User
+  created_at: DateTime (default=now)
+  updated_at: DateTime? (updatedAt)
+  thumbnail_src: String
+  title: String
+  content: String
+  tags: String[]
+  likes: Users[]
+  comments: Comments[]
+  num_views: Int
 
 Comments:
-    comment_id:		uuid		@unique
-    article_id:		uuid
-    article:		Article 	@relation(fields: [article_id], references: [article_id])
-    author_id:		uuid
-    author:		    User		@relation(fields: [author_id], references: [user_id])
-    created_at:		DateTime	(default=now)
-    updated_at:		DateTime?	(updatedAt)
-    data:			String
-    likes:			Users[]
+  comment_id: uuid (unique)
+  article_id: uuid
+  article: Article
+  author_id: uuid
+  author: User
+  created_at: DateTime	(default=now)
+  updated_at: DateTime?	(updatedAt)
+  data: String
+  likes: Users[]
 
 Roles:
-    role_id:			uuid	(unique)
-    role_name:			String
-    min_rate:			Int?
-    accessable_pages:	enum[]
-    accessable_routes:	enum[]
-
-Tags:
-    tag_name:			String	(unique)
-    num_articles_used:	Int		(default=0)
-    num_groups_used:	Int		(default=0)
-    num_tutors_used:	Int		(default=0)
+  role_id: uuid (unique)
+  role_name: String
+  min_rate: Int?
+  accessable_pages: Enum[]
+  accessable_routes: Enum[]
 
 Favorite_tags:
-    tag_name:	String	
-    tag:		Tag		@relation(fields: [tag_name], references: [tag_name])
-    num_viewed:	Int		(default=0)
-
-Notifications:
-    notification_id:    uuid	(unique)
-    user_id:		    uuid
-    user:			    User	@relation(fields: [user_id], references: [user_id])
-    title:			    String
-    description:	    String
-    link:			    String?
-    user_pic_src:	    String?
-    thumbnail_src:	    String?
-    created_at:		    Date	(createdAt)
+  tag_name: String	
+  tag: String
+  num_viewed: Int (default=0)
 ```
 
-### Database flowchart
+### Database flowchart (24/10)
 
-![database relations flowchart](https://lh3.googleusercontent.com/GjoivxxEq5gvsu5Y2skzVj_OQEODrsb1N2P7F5x4rmkLwqoM_cEa7R3NwtpgY9oYDE58gv_Y807X7E5DCP2Jd1pfAW3F78b9plaFiUYfd-JG2Pe6EflkL2gj5vqmVse2oZqqtXwEWzwqkrNoZWzwmX5NaKyqO3M-567UNVSKz3hYxzDhI6_ZdqV_Qw)
+![database relations flowchart](https://lh5.googleusercontent.com/NZJNHcizMDhd91M3DyuNXOcXrOxZZiNKgERMZuuDjZq9qlgunVFbc1ADxwZWupaxkNP8Zy9S37cOpK-HYb4NsfnOMr_VZafsSZ8WgzmYyIZgGRBJkqDiRSzqvEg973D0QOtKMbJLZroOq8qMoOZgBYI8T5HRdwTdPjtgrdmmDff9FB0x6b8ptr3hDw)
