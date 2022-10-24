@@ -1,6 +1,6 @@
 import { resolve } from "path"
 // configs
-import { ENV_VARS, FILENAMES, REDIS_DB_INDEX } from "./constants"
+import { ENV_VARS, FILENAMES, REDIS_DB_INDEX } from "../common/constants"
 // types (services options)
 import { ConfigModuleOptions, ConfigService } from '@nestjs/config'
 import { MailerAsyncOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-async-options.interface'
@@ -28,7 +28,7 @@ export const MailerModuleAsyncOptions: MailerAsyncOptions = {
             from: `"no-replay" <${config.get(ENV_VARS.MAIL_FROM)}>`
         },
         template: {
-            dir: resolve(__dirname, '..', 'templates'),
+            dir: resolve(__dirname, '..', 'common/templates'),
             adapter: new HandlebarsAdapter(),
             options: { strict: true }
         },

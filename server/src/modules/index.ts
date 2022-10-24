@@ -1,9 +1,12 @@
-export { NotificationModule } from './notification/notification.module'
-export { JwtModule } from "./jwt/jwt.module"
-export { PrismaModule } from "./prisma/prisma.module"
-export { RedisModule } from "./redis/redis.module"
-export { AuthModule } from "./auth/auth.module"
-export { UserModule } from "./user/user.module"
-export { GroupModule } from './group/group.module'
-export { ArticleModule } from './article/article.module'
-export { CommentModule } from './comment/comment.module'
+// providers
+export { JwtModule } from "./providers/jwt/jwt.module"
+export { NotificationModule } from './providers/notification/notification.module'
+// database
+export { PrismaModule } from "./db/prisma/prisma.module"
+export { RedisModule } from "./db/redis/redis.module"
+// routes
+export { ArticleModule } from './routes/article/article.module'
+export { AuthModule } from "./routes/auth/auth.module"
+export { CommentModule } from './routes/comment/comment.module'
+export { GroupModule } from './routes/group/group.module'
+export { UserModule } from "./routes/user/user.module"

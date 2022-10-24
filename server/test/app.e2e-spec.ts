@@ -3,15 +3,15 @@ import { HttpStatus, INestApplication, ValidationPipe, VersioningType } from '@n
 import * as pactum from 'pactum';
 import { AppModule } from './../src/app.module';
 // types
-import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/auth/dto';
+import { ChangeForgottenPasswordDto, ForgotPasswordDto, SigninDto, SignupDto } from '../src/modules/routes/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client';
-import { ChangePasswordDto, UpdateUserDto } from '../src/modules/user/dto';
-import { CreateGroupDto, UpdateGroupDto, UpdateParticipantsDto } from '../src/modules/group/dto';
-import { listActionsEnum } from '../src/interfaces/dto';
-import { CommentDto, CreateArticleDto } from '../src/modules/article/dto';
-import { PrismaService } from '../src/modules/prisma/prisma.service';
-import { RedisService } from '../src/modules/redis/redis.service';
-import { NotificationTypesEnum } from '../src/interfaces/notification';
+import { ChangePasswordDto, UpdateUserDto } from '../src/modules/routes/user/dto';
+import { CreateGroupDto, UpdateGroupDto, UpdateParticipantsDto } from '../src/modules/routes/group/dto';
+import { listActionsEnum } from '../src/common/interfaces/dto';
+import { CommentDto, CreateArticleDto } from '../src/modules/routes/article/dto';
+import { PrismaService } from '../src/modules/db/prisma/prisma.service';
+import { RedisService } from '../src/modules/db/redis/redis.service';
+import { NotificationTypesEnum } from '../src/common/interfaces/notification';
 
 const TEST_PORT = 5001
 

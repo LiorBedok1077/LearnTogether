@@ -2,9 +2,9 @@ import { Test } from '@nestjs/testing'
 import { HttpStatus, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common'
 import * as pactum from 'pactum'
 import { AppModule } from '../src/app.module'
-import { PrismaService } from '../src/modules/prisma/prisma.service'
+import { PrismaService } from '../src/modules/db/prisma/prisma.service'
 // types
-import { SigninDto, SignupDto } from '../src/modules/auth/dto';
+import { SigninDto, SignupDto } from '../src/modules/routes/auth/dto';
 import { PreferedLanguagesEnum, GenderEnum } from '@prisma/client'
 
 const TEST_PORT = 5001
