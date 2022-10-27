@@ -1,17 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 // configs
 import { JWT_EXPIRE_TOKEN, CLIENT_URLS, DB_PAGINATE } from '../../../common/constants'
 // types
 import { NotificationServiceMethodType } from '../../../common/interfaces/services/notification'
+import { GetNotificationsQueryDto } from '../../routes/user/dto'
+import { NotificationTypesEnum } from '../../../common/interfaces/notification'
 // utils
 import { MailSubject } from '../../../common/utils'
 // services
 import { MailerService } from '@nestjs-modules/mailer'
 import { JwtService } from '../jwt/jwt.service'
 import { RedisService } from '../../db/redis/redis.service'
-import { GetNotificationsQueryDto } from '../../routes/user/dto'
-import { NotificationTypesEnum } from '../../../common/interfaces/notification'
 import { PrismaService } from '../../db/prisma/prisma.service'
+import { countValues } from '../../../common/utils/global'
 
 /**
  * (Notification) Service handles app-notification operations (e.g. sending emails, pushing notificaitons).
@@ -34,10 +35,17 @@ export class NotificationService {
         const result = await this.redis.getNotifications(user_id, n_type)
         // update last_seen_notifications
         await this.prisma.users.update({ where: { user_id }, data: { last_seen_notifications: new Date() } })
-        // send notificaitons page slice
-        return result
+        // notificaitons page slice
+        const filtered_result = result
             .sort((na, nb) => na.created_at - nb.created_at)
             .slice(page, (page + 1) * DB_PAGINATE.notification)
+        // return notifications (with notifications-summary for page 0)
+        return {
+            notifications: filtered_result,
+            n_summary: page !== 0
+                ? undefined
+                : countValues(result, val => val.n_type, val => val.user.length)
+        }
     }
 
     /**
@@ -48,9 +56,8 @@ export class NotificationService {
     inviteToGroup: NotificationServiceMethodType['invite-to-group'] = async ({ email, context, token_payload }) => {
         // generate link with expiring token as a parameter
         const token = await this.jwt.signToken(token_payload, 'join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
-        const link = CLIENT_URLS.JOIN_GROUP(token)
         // send email in the background (if option is enabled by the user)
-        this.mailer.sendMail(MailSubject.inviteToGroup(email, { ...context.template, link }))
+        this.mailer.sendMail(MailSubject.inviteToGroup(email, { ...context.template, link: CLIENT_URLS.JOIN_GROUP(token) }))
         // send notification
         await this.redis.createNotification(
             token_payload.user_id,
@@ -66,10 +73,8 @@ export class NotificationService {
      * @returns the email-token, for testing only.
      */
     userJoinedGroup: NotificationServiceMethodType['user-joined-group'] = async ({ email, context, group_id }) => {
-        // generate group link
-        const link = CLIENT_URLS.GROUP(group_id)
         // send email in the background (if option is enabled by the user)
-        this.mailer.sendMail(MailSubject.userJoinedGroup(email, { ...context.template, link }))
+        this.mailer.sendMail(MailSubject.userJoinedGroup(email, { ...context.template, link: CLIENT_URLS.GROUP(group_id) }))
         // send notification
         await this.redis.createNotification(
             context.metadata.user.user_id,
@@ -86,9 +91,8 @@ export class NotificationService {
     requestJoinGroup: NotificationServiceMethodType['request-join-group'] = async ({ email, context, token_payload }) => {
         // generate link with expiring token as a parameter
         const token = await this.jwt.signToken(token_payload, 'join-group', JWT_EXPIRE_TOKEN.REQUEST_JOIN_GROUP)
-        const link = CLIENT_URLS.JOIN_GROUP(token)
         // send email in the background (if option is enabled by the user)
-        this.mailer.sendMail(MailSubject.requestJoinGroup(email, { ...context.template, link }))
+        this.mailer.sendMail(MailSubject.requestJoinGroup(email, { ...context.template, link: CLIENT_URLS.JOIN_GROUP(token) }))
         // send notification
         await this.redis.createNotification(
             token_payload.user_id,
