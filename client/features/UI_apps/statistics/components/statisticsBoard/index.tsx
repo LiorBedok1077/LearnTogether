@@ -7,14 +7,14 @@ import styles from "./statisticsBoard.module.css";
 type Props = {};
 
 function StatisticsBoard({}: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const getStyles = multipleModules(styles);
   const [isDisabled, setIsDisabled] = useState(false);
 
   if (!isDisabled)
     return (
-      <div className={styles["statisticsBoard"]}>
+      <div className={getStyles(`statisticsBoard statisticsBoard-${i18n.dir() === 'rtl' ? 'rtl' : 'ltr'}`)}>
         <span
           onClick={() => {
             setIsDisabled(true);

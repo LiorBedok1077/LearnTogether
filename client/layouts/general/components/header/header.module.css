@@ -35,21 +35,23 @@
 }
 
 .header__notificationsCounter {
+    all: unset;
     position: relative;
     top: -1rem;
     border-radius: 50%;
-    color: red;
+    color: white;
+    background-color: red;
     font-size: 13px;
     font-weight: 500;
     
 }
 
 .header__notificationsCounter-rtl {
-    left: -2px;
+    right: 7px;
 }
 
 .header__notificationsCounter-ltr {
-    right: -2px;
+    left: 30px;
 }
 @media screen and (max-width: 600px) {
     .header__section-hamburger {

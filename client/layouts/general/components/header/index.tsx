@@ -50,7 +50,7 @@ function Header({
           src="https://img.freepik.com/free-photo/pleasant-looking-serious-man-stands-profile-has-confident-expression-wears-casual-white-t-shirt_273609-16959.jpg?w=2000"
         ></img>
         <div className={css["header__notifications"]}>
-          <small
+          <div
             className={getStyles(
               `header__notificationsCounter header__notificationsCounter-${
                 i18n.dir() === "rtl" ? "rtl" : "ltr"
@@ -58,7 +58,7 @@ function Header({
             )}
           >
             {notifications.length}
-          </small>
+          </div>
           <GoBell
             onMouseDown={() => {
               if (!notificationsDropdownShow) {

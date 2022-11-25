@@ -31,11 +31,17 @@ function General({ children }: Props) {
 
   useEffect(() => {
     document.body.dir = i18n?.dir() || "ltr";
-    if (!(window.innerWidth < 800)) setNavbarStatus(true);
+    if (window.innerWidth > 800) setNavbarStatus(true);
+    window.addEventListener("resize", handleResize);
+    return document.removeEventListener("resize", handleResize);
   }, []);
 
   const dispatch = useDispatch();
 
+  const handleResize = () => {
+    if (window.innerWidth > 800) setNavbarStatus(true);
+    else setNavbarStatus(false);
+  };
   return (
     <>
       <Header
