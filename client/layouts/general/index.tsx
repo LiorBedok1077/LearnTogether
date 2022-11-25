@@ -48,22 +48,7 @@ function General({ children }: Props) {
       />
       <Navbar navbarStatus={navbarStatus} />
       {dropdownShow && <ProfileDropdown />}
-      <main className={css["main"]}>
-        <h1>Testing system</h1>
-        <button
-          onClick={() => {
-            dispatch(
-              pushFeedback({
-                color: "green",
-                title: "Feedback system test",
-                content: "fdfdf",
-              })
-            );
-          }}
-        >
-          Test feedback feauture
-        </button>
-      </main>
+      <main className={css["main"]}>{children}</main>
       <Footer />
       <Feedback />
       {notificationsDropdownShow && <NotificationsDropdown />}

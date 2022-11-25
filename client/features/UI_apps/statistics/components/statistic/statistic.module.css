@@ -1,0 +1,46 @@
+.statistic {
+    background-color: #FAFAFA;
+    overflow: hidden;
+    width: 15rem;
+    height: 7rem;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    
+}
+
+.statistic-sm {
+    width: 10rem;
+}
+
+.statistic__title {
+    font-weight: 500;
+    color: #000A61;
+    font-size: 0.8rem;
+}
+
+.statistic__content {
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.statistic__value {
+    font-size: 1.3rem;
+    color: #000A61;
+}
+
+.statistic button {
+    all: unset;
+    text-align: center;
+    font-size: .8rem;
+    height: 1.6rem;
+    background-color: blue;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+}
+.statistic button:hover {
+    opacity: 0.8;
+}

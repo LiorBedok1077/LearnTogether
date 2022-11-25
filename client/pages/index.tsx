@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import styles from "../styles/Home.module.css";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
+import StatisticsBoard from "../features/UI_apps/statistics/components/StatisticsBoard";
 
 interface homeGSPprops {
   locale: string;
@@ -22,8 +23,7 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <h1 style={{ margin: "1rem" }}>{t("home:welcome_msg")}</h1>
-      <NotificationsManager />
+      <StatisticsBoard />
     </>
   );
 };

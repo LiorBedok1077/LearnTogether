@@ -8,6 +8,8 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "next-i18next";
 import { GoBell } from "react-icons/go";
 import headerTitle from "../../assets/headerTitle.png";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../state/store";
 
 type Props = {
   setDropdownShow: any;
@@ -30,6 +32,10 @@ function Header({
 
   const getStyles = multipleModules(css);
 
+  const { notifications } = useSelector(
+    (store: RootState) => store.notifications
+  );
+
   return (
     <header className={css["header"]}>
       <div className={css["header__section"]}>
@@ -51,7 +57,7 @@ function Header({
               }`
             )}
           >
-            1
+            {notifications.length}
           </small>
           <GoBell
             onMouseDown={() => {

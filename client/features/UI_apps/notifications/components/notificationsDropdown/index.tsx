@@ -1,18 +1,20 @@
 import { useTranslation } from "next-i18next";
-import Image from "next/image";
-import Link from "next/link";
 import React from "react";
-import { routes } from "../../../../../configs/clientRoutes.ts";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../state/store";
 import { multipleModules } from "../../../../../utils/styles.utils";
+import NotificationType from "../../notificationTypes";
 import css from "./notificationsDropdown.module.css";
 
 type Props = {};
 
 function NotificationsDropdown({}: Props) {
   const { t, i18n } = useTranslation();
+  const { notifications } = useSelector(
+    (store: RootState) => store.notifications
+  );
 
   const getStyles = multipleModules(css);
-
   return (
     <div
       className={getStyles(
@@ -22,180 +24,66 @@ function NotificationsDropdown({}: Props) {
       )}
     >
       <div className={css["notificationsDropdown__header"]}>
-        <span className={css["notificationsDropdown__status-newNotifications"]}>
+        <span
+          className={
+            css[
+              `notificationsDropdown__status-${
+                notifications.length === 0 ? "empty" : "newNotifications"
+              }`
+            ]
+          }
+        >
           •
         </span>
-        <h2 className={css["notificationsDropdown__title"]}>התראות חדשות</h2>
+        <h2 className={css["notificationsDropdown__title"]}>
+          {notifications.length !== 0
+            ? t("layout:notifications__title-new")
+            : t("layout:notifications__title-empty")}
+        </h2>
       </div>
       <div className={css["notificationsDropdown__content"]}>
-        <div className={css["notification"]}>
-          <div className={css["notification__left"]}>
-            <img
-              className={getStyles(
-                `notification__thumbnail notification__thumbnail-${
-                  i18n.dir() === "rtl" ? "rtl" : "ltr"
-                }`
-              )}
-              src="https://blog.vantagecircle.com/content/images/2020/08/teamwork-and-team-building.png"
-            />
+        {notifications.map((notification) => (
+          <div className={css["notification"]}>
+            <div className={css["notification__left"]}>
+              <img
+                className={getStyles(
+                  `notification__thumbnail notification__thumbnail-${
+                    i18n.dir() === "rtl" ? "rtl" : "ltr"
+                  }`
+                )}
+                src={notification.data.data.thumbnail}
+              />
+              <div
+                className={getStyles(
+                  `notification__users notification__users-${
+                    i18n.dir() === "rtl" ? "rtl" : "ltr"
+                  }`
+                )}
+              >
+                {notification.data.data.user.map((user) => (
+                  <img
+                    className={css["notification__user"]}
+                    src={user.profile_pic}
+                  />
+                ))}
+              </div>
+            </div>
             <div
               className={getStyles(
-                `notification__users notification__users-${
+                `notification__right notification__right-${
                   i18n.dir() === "rtl" ? "rtl" : "ltr"
                 }`
               )}
             >
-              <img
-                className={css["notification__user"]}
-                src="https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=585"
-              />
-              <img
-                className={css["notification__user"]}
-                src="https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=585"
-              />
+              {NotificationType[notification.data.n_type](
+                notification.data.data
+              )}
+              <div className={css["notification__creationTime"]}>
+                {notification.created_at.toDateString()}
+              </div>
             </div>
           </div>
-          <div
-            className={getStyles(
-              `notification__right notification__right-${
-                i18n.dir() === "rtl" ? "rtl" : "ltr"
-              }`
-            )}
-          >
-            <h3 className={css["notification__title"]}>משתמש חדש נוסף!</h3>
-            <p className={css["notification__content"]}>
-              <b className={css["notification__content-bold"]}>Liorson10772</b>{" "}
-              הצטרף לקבוצה. לפרטים הצטרף לקבוצה. לפרטים נוספים הקש 1 או המתן.
-            </p>
-            <div className={css["notification__creationTime"]}>לפני 3 שעות</div>
-          </div>
-        </div>
-        <div className={css["notification"]}>
-          <div className={css["notification__left"]}>
-            <img
-              className={getStyles(
-                `notification__thumbnail notification__thumbnail-${
-                  i18n.dir() === "rtl" ? "rtl" : "ltr"
-                }`
-              )}
-              src="https://blog.vantagecircle.com/content/images/2020/08/teamwork-and-team-building.png"
-            />
-            <div
-              className={getStyles(
-                `notification__users notification__users-${
-                  i18n.dir() === "rtl" ? "rtl" : "ltr"
-                }`
-              )}
-            >
-              <img
-                className={css["notification__user"]}
-                src="https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=585"
-              />
-              <img
-                className={css["notification__user"]}
-                src="https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=585"
-              />
-            </div>
-          </div>
-          <div
-            className={getStyles(
-              `notification__right notification__right-${
-                i18n.dir() === "rtl" ? "rtl" : "ltr"
-              }`
-            )}
-          >
-            <h3 className={css["notification__title"]}>משתמש חדש נוסף!</h3>
-            <p className={css["notification__content"]}>
-              <b style={{ color: "cyan" }}>Liorson10772</b> הצטרף לקבוצה. לפרטים
-              הצטרף לקבוצה. לפרטים נוספים הקש 1 או המתן.
-            </p>
-            <div className={css["notification__creationTime"]}>לפני 3 שעות</div>
-          </div>
-        </div>
-        <div className={css["notification"]}>
-          <div className={css["notification__left"]}>
-            <img
-              className={getStyles(
-                `notification__thumbnail notification__thumbnail-${
-                  i18n.dir() === "rtl" ? "rtl" : "ltr"
-                }`
-              )}
-              src="https://blog.vantagecircle.com/content/images/2020/08/teamwork-and-team-building.png"
-            />
-            <div
-              className={getStyles(
-                `notification__users notification__users-${
-                  i18n.dir() === "rtl" ? "rtl" : "ltr"
-                }`
-              )}
-            >
-              <img
-                className={css["notification__user"]}
-                src="https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=585"
-              />
-              <img
-                className={css["notification__user"]}
-                src="https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=585"
-              />
-            </div>
-          </div>
-          <div
-            className={getStyles(
-              `notification__right notification__right-${
-                i18n.dir() === "rtl" ? "rtl" : "ltr"
-              }`
-            )}
-          >
-            <h3 className={css["notification__title"]}>משתמש חדש נוסף!</h3>
-            <p className={css["notification__content"]}>
-              <b style={{ color: "cyan" }}>Liorson10772</b> הצטרף לקבוצה. לפרטים
-              הצטרף לקבוצה. לפרטים נוספים הקש 1 או המתן.
-            </p>
-            <div className={css["notification__creationTime"]}>לפני 3 שעות</div>
-          </div>
-        </div>
-        <div className={css["notification"]}>
-          <div className={css["notification__left"]}>
-            <img
-              className={getStyles(
-                `notification__thumbnail notification__thumbnail-${
-                  i18n.dir() === "rtl" ? "rtl" : "ltr"
-                }`
-              )}
-              src="https://blog.vantagecircle.com/content/images/2020/08/teamwork-and-team-building.png"
-            />
-            <div
-              className={getStyles(
-                `notification__users notification__users-${
-                  i18n.dir() === "rtl" ? "rtl" : "ltr"
-                }`
-              )}
-            >
-              <img
-                className={css["notification__user"]}
-                src="https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=585"
-              />
-              <img
-                className={css["notification__user"]}
-                src="https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=585"
-              />
-            </div>
-          </div>
-          <div
-            className={getStyles(
-              `notification__right notification__right-${
-                i18n.dir() === "rtl" ? "rtl" : "ltr"
-              }`
-            )}
-          >
-            <h3 className={css["notification__title"]}>משתמש חדש נוסף!</h3>
-            <p className={css["notification__content"]}>
-              <b style={{ color: "cyan" }}>Liorson10772</b> הצטרף לקבוצה. לפרטים
-              הצטרף לקבוצה. לפרטים נוספים הקש 1 או המתן.
-            </p>
-            <div className={css["notification__creationTime"]}>לפני 3 שעות</div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
